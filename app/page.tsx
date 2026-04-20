@@ -1,124 +1,125 @@
 import Link from "next/link";
-import { ArrowRight, BookMarked, CalendarHeart, Compass, Sparkles } from "lucide-react";
 
-import { PageContainer } from "@/components/layout/page-container";
-import { PageHero } from "@/components/layout/page-hero";
-import { SectionHeader } from "@/components/layout/section-header";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-
-const pillars = [
+const signatureItems = [
   {
     title: "Learning journeys",
-    description: "Shape thoughtful study arcs and keep your ideas connected as your curiosity evolves.",
-    icon: BookMarked
+    description:
+      "Shape thoughtful study arcs, keep ideas connected, and give your attention a narrative instead of a checklist."
   },
   {
     title: "Ritual layers",
-    description: "Build rhythms that regulate your attention and support your emotional climate.",
-    icon: CalendarHeart
+    description:
+      "Build morning and evening rhythms that regulate energy with softness, clarity, and emotional steadiness."
   },
   {
     title: "Intentional planning",
-    description: "See the week with gentle clarity without turning life into a spreadsheet.",
-    icon: Compass
+    description:
+      "Organize your week with humane structure that preserves room for depth, reflection, and creative drift."
   }
+];
+
+const perspectiveColumns = [
+  "Atriaé is designed as a private publication of your life in motion — where ideas, routines, and priorities coexist without the pressure of productivity theater.",
+  "Each moment is held by typography, pacing, and quiet hierarchy. The experience invites attention rather than demanding it, creating space to think before you act.",
+  "From your first note to your most established rituals, the interface remains calm, editorial, and intentionally free of dashboard language."
 ];
 
 export default function HomePage() {
   return (
-    <PageContainer>
-      <PageHero
-        eyebrow="Personal OS"
-        title={"A calm editorial home\nfor learning, rituals,\nand life organization"}
-        description="Atriaé gives your inner and practical life the same elegant space: serene surfaces, gentle structure, and reflective clarity."
-        cta="Begin your day"
-      />
+    <div className="mx-auto w-full max-w-6xl space-y-24 pb-20 pt-10 md:space-y-32 md:pt-16">
+      <section className="space-y-12">
+        <p className="text-[0.65rem] uppercase tracking-[0.28em] text-muted-foreground">Personal OS</p>
 
-      <section className="space-y-4" style={{ paddingTop: "var(--space-section)" }}>
-        <SectionHeader
-          eyebrow="Signature"
-          title="Built for private daily practice"
-          description="Every surface is designed to feel like opening a well-kept notebook, never an admin dashboard."
-        />
-        <div className="grid gap-4 md:grid-cols-12">
-          {pillars.map((pillar, index) => {
-            const Icon = pillar.icon;
-            const colSpan = index === 1 ? "md:col-span-5 md:translate-y-5" : "md:col-span-3";
-            return (
-              <Card key={pillar.title} surface="paper" className={colSpan}>
-                <CardHeader>
-                  <p className="text-[0.65rem] uppercase tracking-[0.24em] text-muted-foreground/85">Pillar 0{index + 1}</p>
-                  <span className="mt-3 inline-flex h-9 w-9 items-center justify-center rounded-full bg-matcha-100 text-matcha-700">
-                    <Icon className="h-4 w-4" />
-                  </span>
-                  <CardTitle className="pt-4 text-[1.62rem] leading-tight">{pillar.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription>{pillar.description}</CardDescription>
-                </CardContent>
-              </Card>
-            );
-          })}
-          <Card surface="glass" className="md:col-span-4 md:translate-y-2">
-            <CardHeader>
-              <p className="text-[0.65rem] uppercase tracking-[0.24em] text-muted-foreground/85">Perspective</p>
-              <CardTitle className="pt-4 text-[1.62rem] leading-tight">A living index of your inner life</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <CardDescription>
-                Track what matters without flattening your day into tasks. Clarity, warmth, and agency stay in balance.
-              </CardDescription>
-            </CardContent>
-          </Card>
+        <h1 className="max-w-5xl text-[2.6rem] leading-[0.9] md:text-[5.6rem]">
+          <span className="block">A calm editorial home</span>
+          <span className="block">for learning, rituals,</span>
+          <span className="block">and life organization</span>
+        </h1>
+
+        <div className="grid gap-8 md:grid-cols-12 md:items-end">
+          <p className="max-w-2xl text-base leading-8 text-muted-foreground md:col-span-8 md:text-lg">
+            Atriaé gives your inner and practical life the same elegant space: serene typography, deliberate rhythm,
+            and quiet structure designed for daily clarity.
+          </p>
+          <div className="md:col-span-4 md:justify-self-end">
+            <Link
+              href="/dashboard"
+              className="inline-flex items-center border-b border-foreground pb-1 text-sm uppercase tracking-[0.18em] text-foreground transition-opacity hover:opacity-70"
+            >
+              Begin your day
+            </Link>
+          </div>
         </div>
       </section>
 
-      <section className="grid gap-4 md:grid-cols-2">
-        <Card surface="tinted" className="md:translate-y-4">
-          <CardHeader>
-            <p className="text-[0.65rem] uppercase tracking-[0.24em] text-muted-foreground/85">Daily Focus</p>
-            <CardTitle className="pt-4 text-2xl md:text-[2.05rem]">Daily Focus Card</CardTitle>
-            <CardDescription>
-              Keep one meaningful intention in view and let it guide your learning and rituals.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="rounded-xl border border-matcha-300/50 bg-paper/80 p-4 text-sm leading-7 text-muted-foreground">
-              “Move at a humane pace. Depth over urgency.”
-            </p>
-          </CardContent>
-          <CardFooter>
-            <Button asChild variant="quiet">
-              <Link href="/dashboard">
-                Open today <ArrowRight className="ml-1 h-4 w-4" />
-              </Link>
-            </Button>
-          </CardFooter>
-        </Card>
-
-        <Card surface="glass">
-          <CardHeader>
-            <p className="text-[0.65rem] uppercase tracking-[0.24em] text-muted-foreground/85">System State</p>
-            <CardTitle className="pt-4 text-2xl md:text-[2.05rem]">Elegant Empty States</CardTitle>
-            <CardDescription>
-              Even before data fills in, the product feels composed, warm, and intentional.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="rounded-xl border border-dashed border-border bg-paper/80 p-4 text-sm leading-7 text-muted-foreground">
-              No rituals yet. Begin with a two-minute breath + planning reset.
-            </div>
-            <div className="rounded-xl border border-dashed border-border bg-paper/80 p-4 text-sm leading-7 text-muted-foreground">
-              No learning topics yet. Start with one question you want to live with this week.
-            </div>
-          </CardContent>
-          <CardFooter>
-            <Sparkles className="h-4 w-4 text-blush-700" />
-            <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Calm by default</p>
-          </CardFooter>
-        </Card>
+      <section className="space-y-10">
+        <p className="text-[0.65rem] uppercase tracking-[0.28em] text-muted-foreground">Signature</p>
+        <div className="grid gap-10 md:grid-cols-3 md:gap-12">
+          {signatureItems.map((item) => (
+            <article key={item.title} className="space-y-4">
+              <h2 className="text-[1.8rem] leading-tight md:text-[2.1rem]">{item.title}</h2>
+              <p className="text-sm leading-7 text-muted-foreground md:text-base md:leading-8">{item.description}</p>
+            </article>
+          ))}
+        </div>
       </section>
-    </PageContainer>
+
+      <section className="space-y-10" id="about">
+        <p className="text-[0.65rem] uppercase tracking-[0.28em] text-muted-foreground">Perspective</p>
+        <h2 className="max-w-4xl text-[2.1rem] leading-[0.95] md:text-[4rem]">A living index of your inner life</h2>
+        <div className="grid gap-8 md:grid-cols-3 md:gap-10">
+          {perspectiveColumns.map((column) => (
+            <p className="text-sm leading-7 text-muted-foreground md:text-base md:leading-8" key={column}>
+              {column}
+            </p>
+          ))}
+        </div>
+      </section>
+
+      <section className="space-y-10">
+        <p className="text-[0.65rem] uppercase tracking-[0.28em] text-muted-foreground">Experience</p>
+        <div className="grid gap-8 md:grid-cols-12 md:gap-12">
+          <h2 className="md:col-span-7 text-[2rem] leading-[0.95] md:text-[3.8rem]">Designed like a quiet publication, read one intentional moment at a time.</h2>
+          <div className="space-y-6 md:col-span-5">
+            <p className="text-sm leading-7 text-muted-foreground md:text-base md:leading-8">
+              No boxed modules. No dashboard density. Just open composition, confident hierarchy, and generous breathing room.
+            </p>
+            <p className="text-sm leading-7 text-muted-foreground md:text-base md:leading-8">
+              Every interaction supports a calmer pace: learning that compounds, rituals that root you, and planning that feels humane.
+            </p>
+            <Link
+              href="/learn"
+              className="inline-flex items-center border-b border-muted-foreground pb-1 text-xs uppercase tracking-[0.2em] text-muted-foreground transition-colors hover:text-foreground"
+            >
+              Explore learning rituals
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <footer className="border-t border-foreground/10 pt-10">
+        <div className="flex flex-col gap-5 text-sm text-muted-foreground md:flex-row md:items-end md:justify-between">
+          <div>
+            <p className="font-serif text-2xl text-foreground">Atriaé</p>
+            <p className="mt-1 text-xs uppercase tracking-[0.18em]">Editorial personal practice</p>
+          </div>
+          <div className="flex flex-wrap gap-x-6 gap-y-2 text-xs uppercase tracking-[0.18em]">
+            <Link href="/learn" className="transition-colors hover:text-foreground">
+              Learn
+            </Link>
+            <Link href="/rituals" className="transition-colors hover:text-foreground">
+              Rituals
+            </Link>
+            <Link href="#about" className="transition-colors hover:text-foreground">
+              About
+            </Link>
+            <Link href="/login" className="transition-colors hover:text-foreground">
+              Sign in
+            </Link>
+          </div>
+        </div>
+        <p className="mt-8 text-[0.7rem] uppercase tracking-[0.18em] text-muted-foreground/80">© 2026 Atriaé. All rights reserved.</p>
+      </footer>
+    </div>
   );
 }

@@ -30,7 +30,7 @@ export default function DashboardPage() {
               <p className="text-xs uppercase text-muted-foreground" style={{ letterSpacing: "var(--text-eyebrow-tracking)" }}>
                 Focus thread
               </p>
-              <p className="pt-2 font-serif text-2xl">Map your next 5 learning modules with margin notes.</p>
+              <h3 className="pt-2 text-2xl">Map your next 5 learning modules with margin notes.</h3>
             </div>
             <div className="grid gap-3 sm:grid-cols-3">
               {[

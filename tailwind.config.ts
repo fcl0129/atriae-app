@@ -2,11 +2,7 @@ import type { Config } from "tailwindcss";
 
 const config: Config = {
   darkMode: ["class"],
-  content: [
-    "./app/**/*.{ts,tsx}",
-    "./components/**/*.{ts,tsx}",
-    "./lib/**/*.{ts,tsx}"
-  ],
+  content: ["./app/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./lib/**/*.{ts,tsx}"],
   theme: {
     container: {
       center: true,
@@ -41,24 +37,22 @@ const config: Config = {
           foreground: "hsl(var(--accent-foreground))"
         },
         matcha: {
-          50: "#f2f7ef",
-          100: "#dcead5",
-          200: "#c4dcb9",
-          500: "#6f8f64",
-          700: "#486041"
+          100: "#E8F1E8",
+          300: "#A9C9AF",
+          500: "#7FAF8B",
+          700: "#557460"
         },
         blush: {
-          50: "#fff5f8",
-          100: "#fce3eb",
-          200: "#f8cad8",
-          500: "#cf8599",
-          700: "#8c5665"
+          100: "#FAECEB",
+          300: "#F0CFCD",
+          500: "#E7B8B6",
+          700: "#AF7E7C"
         },
         ivory: {
-          50: "#fffefb",
-          100: "#f8f4eb",
-          200: "#f2eadf"
-        }
+          100: "#F8F5F0",
+          200: "#F1EDE6"
+        },
+        paper: "#FFFDFC"
       },
       fontFamily: {
         serif: ["var(--font-serif)", "ui-serif", "Georgia", "serif"],
@@ -70,8 +64,9 @@ const config: Config = {
         sm: "calc(var(--radius) - 4px)"
       },
       boxShadow: {
-        paper: "0 10px 30px -20px rgba(40, 54, 35, 0.25)",
-        mist: "0 12px 48px -28px rgba(83, 102, 76, 0.35)"
+        paper: "0 10px 28px -18px rgba(74, 73, 68, 0.18)",
+        soft: "0 16px 45px -30px rgba(95, 106, 90, 0.32)",
+        lift: "0 20px 42px -32px rgba(47, 45, 42, 0.3)"
       }
     }
   },

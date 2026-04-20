@@ -1,12 +1,20 @@
 "use client";
 
+import type { Route } from "next";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { BookOpen, Home, MoonStar, Settings, Sparkles, LayoutDashboard } from "lucide-react";
+import type { ComponentType } from "react";
 
 import { cn } from "@/lib/utils";
 
-const navigation = [
+type NavigationItem = {
+  href: Route;
+  label: string;
+  icon: ComponentType<{ className?: string }>;
+};
+
+const navigation: NavigationItem[] = [
   { href: "/", label: "Home", icon: Home },
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/learn", label: "Learn", icon: BookOpen },

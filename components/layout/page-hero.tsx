@@ -1,5 +1,6 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageBadge } from "@/components/layout/page-badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface PageHeroProps {
   eyebrow: string;
@@ -12,7 +13,7 @@ export function PageHero({ eyebrow, title, description, cta = "Coming soon" }: P
   return (
     <Card className="overflow-hidden">
       <CardHeader className="section-gap">
-        <p className="text-xs uppercase tracking-[0.22em] text-matcha-700">{eyebrow}</p>
+        <PageBadge>{eyebrow}</PageBadge>
         <CardTitle className="text-3xl md:text-4xl">{title}</CardTitle>
         <CardDescription className="max-w-xl text-base leading-relaxed">{description}</CardDescription>
       </CardHeader>

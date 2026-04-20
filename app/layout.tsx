@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Playfair_Display, Inter } from "next/font/google";
+import type { ReactNode } from "react";
 
 import { AppShell } from "@/components/layout/app-shell";
 
@@ -25,7 +26,7 @@ export const metadata: Metadata = {
 export default function RootLayout({
   children
 }: Readonly<{
-  children: React.ReactNode;
+  children: ReactNode;
 }>) {
   return (
     <html lang="en">

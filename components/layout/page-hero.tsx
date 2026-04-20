@@ -11,20 +11,30 @@ interface PageHeroProps {
   cta?: string;
 }
 
-export function PageHero({ eyebrow, title, description, cta = "Open space" }: PageHeroProps) {
+export function PageHero({ eyebrow, title, description, cta = "Enter your space" }: PageHeroProps) {
+  const titleLines = title.split("\n");
+
   return (
     <Card surface="glass" className="overflow-hidden">
-      <CardHeader className="section-gap">
+      <CardHeader className="section-gap pb-3">
         <PageBadge>{eyebrow}</PageBadge>
-        <CardTitle className="editorial-balance max-w-3xl text-3xl md:text-5xl">{title}</CardTitle>
-        <p className="max-w-2xl text-base leading-relaxed text-muted-foreground">{description}</p>
+        <CardTitle className="editorial-balance max-w-3xl text-[2.35rem] leading-[0.9] md:text-[4.25rem]">
+          {titleLines.map((line, index) => (
+            <span className="block" key={`${line}-${index}`}>
+              {line}
+            </span>
+          ))}
+        </CardTitle>
+        <p className="max-w-xl text-[1.02rem] leading-8 text-muted-foreground md:text-lg">
+          {description}
+        </p>
       </CardHeader>
-      <CardContent className="flex flex-wrap items-center gap-3 pt-5">
+      <CardContent className="flex flex-wrap items-center gap-3 pt-4">
         <Button variant="primary" size="default">
           {cta}
           <ArrowUpRight className="ml-1 h-4 w-4" />
         </Button>
-        <p className="text-sm text-muted-foreground">Private by default. Thoughtful by design.</p>
+        <p className="text-sm uppercase tracking-[0.18em] text-muted-foreground/85">Private by default · editorial by nature</p>
       </CardContent>
     </Card>
   );

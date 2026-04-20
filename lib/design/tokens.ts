@@ -1,40 +1,38 @@
 export const atriaeDesignTokens = {
   color: {
     matcha: {
-      50: "#f2f7ef",
-      100: "#dcead5",
-      200: "#c4dcb9",
-      500: "#6f8f64",
-      700: "#486041"
+      100: "#E8F1E8",
+      300: "#A9C9AF",
+      500: "#7FAF8B"
     },
     blush: {
-      50: "#fff5f8",
-      100: "#fce3eb",
-      200: "#f8cad8",
-      500: "#cf8599",
-      700: "#8c5665"
+      100: "#FAECEB",
+      300: "#F0CFCD",
+      500: "#E7B8B6"
     },
-    ivory: {
-      50: "#fffefb",
-      100: "#f8f4eb",
-      200: "#f2eadf"
+    neutral: {
+      ivory: "#F8F5F0",
+      paper: "#FFFDFC",
+      text: "#2F2D2A",
+      muted: "#7D776F",
+      border: "#E7E1D8"
     }
   },
   radius: {
-    card: "1rem",
-    nav: "1.25rem",
+    card: "1.125rem",
+    nav: "1.4rem",
     pill: "9999px"
   },
   spacing: {
-    pageY: "clamp(1.5rem, 4vw, 2.25rem)",
-    section: "clamp(2rem, 4vw, 3.5rem)",
-    card: "clamp(1rem, 2.2vw, 1.5rem)"
+    pageY: "clamp(1.2rem, 3.2vw, 2.2rem)",
+    section: "clamp(1.5rem, 4vw, 3rem)",
+    card: "clamp(1rem, 1.8vw, 1.4rem)"
   },
   typography: {
     headline: "var(--font-serif)",
     body: "var(--font-sans)",
     tracking: {
-      eyebrow: "0.22em"
+      eyebrow: "0.17em"
     }
   }
 } as const;

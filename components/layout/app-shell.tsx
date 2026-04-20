@@ -1,16 +1,21 @@
 "use client";
 
+import type { Route } from "next";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 
-const navigation = [
-  { href: "/learn", label: "Learn" },
-  { href: "/rituals", label: "Rituals" },
-  { href: "/#about", label: "About" },
-  { href: "/login", label: "Sign in" }
+type NavigationItem =
+  | { label: string; href: Route; kind: "route" }
+  | { label: string; href: string; kind: "hash" };
+
+const navigation: NavigationItem[] = [
+  { href: "/learn", label: "Learn", kind: "route" },
+  { href: "/rituals", label: "Rituals", kind: "route" },
+  { href: "/#about", label: "About", kind: "hash" },
+  { href: "/login", label: "Sign in", kind: "route" }
 ];
 
 export function AppShell({ children }: { children: ReactNode }) {
@@ -27,15 +32,21 @@ export function AppShell({ children }: { children: ReactNode }) {
           <nav aria-label="Primary">
             <ul className="flex items-center gap-5 text-[0.72rem] uppercase tracking-[0.2em] text-muted-foreground md:gap-8">
               {navigation.map((item) => {
-                const active = item.href !== "/#about" && pathname === item.href;
+                const active = item.kind === "route" && pathname === item.href;
                 return (
                   <li key={item.label}>
-                    <Link
-                      href={item.href}
-                      className={cn("transition-colors hover:text-foreground", active && "text-foreground")}
-                    >
-                      {item.label}
-                    </Link>
+                    {item.kind === "route" ? (
+                      <Link
+                        href={item.href}
+                        className={cn("transition-colors hover:text-foreground", active && "text-foreground")}
+                      >
+                        {item.label}
+                      </Link>
+                    ) : (
+                      <a href={item.href} className="transition-colors hover:text-foreground">
+                        {item.label}
+                      </a>
+                    )}
                   </li>
                 );
               })}

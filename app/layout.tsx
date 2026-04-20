@@ -1,14 +1,15 @@
 import type { Metadata } from "next";
-import { Playfair_Display, Inter } from "next/font/google";
+import { Cormorant_Garamond, Inter } from "next/font/google";
 import type { ReactNode } from "react";
 
 import { AppShell } from "@/components/layout/app-shell";
 
 import "./globals.css";
 
-const serif = Playfair_Display({
+const serif = Cormorant_Garamond({
   variable: "--font-serif",
   subsets: ["latin"],
+  weight: ["500", "600", "700"],
   display: "swap"
 });
 

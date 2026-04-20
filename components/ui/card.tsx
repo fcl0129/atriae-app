@@ -3,7 +3,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
 
-const cardVariants = cva("rounded-[var(--radius)] border", {
+const cardVariants = cva("rounded-[var(--radius)] border transition-all duration-500", {
   variants: {
     surface: {
       paper: "surface-paper",
@@ -21,7 +21,7 @@ function Card({
   surface,
   ...props
 }: React.ComponentProps<"div"> & VariantProps<typeof cardVariants>) {
-  return <div className={cn(cardVariants({ surface }), className)} {...props} />;
+  return <div className={cn(cardVariants({ surface }), "hover-lift hover:shadow-lift", className)} {...props} />;
 }
 
 function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
@@ -33,7 +33,7 @@ function CardTitle({ className, ...props }: React.ComponentProps<"h3">) {
 }
 
 function CardDescription({ className, ...props }: React.ComponentProps<"p">) {
-  return <p className={cn("text-sm leading-relaxed text-muted-foreground", className)} {...props} />;
+  return <p className={cn("text-sm leading-7 text-muted-foreground", className)} {...props} />;
 }
 
 function CardContent({ className, ...props }: React.ComponentProps<"div">) {

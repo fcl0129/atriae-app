@@ -4,7 +4,7 @@ import type { Route } from "next";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { BookOpen, Home, MoonStar, Settings, Sparkles, LayoutDashboard } from "lucide-react";
-import type { ComponentType } from "react";
+import type { ComponentType, ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -22,7 +22,7 @@ const navigation: NavigationItem[] = [
   { href: "/settings", label: "Settings", icon: Settings }
 ];
 
-export function AppShell({ children }: { children: React.ReactNode }) {
+export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
 
   return (
@@ -37,7 +37,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </Link>
           <Link
             href="/login"
-            className="rounded-full border border-border/80 bg-card px-4 py-2 text-sm text-muted-foreground transition hover:text-foreground"
+            className={cn(
+              "rounded-full border border-border/80 bg-card px-4 py-2 text-sm transition",
+              pathname === "/login" ? "text-foreground" : "text-muted-foreground hover:text-foreground"
+            )}
           >
             Login
           </Link>
@@ -47,7 +50,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <main className="flex-1 page-padding">{children}</main>
 
       <nav className="fixed inset-x-0 bottom-0 z-30 mx-auto w-full max-w-4xl border-t border-border/70 bg-ivory-50/95 px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur-lg md:static md:border-0 md:bg-transparent md:px-6 md:pb-6 md:pt-2">
-        <ul className="grid grid-cols-5 gap-1 rounded-2xl border border-border/70 bg-card/95 p-1 shadow-mist md:flex md:justify-between">
+        <ul
+          className="grid grid-cols-5 gap-1 border border-border/70 bg-card/95 p-1 shadow-mist md:flex md:justify-between"
+          style={{ borderRadius: "var(--radius-nav)" }}
+        >
           {navigation.map((item) => {
             const Icon = item.icon;
             const active = pathname === item.href;

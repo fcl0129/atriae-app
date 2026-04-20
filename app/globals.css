@@ -27,6 +27,11 @@
   --space-card: clamp(1rem, 1.8vw, 1.4rem);
 
   --text-eyebrow-tracking: 0.28em;
+  --text-body-size: clamp(0.95rem, 0.91rem + 0.12vw, 1.02rem);
+  --text-body-leading: 1.75;
+  --text-body-tracking: 0.01em;
+  --text-body-color: hsl(28 10% 23% / 0.92);
+  --text-max-width: 68ch;
 }
 
 * {
@@ -35,6 +40,10 @@
 
 body {
   @apply bg-background text-foreground font-sans antialiased;
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-leading);
+  letter-spacing: var(--text-body-tracking);
+  color: var(--text-body-color);
   background-image: radial-gradient(120% 90% at 20% 0%, rgba(243, 195, 197, 0.75), rgba(243, 195, 197, 0.1) 52%, transparent 76%),
     radial-gradient(90% 60% at 84% 16%, rgba(255, 244, 228, 0.65), rgba(255, 244, 228, 0) 72%),
     radial-gradient(120% 90% at 50% 112%, rgba(148, 188, 142, 0.48), rgba(148, 188, 142, 0.12) 62%, transparent 86%),
@@ -85,6 +94,23 @@ h2,
 h3,
 h4 {
   @apply font-serif font-medium tracking-tight text-foreground;
+}
+
+p,
+li,
+a,
+button,
+input,
+textarea,
+select,
+label {
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: var(--text-body-tracking);
+}
+
+p {
+  max-width: var(--text-max-width);
+  line-height: var(--text-body-leading);
 }
 
 @keyframes editorialGradient {

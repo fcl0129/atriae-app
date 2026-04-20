@@ -30,7 +30,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </Link>
 
           <nav aria-label="Primary">
-            <ul className="flex items-center gap-5 text-[0.72rem] uppercase tracking-[0.2em] text-muted-foreground md:gap-8">
+            <ul className="flex items-center gap-5 text-[0.68rem] font-medium uppercase tracking-[0.26em] text-muted-foreground/90 md:gap-8">
               {navigation.map((item) => {
                 const active = item.kind === "route" && pathname === item.href;
                 return (

@@ -23,9 +23,9 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-dvh">
-      <header className="sticky top-0 z-30 border-b border-foreground/10 bg-ivory-100/65 px-5 py-4 backdrop-blur-xl md:px-10">
+      <header className="glass-nav sticky top-0 z-30 border-b px-5 py-4 backdrop-blur-2xl md:px-10">
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between">
-          <Link href="/" className="font-serif text-2xl leading-none tracking-tight md:text-[2rem]">
+          <Link href="/" className="font-serif text-2xl leading-none tracking-tight transition-opacity duration-300 hover:opacity-80 md:text-[2rem]">
             Atriaé
           </Link>
 
@@ -38,12 +38,13 @@ export function AppShell({ children }: { children: ReactNode }) {
                     {item.kind === "route" ? (
                       <Link
                         href={item.href}
-                        className={cn("transition-colors hover:text-foreground", active && "text-foreground")}
+                        data-active={active}
+                        className={cn("nav-link", active && "text-foreground")}
                       >
                         {item.label}
                       </Link>
                     ) : (
-                      <a href={item.href} className="transition-colors hover:text-foreground">
+                      <a href={item.href} className="nav-link">
                         {item.label}
                       </a>
                     )}

@@ -1,33 +1,7 @@
-import { createServerSupabaseClient } from '@/lib/supabase/server'
-import { redirect } from 'next/navigation'
+import { redirect } from "next/navigation";
 
-import { IntelligenceInput } from "@/components/ui/intelligence-input";
-
-const focusItems = [
-  {
-    title: "Write one clear paragraph for your thesis chapter",
-    context: "A quiet 45-minute block before noon."
-  },
-  {
-    title: "Refine your weekly learning map",
-    context: "Keep only the next three lessons visible."
-  },
-  {
-    title: "Take a ten-minute clarity walk",
-    context: "No audio, just observation and reset."
-  }
-];
-
-const learningTopics = [
-  {
-    title: "Cognitive Load & Study Design",
-    progress: "2 of 5 notes distilled"
-  },
-  {
-    title: "Product Narrative Writing",
-    progress: "Draft in progress · 60%"
-  }
-];
+import { IntelligencePanel } from "@/components/dashboard/intelligence-panel";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 function getGreeting(hour: number) {
   if (hour < 12) return "Good morning";
@@ -36,21 +10,27 @@ function getGreeting(hour: number) {
 }
 
 export default async function DashboardPage() {
-  const supabase = await createServerSupabaseClient()
+  const supabase = await createServerSupabaseClient();
 
   const {
     data: { user }
-  } = await supabase.auth.getUser()
+  } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect('/login')
+    redirect("/login");
   }
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', user.id)
-    .single()
+  const [profileResult, topicsResult, ritualsResult, checkinsResult] = await Promise.all([
+    supabase.from("profiles").select("display_name,email,morning_ritual_reminder").eq("id", user.id).maybeSingle(),
+    supabase.from("learning_topics").select("id,name,progress").eq("user_id", user.id).order("created_at", { ascending: false }),
+    supabase.from("rituals").select("id,title,cadence").eq("user_id", user.id).order("created_at", { ascending: false }),
+    supabase.from("ritual_checkins").select("ritual_id,completed_at").eq("user_id", user.id).order("completed_at", { ascending: false }).limit(5)
+  ]);
+
+  const profile = profileResult.data;
+  const topics = topicsResult.data ?? [];
+  const rituals = ritualsResult.data ?? [];
+  const recentCheckins = checkinsResult.data ?? [];
 
   const now = new Date();
   const greeting = getGreeting(now.getHours());
@@ -59,6 +39,8 @@ export default async function DashboardPage() {
     month: "long",
     day: "numeric"
   }).format(now);
+  const todayKey = now.toISOString().slice(0, 10);
+  const completedToday = recentCheckins.some((item: { completed_at: string }) => item.completed_at.slice(0, 10) === todayKey);
 
   return (
     <section className="mx-auto w-full max-w-3xl space-y-12 px-1 pb-16 md:space-y-14">
@@ -66,52 +48,58 @@ export default async function DashboardPage() {
         <p className="text-xs uppercase text-muted-foreground/80" style={{ letterSpacing: "var(--text-eyebrow-tracking)" }}>
           Atriae dashboard
         </p>
-        <h1 className="text-[clamp(2.1rem,4vw,3.1rem)] leading-[0.95]">{greeting}</h1>
+        <h1 className="text-[clamp(2.1rem,4vw,3.1rem)] leading-[0.95]">{greeting}{profile?.display_name ? `, ${profile.display_name}` : ""}</h1>
         <p className="text-sm text-muted-foreground">{today}</p>
-        <p className="text-xs text-muted-foreground">{profile?.email}</p>
       </header>
 
-      <IntelligenceInput
-        heading="What deserves your clearest attention right now?"
-        placeholder="Capture a thought, a decision, or a question"
-      />
+      <IntelligencePanel />
 
-      <section className="space-y-5" aria-labelledby="todays-focus">
-        <h2 id="todays-focus" className="text-2xl md:text-[2rem]">
-          Today&apos;s focus
+      <section className="space-y-5" aria-labelledby="overview">
+        <h2 id="overview" className="text-2xl md:text-[2rem]">
+          Overview
         </h2>
-        <ol className="space-y-4">
-          {focusItems.map((item, index) => (
-            <li key={item.title} className="group transition-all duration-300 ease-out hover:translate-x-1">
-              <p className="text-[1.05rem] leading-7 text-foreground/95">
-                <span className="pr-2 text-muted-foreground/70">{String(index + 1).padStart(2, "0")}</span>
-                {item.title}
-              </p>
-              <p className="pl-7 text-sm text-muted-foreground">{item.context}</p>
-            </li>
-          ))}
-        </ol>
-      </section>
-
-      <section className="space-y-5" aria-labelledby="continue-learning">
-        <h2 id="continue-learning" className="text-2xl md:text-[2rem]">
-          Learning threads
-        </h2>
-        <ul className="space-y-4">
-          {learningTopics.map((topic) => (
-            <li key={topic.title} className="space-y-1 transition-colors duration-300 hover:text-foreground">
-              <p className="text-lg leading-7">{topic.title}</p>
-              <p className="text-sm text-muted-foreground">{topic.progress}</p>
-            </li>
-          ))}
+        <ul className="space-y-2 text-sm text-muted-foreground">
+          <li>{topics.length} learning topic{topics.length === 1 ? "" : "s"}</li>
+          <li>{rituals.length} ritual{rituals.length === 1 ? "" : "s"}</li>
+          <li>{completedToday ? "At least one ritual completed today" : "No ritual completion yet today"}</li>
+          {profile?.morning_ritual_reminder ? <li>Morning reminder: {profile.morning_ritual_reminder}</li> : null}
         </ul>
       </section>
 
-      <section className="space-y-2 pt-2" aria-labelledby="reflection">
-        <h2 id="reflection" className="text-lg">
-          Reflection
+      <section className="space-y-5" aria-labelledby="learning-threads">
+        <h2 id="learning-threads" className="text-2xl md:text-[2rem]">
+          Learning threads
         </h2>
-        <p className="text-sm text-muted-foreground">What deserves your calmest attention before the day closes?</p>
+        {topics.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No topics yet. Begin one thread in Learn.</p>
+        ) : (
+          <ul className="space-y-3">
+            {topics.slice(0, 4).map((topic: { id: string; name: string; progress: number }) => (
+              <li key={topic.id} className="space-y-1">
+                <p className="text-lg leading-7">{topic.name}</p>
+                <p className="text-sm text-muted-foreground">{topic.progress}% progressed</p>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      <section className="space-y-5" aria-labelledby="ritual-status">
+        <h2 id="ritual-status" className="text-2xl md:text-[2rem]">
+          Ritual rhythm
+        </h2>
+        {rituals.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No rituals yet. Craft one gentle anchor in Rituals.</p>
+        ) : (
+          <ul className="space-y-3">
+            {rituals.slice(0, 4).map((ritual: { id: string; title: string; cadence: string | null }) => (
+              <li key={ritual.id} className="space-y-1">
+                <p className="text-lg leading-7">{ritual.title}</p>
+                <p className="text-sm text-muted-foreground">{ritual.cadence ?? "Cadence not set"}</p>
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
     </section>
   );

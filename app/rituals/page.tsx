@@ -1,72 +1,50 @@
-import { CheckCircle2, MoonStar, SunMedium } from "lucide-react";
+import { redirect } from "next/navigation";
 
 import { PageContainer } from "@/components/layout/page-container";
 import { SectionHeader } from "@/components/layout/section-header";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { RitualsClient } from "@/components/rituals/rituals-client";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
 
-const rituals = [
-  {
-    title: "Morning Tuning",
-    cadence: "Daily · 12 min",
-    prompt: "Tea, breath, and one handwritten intention before notifications.",
-    icon: SunMedium
-  },
-  {
-    title: "Midday Reset",
-    cadence: "Weekdays · 7 min",
-    prompt: "Step away from screens, move your body, and choose one next step.",
-    icon: CheckCircle2
-  },
-  {
-    title: "Evening Closing",
-    cadence: "Daily · 10 min",
-    prompt: "Review what mattered, release open loops, and soften into rest.",
-    icon: MoonStar
+export default async function RitualsPage() {
+  const supabase = await createServerSupabaseClient();
+  const {
+    data: { user }
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
   }
-];
 
-export default function RitualsPage() {
+  const [ritualsResult, checkinsResult] = await Promise.all([
+    supabase.from("rituals").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
+    supabase.from("ritual_checkins").select("ritual_id,completed_at").eq("user_id", user.id)
+  ]);
+
+  const rituals = ritualsResult.data ?? [];
+  const checkins = checkinsResult.data ?? [];
+  const todayKey = new Date().toISOString().slice(0, 10);
+
+  const statuses = rituals.reduce<Record<string, { completedToday: boolean; total: number; lastCompletedAt: string | null }>>((acc: Record<string, { completedToday: boolean; total: number; lastCompletedAt: string | null }>, ritual: { id: string }) => {
+    const own = checkins.filter((c: { ritual_id: string; completed_at: string }) => c.ritual_id === ritual.id);
+    const lastCompletedAt = own.length > 0 ? own.map((c: { completed_at: string }) => c.completed_at).sort().at(-1) ?? null : null;
+
+    acc[ritual.id] = {
+      total: own.length,
+      completedToday: own.some((c: { completed_at: string }) => c.completed_at.slice(0, 10) === todayKey),
+      lastCompletedAt
+    };
+
+    return acc;
+  }, {});
+
   return (
     <PageContainer>
       <SectionHeader
         eyebrow="Rituals"
         title="Routines that protect clarity"
         description="Shape light practices that reset attention and support emotional continuity."
-        action={<Button>Craft ritual</Button>}
       />
-
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {rituals.map((ritual) => {
-          const Icon = ritual.icon;
-
-          return (
-            <Card key={ritual.title} surface="tinted">
-              <CardHeader>
-                <p className="text-xs uppercase text-muted-foreground" style={{ letterSpacing: "var(--text-eyebrow-tracking)" }}>
-                  Ritual
-                </p>
-                <CardTitle className="pt-3 text-2xl">{ritual.title}</CardTitle>
-                <CardDescription>{ritual.cadence}</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="rounded-xl bg-paper/70 p-4 text-sm text-muted-foreground">{ritual.prompt}</div>
-                <Button variant="quiet" className="w-full justify-start">
-                  <Icon className="mr-2 h-4 w-4" />
-                  Begin ritual
-                </Button>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
-
-      <Card surface="glass">
-        <CardHeader>
-          <CardTitle className="text-xl">No custom rituals yet</CardTitle>
-          <CardDescription>Start with one two-minute check-in and build from there.</CardDescription>
-        </CardHeader>
-      </Card>
+      <RitualsClient rituals={rituals} statuses={statuses} />
     </PageContainer>
   );
 }

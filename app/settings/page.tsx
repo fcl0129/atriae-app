@@ -1,13 +1,25 @@
 import { Bell, Lock, Palette, UserRound } from "lucide-react";
+import { redirect } from "next/navigation";
 
 import { PageContainer } from "@/components/layout/page-container";
 import { SectionHeader } from "@/components/layout/section-header";
-import { Button } from "@/components/ui/button";
+import { ProfileSettingsForm } from "@/components/settings/profile-settings-form";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { SendTestEmailCard } from "@/components/settings/send-test-email-card";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
 
-export default function SettingsPage() {
+export default async function SettingsPage() {
+  const supabase = await createServerSupabaseClient();
+  const {
+    data: { user }
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  const { data: profile } = await supabase.from("profiles").select("display_name,morning_ritual_reminder").eq("id", user.id).maybeSingle();
+
   return (
     <PageContainer>
       <SectionHeader
@@ -23,15 +35,10 @@ export default function SettingsPage() {
             <CardDescription>Personal defaults for how Atriae supports your day.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <label className="space-y-1.5 text-sm">
-              <span className="text-muted-foreground">Display name</span>
-              <Input defaultValue="Ari" />
-            </label>
-            <label className="space-y-1.5 text-sm">
-              <span className="text-muted-foreground">Morning ritual reminder</span>
-              <Input defaultValue="08:00" />
-            </label>
-            <Button>Save preferences</Button>
+            <ProfileSettingsForm
+              displayName={profile?.display_name ?? user.email?.split("@")[0] ?? ""}
+              morningRitualReminder={profile?.morning_ritual_reminder ?? "08:00"}
+            />
           </CardContent>
         </Card>
 

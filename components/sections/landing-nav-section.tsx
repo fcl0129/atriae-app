@@ -6,11 +6,10 @@ import { PremiumNavbar, type PremiumNavbarItem } from "@/components/ui/premium-n
 
 const landingNavigation: PremiumNavbarItem[] = [
   { label: "Home", href: "/", kind: "route" },
-  { label: "Story", href: "/#story", kind: "hash" },
-  { label: "Features", href: "/#features", kind: "hash" },
-  { label: "Experience", href: "/#experience", kind: "hash" },
-  { label: "For Hosts", href: "/dashboard", kind: "route" },
-  { label: "Request access", href: "/login", kind: "route" }
+  { label: "Dashboard", href: "/dashboard", kind: "route" },
+  { label: "Learn", href: "/learn", kind: "route" },
+  { label: "Rituals", href: "/rituals", kind: "route" },
+  { label: "Settings", href: "/settings", kind: "route" }
 ];
 
 export function LandingNavSection() {

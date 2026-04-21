@@ -21,7 +21,7 @@ function Card({
   surface,
   ...props
 }: React.ComponentProps<"div"> & VariantProps<typeof cardVariants>) {
-  return <div className={cn(cardVariants({ surface }), "hover-lift hover:shadow-lift", className)} {...props} />;
+  return <div className={cn(cardVariants({ surface }), className)} {...props} />;
 }
 
 function CardHeader({ className, ...props }: React.ComponentProps<"div">) {

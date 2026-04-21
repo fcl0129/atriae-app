@@ -17,30 +17,30 @@ export default function LearnPage() {
     <PageContainer>
       <SectionHeader
         eyebrow="Learn"
-        title="Curated learning library"
-        description="Collect ideas, readings, and themes with an editorial rhythm that supports depth."
-        action={<Button variant="secondary">New topic</Button>}
+        title="A focused learning space"
+        description="Keep only what sharpens your thinking, then convert it into practical understanding."
+        action={<Button variant="secondary">Add topic</Button>}
       />
 
       <Card surface="glass">
         <CardContent className="grid gap-3 p-4 sm:grid-cols-[1fr_auto] sm:p-5">
-          <Input placeholder="Search notes, resources, and topics" aria-label="Search learning content" />
+          <Input placeholder="Search notes, resources, and ideas" aria-label="Search learning content" />
           <Button variant="quiet">
             <Library className="mr-2 h-4 w-4" />
-            Open archive
+            Open library
           </Button>
         </CardContent>
       </Card>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {topics.map((topic) => (
-          <Card key={topic.name} surface="paper">
+          <Card key={topic.name} surface="paper" className="bg-card/70">
             <CardHeader>
               <p className="text-xs uppercase text-muted-foreground" style={{ letterSpacing: "var(--text-eyebrow-tracking)" }}>
-                Learning Topic Card
+                Learning thread
               </p>
               <CardTitle className="pt-3 text-2xl">{topic.name}</CardTitle>
-              <CardDescription>{topic.resources} curated resources in this thread.</CardDescription>
+              <CardDescription>{topic.resources} references in this thread.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex items-center justify-between text-sm">
@@ -55,11 +55,11 @@ export default function LearnPage() {
                 </span>
                 <span>{topic.progress}%</span>
               </div>
-              <div className="h-2 rounded-full bg-muted">
+              <div className="h-1.5 rounded-full bg-muted/85">
                 <div className="h-full rounded-full bg-matcha-500" style={{ width: `${topic.progress}%` }} />
               </div>
-              <Button variant="ghost" className="w-full justify-between rounded-xl border border-border bg-paper">
-                Continue thread
+              <Button variant="ghost" className="w-full justify-between rounded-xl bg-paper/70">
+                Continue
                 <ArrowUpRight className="h-4 w-4" />
               </Button>
             </CardContent>

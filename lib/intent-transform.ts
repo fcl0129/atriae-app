@@ -14,12 +14,12 @@ export type StructuredOutput = {
 };
 
 const refinementTemplates: Record<string, (source: string) => string[]> = {
-  "make this more efficient": (source) => [
+  "make this lighter": (source) => [
     `Cut low-impact tasks from "${source}" and keep only the top 2 priorities.`,
     "Batch related actions into one focused session.",
     "Set a strict end condition so the plan does not expand unnecessarily."
   ],
-  "simplify this plan": (source) => [
+  "make this more concrete": (source) => [
     `Reduce "${source}" into one guiding focus for the day.`,
     "Replace complex task sequences with a three-step path.",
     "Use plain language checkpoints that are easy to review quickly."

@@ -38,24 +38,21 @@ const defaultModes: IntentModeOption[] = [
 ];
 
 const defaultSuggestions = [
-  "Learn something new",
-  "Plan my day",
-  "Help me focus",
-  "Organize my thoughts",
-  "Optimize my routine",
-  "Summarize this for me",
-  "Turn this into a plan"
+  "Clarify what matters most today",
+  "Turn this into a calm plan",
+  "Help me think this through",
+  "Simplify this into next steps"
 ];
 
 export function IntelligenceInput({
   className,
   heading = "What should Atriae help you shape right now?",
   promptLabel = "Atriae intent",
-  placeholder = "What do you want to understand, improve, or organize?",
+  placeholder = "Describe what you want to understand, improve, or simplify.",
   modeOptions = defaultModes,
   suggestions = defaultSuggestions,
-  submitLabel = "Start with Atriae",
-  attachmentLabel = "Attach",
+  submitLabel = "Shape this",
+  attachmentLabel = "Attach note",
   allowAttachments = true,
   onSubmit
 }: IntelligenceInputProps) {
@@ -77,10 +74,13 @@ export function IntelligenceInput({
   };
 
   return (
-    <section className={cn("surface-glass space-y-5 p-4 sm:space-y-6 sm:p-6", className)} aria-label="Atriae intelligence input">
+    <section
+      className={cn("surface-glass space-y-5 p-4 sm:space-y-6 sm:p-6 md:p-7", className)}
+      aria-label="Atriae intelligence input"
+    >
       <div className="space-y-2">
         <p className="text-[0.68rem] uppercase tracking-[0.22em] text-muted-foreground/85">Atriae intelligence</p>
-        <h2 className="max-w-2xl text-[1.45rem] leading-tight md:text-[1.8rem]">{heading}</h2>
+        <h2 className="max-w-2xl text-[1.45rem] leading-tight md:text-[1.9rem]">{heading}</h2>
       </div>
 
       <div className="flex flex-wrap gap-2" role="tablist" aria-label="Intent mode">
@@ -94,10 +94,10 @@ export function IntelligenceInput({
               aria-selected={isActive}
               onClick={() => setMode(option.value)}
               className={cn(
-                "rounded-full border px-4 py-1.5 text-xs tracking-[0.14em] transition-all duration-300",
+                "rounded-full px-4 py-1.5 text-[0.68rem] uppercase tracking-[0.14em] transition-all duration-300",
                 isActive
-                  ? "border-foreground/25 bg-foreground/90 text-background"
-                  : "border-border/80 bg-background/60 text-muted-foreground hover:border-foreground/20 hover:text-foreground"
+                  ? "bg-foreground/90 text-background"
+                  : "bg-background/58 text-muted-foreground hover:bg-background/72 hover:text-foreground"
               )}
             >
               {option.label}
@@ -116,7 +116,7 @@ export function IntelligenceInput({
           value={text}
           onChange={(event) => setText(event.target.value)}
           placeholder={placeholder}
-          className="min-h-28 w-full resize-y rounded-2xl border border-border/70 bg-background/70 px-4 py-3 text-sm text-foreground outline-none transition focus:border-foreground/30 focus:ring-2 focus:ring-ring/30"
+          className="min-h-28 w-full resize-y rounded-2xl bg-background/72 px-4 py-3 text-[0.96rem] text-foreground outline-none transition focus:bg-background/90 focus:ring-2 focus:ring-ring/25"
         />
 
         <div className="flex flex-wrap items-center justify-between gap-3">
@@ -126,7 +126,7 @@ export function IntelligenceInput({
                 key={suggestion}
                 type="button"
                 onClick={() => setText(suggestion)}
-                className="rounded-full border border-border/80 bg-background/65 px-3 py-1.5 text-[0.67rem] uppercase tracking-[0.12em] text-muted-foreground transition-colors hover:text-foreground"
+                className="rounded-full bg-background/64 px-3 py-1.5 text-[0.66rem] uppercase tracking-[0.12em] text-muted-foreground transition-colors hover:text-foreground"
               >
                 {suggestion}
               </button>
@@ -147,7 +147,7 @@ export function IntelligenceInput({
                 />
                 <label
                   htmlFor={attachmentId}
-                  className="cursor-pointer rounded-full border border-border/80 px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground"
+                  className="cursor-pointer rounded-full bg-background/65 px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground"
                 >
                   {attachmentLabel}
                 </label>
@@ -173,7 +173,7 @@ export function IntelligenceInput({
             <span className="ml-1 italic">“{lastSubmittedIntent}”</span>
           </p>
         ) : (
-          <p className="text-xs text-muted-foreground">Capture a thought, plan, or question to begin.</p>
+          <p className="text-xs text-muted-foreground">Start with one thought. Atriae will structure the rest.</p>
         )}
       </form>
     </section>

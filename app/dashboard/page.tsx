@@ -26,12 +26,6 @@ const learningTopics = [
   }
 ];
 
-const ritual = {
-  title: "Morning Alignment",
-  description: "Open your day with three breaths, one intention, and one sentence about what matters most.",
-  cta: "Begin"
-};
-
 function getGreeting(hour: number) {
   if (hour < 12) return "Good morning";
   if (hour < 18) return "Good afternoon";
@@ -48,18 +42,18 @@ export default function DashboardPage() {
   }).format(now);
 
   return (
-    <section className="mx-auto w-full max-w-3xl space-y-14 px-1 pb-16 md:space-y-16">
+    <section className="mx-auto w-full max-w-3xl space-y-12 px-1 pb-16 md:space-y-14">
       <header className="space-y-3 pt-2">
         <p className="text-xs uppercase text-muted-foreground/80" style={{ letterSpacing: "var(--text-eyebrow-tracking)" }}>
-          Atriaé
+          Atriae dashboard
         </p>
         <h1 className="text-[clamp(2.1rem,4vw,3.1rem)] leading-[0.95]">{greeting}</h1>
         <p className="text-sm text-muted-foreground">{today}</p>
       </header>
 
       <IntelligenceInput
-        heading="Ask Atriae to help structure your day"
-        placeholder="Capture a thought, plan, or question"
+        heading="What deserves your clearest attention right now?"
+        placeholder="Capture a thought, a decision, or a question"
       />
 
       <section className="space-y-5" aria-labelledby="todays-focus">
@@ -81,7 +75,7 @@ export default function DashboardPage() {
 
       <section className="space-y-5" aria-labelledby="continue-learning">
         <h2 id="continue-learning" className="text-2xl md:text-[2rem]">
-          Continue learning
+          Learning threads
         </h2>
         <ul className="space-y-4">
           {learningTopics.map((topic) => (
@@ -93,23 +87,7 @@ export default function DashboardPage() {
         </ul>
       </section>
 
-      <section className="space-y-4" aria-labelledby="daily-ritual">
-        <h2 id="daily-ritual" className="text-2xl md:text-[2rem]">
-          Daily ritual
-        </h2>
-        <div className="space-y-2">
-          <h3 className="text-xl">{ritual.title}</h3>
-          <p className="text-muted-foreground">{ritual.description}</p>
-          <button
-            type="button"
-            className="editorial-cta mt-2 text-xs font-medium text-foreground/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
-          >
-            {ritual.cta}
-          </button>
-        </div>
-      </section>
-
-      <section className="space-y-2 pt-4" aria-labelledby="reflection">
+      <section className="space-y-2 pt-2" aria-labelledby="reflection">
         <h2 id="reflection" className="text-lg">
           Reflection
         </h2>

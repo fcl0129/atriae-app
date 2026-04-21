@@ -11,15 +11,15 @@ export default function SettingsPage() {
     <PageContainer>
       <SectionHeader
         eyebrow="Settings"
-        title="Minimal, refined preferences"
-        description="Shape the product around your rhythms while keeping the experience clean and quiet."
+        title="Quiet, personal defaults"
+        description="Tune Atriae to your rhythm without adding noise to the experience."
       />
 
       <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
-        <Card surface="paper">
+        <Card surface="paper" className="bg-card/70">
           <CardHeader>
             <CardTitle className="text-2xl">Profile and cadence</CardTitle>
-            <CardDescription>Personal defaults for how Atriaé feels each day.</CardDescription>
+            <CardDescription>Personal defaults for how Atriae supports your day.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <label className="space-y-1.5 text-sm">
@@ -51,7 +51,7 @@ export default function SettingsPage() {
                 <button
                   type="button"
                   key={item.label}
-                  className="flex w-full items-center justify-between rounded-xl border border-border bg-paper px-3 py-2.5 text-sm text-muted-foreground transition hover:text-foreground"
+                  className="flex w-full items-center justify-between rounded-xl bg-paper/70 px-3 py-2.5 text-sm text-muted-foreground transition hover:text-foreground"
                 >
                   <span className="flex items-center gap-2">
                     <Icon className="h-4 w-4" />

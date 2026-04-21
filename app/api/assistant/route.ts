@@ -20,19 +20,10 @@ function fallbackResponse(input: string) {
 export async function POST(request: Request) {
   try {
     const parsed = requestSchema.safeParse(await request.json());
+
     if (!parsed.success) {
-      return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+      return NextResponse.json({ text: "Invalid input." });
     }
-
-    let apiKey: string | null = null;
-
-    try {
-      apiKey = assertOpenAIKey();
-    } catch {
-      return NextResponse.json({ text: fallbackResponse(parsed.data.input) });
-    }
-
-    const client = new OpenAI({ apiKey });
 
     const supabase = await createServerSupabaseClient();
     const {
@@ -40,17 +31,44 @@ export async function POST(request: Request) {
     } = await supabase.auth.getUser();
 
     if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ text: "Please log in again." });
     }
 
-    const response = await client.responses.create({
-      model: "gpt-5.1",
-      input: parsed.data.input
-    });
+    let apiKey: string;
 
-    return NextResponse.json({ text: response.output_text ?? "" });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown assistant error";
-    return NextResponse.json({ error: message }, { status: 500 });
+    try {
+      apiKey = assertOpenAIKey();
+    } catch {
+      return NextResponse.json({
+        text: fallbackResponse(parsed.data.input)
+      });
+    }
+
+    try {
+      const client = new OpenAI({ apiKey });
+
+      const response = await client.responses.create({
+        model: "gpt-5.1",
+        input: parsed.data.input
+      });
+
+      return NextResponse.json({
+        text: response.output_text ?? fallbackResponse(parsed.data.input)
+      });
+
+    } catch (err) {
+      console.error("OpenAI error:", err);
+
+      return NextResponse.json({
+        text: fallbackResponse(parsed.data.input)
+      });
+    }
+
+  } catch (err) {
+    console.error("Assistant fatal error:", err);
+
+    return NextResponse.json({
+      text: "Something went wrong, but you can keep going."
+    });
   }
 }

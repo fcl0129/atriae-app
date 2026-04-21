@@ -1,43 +1,71 @@
-import Image from "next/image";
-
 import { Container } from "@/components/landing/container";
 import { Reveal } from "@/components/landing/reveal";
 import { SectionWrapper } from "@/components/landing/section-wrapper";
 
+const tabs = ["Learn", "Plan", "Focus", "Organize"];
+
+const prompts = [
+  "Clarify what matters most today",
+  "Help me think this through",
+  "Simplify this into next steps",
+  "Take this note and plan it out"
+];
+
 export function SystemSection() {
   return (
-    <SectionWrapper className="py-14 md:py-20">
-      <Container>
-        <div className="grid items-center gap-10 lg:grid-cols-[0.82fr_1.18fr] lg:gap-16">
-          <Reveal>
-            <h2 className="text-[2.3rem] leading-[0.98] text-[#111d15] md:text-[3.3rem]">
-              All of life.
-              <br />
-              One system.
+    <SectionWrapper className="py-14 md:py-20" surface="soft">
+      <Container><div id="quiet-peek">
+        <Reveal>
+          <div className="space-y-3">
+            <p className="text-xs font-medium tracking-[0.2em] text-[#2a4636]/80">A QUIET PEEK INTO THE SYSTEM</p>
+            <h2 className="max-w-[18ch] text-[2.2rem] leading-[0.98] text-[#111d15] md:text-[3.2rem]">
+              Think clearly. Choose well. Move with intention.
             </h2>
-            <p className="mt-6 max-w-[42ch] text-base leading-8 text-[#24352b]/90 md:text-lg">
-              Notes, tasks, events, goals, and rituals — organized in one deliberate space.
+            <p className="max-w-[60ch] text-base leading-8 text-[#24352b]/90 md:text-lg">
+              Atriae turns open-ended thoughts into structured reasoning, helping you see what matters, shape better
+              options, and act from a calmer center.
             </p>
-            <p className="mt-4 max-w-[42ch] text-base leading-8 text-[#24352b]/90 md:text-lg">
-              Atriae surfaces patterns in how you plan and decide, then teaches you how to think with more clarity over
-              time.
-            </p>
-          </Reveal>
+          </div>
+        </Reveal>
 
-          <Reveal delay={90}>
-            <div className="mx-auto w-full max-w-[680px] overflow-hidden rounded-[2.1rem] border border-[#122619]/20 bg-[#fffdf8]/90 p-4 shadow-[0_34px_72px_-50px_rgba(13,26,18,0.68)] md:p-6">
-              <p className="mb-5 text-xs uppercase tracking-[0.22em] text-[#3c5746]">System view · iPad</p>
-              <Image
-                src="/mockups/system-ipad.svg"
-                alt="Atriae planning and learning system on iPad"
-                width={1440}
-                height={980}
-                className="h-auto w-full rounded-[1.5rem]"
-              />
+        <Reveal delay={90} className="mt-8 md:mt-10">
+          <div className="rounded-[2.1rem] border border-[#122619]/15 bg-[linear-gradient(145deg,rgba(255,252,246,0.92),rgba(238,244,236,0.84))] p-6 shadow-[0_34px_72px_-52px_rgba(13,26,18,0.62)] md:p-8">
+            <p className="text-sm font-medium tracking-[0.01em] text-[#1b3024]">What should we shape together right now?</p>
+
+            <div className="mt-5 flex flex-wrap gap-2">
+              {tabs.map((tab, index) => (
+                <button
+                  key={tab}
+                  type="button"
+                  className={`rounded-full border px-4 py-1.5 text-xs tracking-[0.08em] ${
+                    index === 0
+                      ? "border-[#193324]/25 bg-[#1c3727] text-[#f3f6f0]"
+                      : "border-[#1d3929]/20 bg-white/60 text-[#244031]"
+                  }`}
+                >
+                  {tab}
+                </button>
+              ))}
             </div>
-          </Reveal>
-        </div>
-      </Container>
+
+            <div className="mt-5 rounded-2xl border border-[#1d3929]/15 bg-white/72 p-4 text-sm text-[#2a4335] md:text-base">
+              Turn a thought into a clear path.
+            </div>
+
+            <div className="mt-4 flex flex-wrap gap-2.5">
+              {prompts.map((prompt) => (
+                <button
+                  key={prompt}
+                  type="button"
+                  className="rounded-xl border border-[#1d3929]/15 bg-[#fefcf7]/90 px-3.5 py-2 text-left text-xs text-[#264132] transition hover:bg-white md:text-sm"
+                >
+                  {prompt}
+                </button>
+              ))}
+            </div>
+          </div>
+        </Reveal>
+      </div></Container>
     </SectionWrapper>
   );
 }

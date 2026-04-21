@@ -11,7 +11,7 @@ type IntentModeOption = {
   label: string;
 };
 
-type SubmissionPayload = {
+export type SubmissionPayload = {
   mode: AtriaeIntentMode;
   text: string;
   attachments: File[];

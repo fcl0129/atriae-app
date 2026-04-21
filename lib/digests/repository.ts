@@ -4,7 +4,7 @@ import {
   digestTemplateInsertSchema,
   userDigestProfileInsertSchema,
 } from "@/lib/digests/schemas";
-import type { Database, DigestRun, DigestTemplate, UserDigestProfile } from "@/lib/digests/types";
+import type { Database, DigestRun, DigestSource, DigestTemplate, UserDigestProfile } from "@/lib/digests/types";
 
 type PublicTables = Database["public"]["Tables"];
 type TableName = keyof PublicTables;
@@ -83,6 +83,40 @@ export class DigestRepository {
 
     if (error) throw error;
     return data as DigestRun;
+  }
+
+
+
+  async updateRun(runId: string, updates: TableUpdate<"digest_runs">) {
+    const { data, error } = await this.table("digest_runs")
+      .update(updates as never)
+      .eq("id", runId)
+      .select("*")
+      .single();
+
+    if (error) throw error;
+    return data as DigestRun;
+  }
+
+  async createSource(input: TableInsert<"digest_sources">) {
+    const { data, error } = await this.table("digest_sources")
+      .insert(input as never)
+      .select("*")
+      .single();
+
+    if (error) throw error;
+    return data as DigestSource;
+  }
+
+  async createSources(inputs: TableInsert<"digest_sources">[]) {
+    if (inputs.length === 0) return [] as DigestSource[];
+
+    const { data, error } = await this.table("digest_sources")
+      .insert(inputs as never)
+      .select("*");
+
+    if (error) throw error;
+    return (data ?? []) as DigestSource[];
   }
 
   async listRunsForProfile(profileId: string) {

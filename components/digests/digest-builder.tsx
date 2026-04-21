@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { CheckCircle2, ChevronDown, ChevronUp, Copy, Save, Trash2, TriangleAlert } from "lucide-react";
+import { CheckCircle2, ChevronDown, ChevronUp, Copy, Save, Send, Trash2, TriangleAlert } from "lucide-react";
 
 import { PageContainer } from "@/components/layout/page-container";
 import { SectionHeader } from "@/components/layout/section-header";
@@ -132,7 +132,7 @@ function mapProfileToBuilder(profile: UserDigestProfile): BuilderState {
 }
 
 function builderToPayload(builder: BuilderState) {
-  const cadence = builder.frequency === "custom" ? "monthly" : builder.frequency;
+  const cadence = builder.frequency;
 
   return {
     title: builder.digestName,
@@ -143,6 +143,7 @@ function builderToPayload(builder: BuilderState) {
       cadence,
       time: builder.sendTime,
       days: builder.frequency === "daily" ? [0, 1, 2, 3, 4, 5, 6] : builder.frequency === "weekly" ? [builder.dayOfWeek] : builder.customDays,
+      intervalDays: builder.frequency === "custom" && builder.customDays.length === 0 ? 1 : undefined,
     },
     digest_config: {
       voice: builder.tone,
@@ -200,6 +201,8 @@ export function DigestBuilder({ mode, digestId }: DigestBuilderProps) {
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(mode === "edit");
   const [errors, setErrors] = useState<string[]>([]);
+  const [testSending, setTestSending] = useState(false);
+  const [upcomingSends, setUpcomingSends] = useState<string[]>([]);
 
   const sortedModules = useMemo(() => builder.modules.slice().sort((a, b) => (a.order ?? 0) - (b.order ?? 0)), [builder.modules]);
   const isDirty = initialSnapshot !== JSON.stringify(builder);
@@ -244,6 +247,64 @@ export function DigestBuilder({ mode, digestId }: DigestBuilderProps) {
 
     void loadProfile();
   }, [client, digestId, mode]);
+
+
+
+  useEffect(() => {
+    if (!client || mode !== "edit" || !digestId) return;
+
+    async function loadUpcoming() {
+      const db = client;
+      if (!db) return;
+      const { data: sessionData } = await db.auth.getSession();
+      const token = sessionData.session?.access_token;
+      if (!token) return;
+
+      const response = await fetch(`/api/digests/${digestId}/upcoming`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) return;
+      const payload = (await response.json()) as { upcoming?: string[] };
+      setUpcomingSends(payload.upcoming ?? []);
+    }
+
+    void loadUpcoming();
+  }, [client, digestId, mode]);
+
+  async function sendTestNow() {
+    if (!client || !digestId) return;
+
+    const to = window.prompt("Send test digest to email:", "");
+    if (!to) return;
+
+    setTestSending(true);
+    try {
+      const { data: sessionData } = await client.auth.getSession();
+      const token = sessionData.session?.access_token;
+      if (!token) throw new Error("Please sign in again.");
+
+      const response = await fetch(`/api/digests/${digestId}/send-test`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ to }),
+      });
+
+      const payload = (await response.json()) as { error?: string; messageId?: string };
+      if (!response.ok) throw new Error(payload.error ?? "Unable to send test digest.");
+
+      setToast({ tone: "success", message: `Test digest sent to ${to}. Message ID: ${payload.messageId ?? "n/a"}` });
+    } catch (error) {
+      setToast({ tone: "error", message: error instanceof Error ? error.message : String(error) });
+    } finally {
+      setTestSending(false);
+    }
+  }
 
   function patchBuilder(patch: Partial<BuilderState>) {
     setBuilder((prev) => ({ ...prev, ...patch }));
@@ -673,6 +734,9 @@ export function DigestBuilder({ mode, digestId }: DigestBuilderProps) {
                   <Button variant="quiet" onClick={() => void persist(builder.state === "active" ? "paused" : "active")}>
                     {builder.state === "active" ? "Pause" : "Activate"}
                   </Button>
+                  <Button variant="quiet" onClick={() => void sendTestNow()} disabled={testSending}>
+                    <Send className="mr-2 h-4 w-4" /> Send test now
+                  </Button>
                   <Button variant="quiet" onClick={() => void deleteDigest()}>
                     <Trash2 className="mr-2 h-4 w-4" /> Delete
                   </Button>
@@ -721,6 +785,20 @@ export function DigestBuilder({ mode, digestId }: DigestBuilderProps) {
               </div>
             </div>
             {isDirty ? <p className="mt-3 text-xs text-amber-700">You have unsaved changes.</p> : null}
+            {mode === "edit" ? (
+              <div className="mt-4 rounded-xl border border-border/60 bg-background/70 p-3">
+                <p className="text-xs font-medium uppercase tracking-[0.12em] text-foreground/70">Upcoming sends</p>
+                <ul className="mt-2 space-y-1 text-xs text-foreground/80">
+                  {upcomingSends.length > 0 ? (
+                    upcomingSends.map((runAt) => (
+                      <li key={runAt}>{new Date(runAt).toLocaleString()}</li>
+                    ))
+                  ) : (
+                    <li>No upcoming sends scheduled yet.</li>
+                  )}
+                </ul>
+              </div>
+            ) : null}
           </CardContent>
         </Card>
       </div>

@@ -85,7 +85,7 @@ export async function runDigestRender(params: {
     profile_id: profile.id,
     user_id: profile.user_id,
     scheduled_for: now.toISOString(),
-    status: "composing",
+    status: "rendering",
     started_at: now.toISOString(),
     completed_at: null,
     error_message: null,

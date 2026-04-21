@@ -5,10 +5,11 @@ import { DIGEST_MODULE_KEYS } from "@/lib/digests/types";
 export const schedulingConfigSchema = z
   .object({
     timezone: z.string().min(1),
-    cadence: z.enum(["daily", "weekly", "monthly"]),
+    cadence: z.enum(["daily", "weekly", "monthly", "custom"]),
     time: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/),
     days: z.array(z.number().int().min(0).max(6)).optional(),
     dayOfMonth: z.number().int().min(1).max(31).optional(),
+    intervalDays: z.number().int().min(1).max(90).optional(),
   })
   .superRefine((value, ctx) => {
     if (value.cadence === "weekly" && (!value.days || value.days.length === 0)) {
@@ -24,6 +25,14 @@ export const schedulingConfigSchema = z
         code: z.ZodIssueCode.custom,
         path: ["dayOfMonth"],
         message: "Monthly schedules require a dayOfMonth.",
+      });
+    }
+
+    if (value.cadence === "custom" && (!value.days || value.days.length === 0) && !value.intervalDays) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["days"],
+        message: "Custom schedules require days or intervalDays.",
       });
     }
   });

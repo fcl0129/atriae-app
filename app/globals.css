@@ -30,7 +30,7 @@
   --text-body-size: clamp(0.97rem, 0.92rem + 0.16vw, 1.05rem);
   --text-body-leading: 1.78;
   --text-body-tracking: 0.01em;
-  --text-body-color: hsl(24 12% 24% / 0.92);
+  --text-body-color: hsl(140 22% 14% / 0.95);
   --text-max-width: 68ch;
 }
 

@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { RevealSection } from "@/components/layout/reveal-section";
+import { LandingHeroSection } from "@/components/sections/landing-hero-section";
 
 const signatureItems = [
   {
@@ -29,30 +30,7 @@ const perspectiveColumns = [
 export default function HomePage() {
   return (
     <div className="mx-auto w-full max-w-6xl space-y-[var(--space-section)] pb-24 pt-14 md:pt-20">
-      <RevealSection className="space-y-14">
-        <p className="text-[0.65rem] uppercase tracking-[0.28em] text-muted-foreground">Personal OS</p>
-
-        <h1 className="max-w-5xl text-[2.6rem] leading-[0.9] md:text-[5.6rem]">
-          <span className="block">A calm editorial home</span>
-          <span className="block">for learning, rituals,</span>
-          <span className="block">and life organization</span>
-        </h1>
-
-        <div className="grid gap-8 md:grid-cols-12 md:items-end md:gap-12">
-          <p className="max-w-2xl text-base leading-8 text-muted-foreground md:col-span-8 md:text-lg">
-            Atriaé gives your inner and practical life the same elegant space: serene typography, deliberate rhythm,
-            and quiet structure designed for daily clarity.
-          </p>
-          <div className="md:col-span-4 md:justify-self-end">
-            <Link
-              href="/dashboard"
-              className="editorial-cta text-sm text-foreground"
-            >
-              Begin your day
-            </Link>
-          </div>
-        </div>
-      </RevealSection>
+      <LandingHeroSection />
 
       <RevealSection className="space-y-12" id="features">
         <p className="text-[0.65rem] uppercase tracking-[0.28em] text-muted-foreground">Features</p>

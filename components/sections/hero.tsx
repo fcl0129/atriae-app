@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
@@ -8,16 +9,18 @@ import { SectionWrapper } from "@/components/landing/section-wrapper";
 
 export function HeroSection() {
   return (
-    <SectionWrapper>
+    <SectionWrapper className="pt-12 md:pt-16">
       <Container>
-        <div className="grid items-center gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-14">
+        <div className="grid items-center gap-10 lg:grid-cols-[1.02fr_0.98fr] lg:gap-14">
           <Reveal>
             <p className="mb-6 text-xs font-medium tracking-[0.24em] text-[#22392a]/85">THE ATRIAE SYSTEM</p>
-            <h1 className="text-4xl leading-[1.05] text-[#101a12] md:text-6xl">A system for thinking clearly.</h1>
-            <p className="mt-6 max-w-xl text-base leading-8 text-[#1f2d24]/92 md:text-xl">
-              Atriae turns messy thoughts into calm, deliberate action.
+            <h1 className="max-w-[15ch] text-[2.5rem] leading-[0.98] text-[#101a12] md:text-[4.15rem]">
+              A personal system for thinking clearly.
+            </h1>
+            <p className="mt-6 max-w-[50ch] text-base leading-8 text-[#1f2d24]/90 md:text-lg">
+              Atriae helps you learn continuously, choose with perspective, and move with intention.
             </p>
-            <div className="mt-10 flex flex-wrap items-center gap-5">
+            <div className="mt-9 flex flex-wrap items-center gap-5">
               <CtaButton>Request access</CtaButton>
               <Link
                 href="#value"
@@ -28,27 +31,26 @@ export function HeroSection() {
             </div>
           </Reveal>
 
-          <Reveal delay={120}>
-            <div className="relative mx-auto h-[420px] w-full max-w-[500px]">
-              <div className="absolute left-4 top-10 h-[310px] w-[82%] rounded-[2.1rem] border border-[#132318]/20 bg-[#f9f7f1]/96 p-4 shadow-[0_50px_80px_-58px_rgba(11,19,14,0.8)]">
-                <div className="mb-4 text-[11px] uppercase tracking-[0.22em] text-[#44584a]">iPad · Dashboard</div>
-                <div className="space-y-3 rounded-2xl bg-[#eef1e8] p-4">
-                  <div className="h-2 w-2/3 rounded-full bg-[#1f3d2b]/65" />
-                  <div className="h-2 w-1/2 rounded-full bg-[#1f3d2b]/25" />
-                  <div className="grid grid-cols-3 gap-2 pt-3">
-                    <div className="h-16 rounded-xl bg-white/90" />
-                    <div className="h-16 rounded-xl bg-[#e2eadd]" />
-                    <div className="h-16 rounded-xl bg-white/90" />
-                  </div>
-                </div>
+          <Reveal delay={80}>
+            <div className="relative mx-auto w-full max-w-[560px] pb-8">
+              <div className="relative z-10 overflow-hidden rounded-[2rem] border border-[#122619]/16 bg-[#fffdf8]/92 p-3 shadow-[0_40px_80px_-48px_rgba(15,29,21,0.72)]">
+                <Image
+                  src="/mockups/hero-ipad.svg"
+                  alt="Atriae iPad dashboard mockup"
+                  width={1400}
+                  height={980}
+                  className="h-auto w-full rounded-[1.5rem]"
+                  priority
+                />
               </div>
-
-              <div className="absolute bottom-0 right-0 h-[190px] w-[145px] rounded-[2.2rem] border border-[#132318]/20 bg-[#fcfbf7]/95 p-3 shadow-[0_34px_55px_-34px_rgba(17,30,22,0.75)]">
-                <div className="text-[10px] uppercase tracking-[0.22em] text-[#4c5f52]">Apple Watch</div>
-                <div className="mt-5 rounded-2xl bg-[#eaf0e7] p-3">
-                  <p className="text-[10px] tracking-[0.08em] text-[#38503f]">Focus</p>
-                  <p className="mt-2 text-lg leading-none text-[#122117]">Brief</p>
-                </div>
+              <div className="absolute -bottom-1 -right-3 z-20 w-[30%] min-w-[132px] overflow-hidden rounded-[2rem] border border-[#122619]/18 bg-[#fffdf8]/94 p-2 shadow-[0_30px_55px_-36px_rgba(16,30,22,0.74)] md:-right-4">
+                <Image
+                  src="/mockups/hero-watch.svg"
+                  alt="Atriae Apple Watch companion mockup"
+                  width={560}
+                  height={700}
+                  className="h-auto w-full rounded-[1.3rem]"
+                />
               </div>
             </div>
           </Reveal>

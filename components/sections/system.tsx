@@ -1,43 +1,39 @@
+import Image from "next/image";
+
 import { Container } from "@/components/landing/container";
 import { Reveal } from "@/components/landing/reveal";
 import { SectionWrapper } from "@/components/landing/section-wrapper";
 
 export function SystemSection() {
   return (
-    <SectionWrapper>
+    <SectionWrapper className="py-14 md:py-20">
       <Container>
-        <div className="grid items-center gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
+        <div className="grid items-center gap-10 lg:grid-cols-[0.82fr_1.18fr] lg:gap-16">
           <Reveal>
-            <h2 className="text-4xl leading-[1.05] text-[#111d15] md:text-5xl">
+            <h2 className="text-[2.3rem] leading-[0.98] text-[#111d15] md:text-[3.3rem]">
               All of life.
               <br />
               One system.
             </h2>
-            <p className="mt-6 text-base leading-8 text-[#24352b]/92 md:text-lg">
-              Notes, tasks, events, goals, habits — organized in one deliberate space so you can move through your day
-              with clarity.
+            <p className="mt-6 max-w-[42ch] text-base leading-8 text-[#24352b]/90 md:text-lg">
+              Notes, tasks, events, goals, and rituals — organized in one deliberate space.
+            </p>
+            <p className="mt-4 max-w-[42ch] text-base leading-8 text-[#24352b]/90 md:text-lg">
+              Atriae surfaces patterns in how you plan and decide, then teaches you how to think with more clarity over
+              time.
             </p>
           </Reveal>
 
-          <Reveal delay={120}>
-            <div className="mx-auto w-full max-w-[620px] rounded-[2rem] border border-[#122619]/20 bg-[#fffdf8]/90 p-6 shadow-[0_34px_72px_-50px_rgba(13,26,18,0.68)]">
-              <p className="mb-5 text-xs uppercase tracking-[0.22em] text-[#3c5746]">iPad · Planning View</p>
-              <div className="rounded-[1.4rem] bg-[#edf1e8] p-5">
-                <div className="h-2 w-40 rounded-full bg-[#1f3d2b]/70" />
-                <div className="mt-2 h-2 w-24 rounded-full bg-[#1f3d2b]/25" />
-                <div className="mt-6 grid gap-3 md:grid-cols-[1.2fr_0.8fr]">
-                  <div className="space-y-2 rounded-xl bg-white/92 p-4">
-                    <div className="h-2 w-4/5 rounded-full bg-[#1f3d2b]/35" />
-                    <div className="h-2 w-3/5 rounded-full bg-[#1f3d2b]/20" />
-                    <div className="h-20 rounded-lg bg-[#f2f5ef]" />
-                  </div>
-                  <div className="space-y-2 rounded-xl bg-[#f8faf6] p-4">
-                    <div className="h-2 w-3/4 rounded-full bg-[#1f3d2b]/35" />
-                    <div className="h-2 w-2/5 rounded-full bg-[#1f3d2b]/20" />
-                    <div className="h-20 rounded-lg bg-white" />
-                  </div>
-                </div>
-              </div>
+          <Reveal delay={90}>
+            <div className="mx-auto w-full max-w-[680px] overflow-hidden rounded-[2.1rem] border border-[#122619]/20 bg-[#fffdf8]/90 p-4 shadow-[0_34px_72px_-50px_rgba(13,26,18,0.68)] md:p-6">
+              <p className="mb-5 text-xs uppercase tracking-[0.22em] text-[#3c5746]">System view · iPad</p>
+              <Image
+                src="/mockups/system-ipad.svg"
+                alt="Atriae planning and learning system on iPad"
+                width={1440}
+                height={980}
+                className="h-auto w-full rounded-[1.5rem]"
+              />
             </div>
           </Reveal>
         </div>

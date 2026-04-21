@@ -26,7 +26,7 @@ export function Reveal({ children, className, delay = 0 }: RevealProps) {
           observer.disconnect();
         }
       },
-      { threshold: 0.14 }
+      { threshold: 0.16 }
     );
 
     observer.observe(node);
@@ -38,7 +38,7 @@ export function Reveal({ children, className, delay = 0 }: RevealProps) {
       ref={ref}
       style={{ transitionDelay: `${delay}ms` }}
       className={cn(
-        "translate-y-4 opacity-0 transition-all duration-700 ease-out will-change-transform",
+        "translate-y-3 opacity-0 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform",
         visible && "translate-y-0 opacity-100",
         className
       )}

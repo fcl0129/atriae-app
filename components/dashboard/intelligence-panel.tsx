@@ -17,17 +17,18 @@ export function IntelligencePanel() {
       const res = await fetch("/api/assistant", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: payload.text, mode: payload.mode })
+        body: JSON.stringify({ input: payload.text, mode: payload.mode })
       });
 
-      const data = (await res.json()) as { output?: string; error?: string };
+      const data = (await res.json()) as { text?: string; error?: string };
       if (!res.ok) {
         throw new Error(data.error ?? "Assistant unavailable");
       }
 
-      setResponse(data.output ?? "");
+      setResponse(data.text ?? "");
     } catch {
-      setError("The intelligence layer is unavailable right now. Please try again in a moment.");
+      setError("I'm having trouble reaching the intelligence layer right now. You can keep going, and try again in a moment.");
+      setResponse("I'm temporarily unable to respond right now, but your thought was captured. Please try again shortly.");
     } finally {
       setLoading(false);
     }

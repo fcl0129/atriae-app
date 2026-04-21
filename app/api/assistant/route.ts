@@ -1,11 +1,12 @@
+import OpenAI from "openai";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
-import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { assertOpenAIKey } from "@/lib/env/openai";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 const requestSchema = z.object({
-  text: z.string().trim().min(1).max(3000),
+  input: z.string().trim().min(1).max(3000),
   mode: z.enum(["learn", "plan", "focus", "organize"]).optional()
 });
 
@@ -105,24 +106,6 @@ type OpenAIResponse = {
   output?: Array<ResponseFunctionCallItem | ResponseMessageItem | { type?: string }>;
 };
 
-async function callResponsesApi(body: Record<string, unknown>) {
-  const res = await fetch("https://api.openai.com/v1/responses", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${assertOpenAIKey()}`
-    },
-    body: JSON.stringify(body)
-  });
-
-  if (!res.ok) {
-    const errorText = await res.text();
-    throw new Error(`OpenAI error: ${errorText}`);
-  }
-
-  return (await res.json()) as OpenAIResponse;
-}
-
 async function executeTool(supabase: Awaited<ReturnType<typeof createServerSupabaseClient>>, userId: string, call: { name: string; arguments: string }) {
   const args = call.arguments ? JSON.parse(call.arguments) : {};
 
@@ -214,7 +197,7 @@ function extractText(response: OpenAIResponse) {
     }
   }
 
-  return "I couldn’t generate a complete response just now. Please try once more.";
+  return "I couldn't generate a complete response just now. Please try once more.";
 }
 
 const SYSTEM_INSTRUCTION = `You are the Atriae assistant.
@@ -231,6 +214,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid request" }, { status: 400 });
     }
 
+    const apiKey = assertOpenAIKey();
+    const client = new OpenAI({ apiKey });
+
     const supabase = await createServerSupabaseClient();
     const {
       data: { user }
@@ -240,12 +226,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    let response = await callResponsesApi({
+    let response = (await client.responses.create({
       model: "gpt-5.1",
       instructions: SYSTEM_INSTRUCTION,
-      input: [{ role: "user", content: `Mode: ${parsed.data.mode ?? "general"}\n\n${parsed.data.text}` }],
+      input: [{ role: "user", content: `Mode: ${parsed.data.mode ?? "general"}\n\n${parsed.data.input}` }],
       tools: TOOL_DEFS
-    });
+    })) as OpenAIResponse;
 
     for (let loop = 0; loop < 8; loop += 1) {
       const toolCalls = (response.output ?? []).filter(isFunctionCallItem);
@@ -267,15 +253,19 @@ export async function POST(request: Request) {
         })
       );
 
-      response = await callResponsesApi({
+      response = (await client.responses.create({
         model: "gpt-5.1",
         previous_response_id: response.id,
         input: toolOutputs
-      });
+      })) as OpenAIResponse;
     }
 
-    return NextResponse.json({ output: extractText(response) });
+    return NextResponse.json({ text: extractText(response) });
   } catch (error) {
+    if (error instanceof Error && error.message.includes("OPENAI_API_KEY is required")) {
+      return NextResponse.json({ error: "Server misconfiguration: OPENAI_API_KEY is missing." }, { status: 500 });
+    }
+
     const message = error instanceof Error ? error.message : "Unknown assistant error";
     return NextResponse.json({ error: message }, { status: 500 });
   }

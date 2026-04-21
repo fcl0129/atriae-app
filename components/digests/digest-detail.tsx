@@ -10,6 +10,7 @@ import { SectionHeader } from "@/components/layout/section-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import type { DigestRun, UserDigestProfile } from "@/lib/digests";
+import { isValidEmail } from "@/lib/digests/validation";
 import { supabase } from "@/lib/supabase";
 
 type DigestDetailProps = {
@@ -36,11 +37,13 @@ export function DigestDetail({ digestId, initialRunId }: DigestDetailProps) {
   const [selectedRunId, setSelectedRunId] = useState<string | null>(initialRunId ?? null);
   const [message, setMessage] = useState("");
   const [testEmail, setTestEmail] = useState("");
+  const [state, setState] = useState<"loading" | "ready" | "error">("loading");
 
   useEffect(() => {
     async function load() {
       if (!client) {
         setMessage("Supabase is not configured.");
+        setState("error");
         return;
       }
 
@@ -51,19 +54,19 @@ export function DigestDetail({ digestId, initialRunId }: DigestDetailProps) {
 
       if (profileError || runError) {
         setMessage(profileError?.message ?? runError?.message ?? "Unable to load digest detail.");
+        setState("error");
         return;
       }
 
       setProfile((profileData as UserDigestProfile | null) ?? null);
       const runItems = (runData ?? []) as DigestRun[];
       setRuns(runItems);
-      if (!selectedRunId && runItems[0]) {
-        setSelectedRunId(runItems[0].id);
-      }
+      setSelectedRunId((current) => current ?? runItems[0]?.id ?? null);
+      setState("ready");
     }
 
     void load();
-  }, [client, digestId, selectedRunId]);
+  }, [client, digestId]);
 
   const selectedRun = runs.find((run) => run.id === selectedRunId) ?? null;
   const renderHtml = (selectedRun?.render_payload?.html as string | undefined) ?? "";
@@ -117,6 +120,10 @@ export function DigestDetail({ digestId, initialRunId }: DigestDetailProps) {
       setMessage("Please sign in before sending test email.");
       return;
     }
+    if (!isValidEmail(testEmail)) {
+      setMessage("Please provide a valid recipient email.");
+      return;
+    }
 
     const response = await fetch(`/api/digests/${profile.id}/send-test`, {
       method: "POST",
@@ -159,13 +166,21 @@ export function DigestDetail({ digestId, initialRunId }: DigestDetailProps) {
         }
       />
 
+      {state === "loading" ? (
+        <Card className="animate-pulse">
+          <CardHeader>
+            <div className="h-8 w-48 rounded bg-muted" />
+          </CardHeader>
+        </Card>
+      ) : null}
+
       {message ? (
         <Card className="border-border/70 bg-paper/75">
           <CardContent className="py-4 text-sm">{message}</CardContent>
         </Card>
       ) : null}
 
-      <Card surface="paper" className="border-border/80">
+      {state !== "loading" ? <Card surface="paper" className="border-border/80">
         <CardHeader>
           <CardTitle className="text-2xl">Management actions</CardTitle>
           <CardDescription>Pause, resume, duplicate, test, edit, or archive cleanly.</CardDescription>
@@ -208,9 +223,9 @@ export function DigestDetail({ digestId, initialRunId }: DigestDetailProps) {
             </Button>
           </div>
         </CardContent>
-      </Card>
+      </Card> : null}
 
-      <div className="grid gap-4 lg:grid-cols-[0.95fr_1.05fr]">
+      {state !== "loading" ? <div className="grid gap-4 lg:grid-cols-[0.95fr_1.05fr]">
         <Card surface="tinted" className="border-border/70">
           <CardHeader>
             <CardTitle className="text-xl">Past runs</CardTitle>
@@ -252,7 +267,7 @@ export function DigestDetail({ digestId, initialRunId }: DigestDetailProps) {
             )}
           </CardContent>
         </Card>
-      </div>
+      </div> : null}
     </PageContainer>
   );
 }

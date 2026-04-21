@@ -12,6 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { digestModuleRegistry, type DigestModuleKey, type ModuleConfig, type UserDigestProfile } from "@/lib/digests";
 import { userDigestProfileSchema } from "@/lib/digests/schemas";
+import { isValidEmail, isValidIanaTimeZone } from "@/lib/digests/validation";
 import { supabase } from "@/lib/supabase";
 
 type BuilderStep =
@@ -51,6 +52,7 @@ interface BuilderState {
   sendTime: string;
   timezone: string;
   language: string;
+  deliveryEmail: string;
   tone: "elegant" | "editorial" | "warm" | "polished" | "gentle" | "uplifted" | "clear" | "smart";
   layoutStyle: "newspaper" | "minimal" | "letter";
   modules: BuilderModuleConfig[];
@@ -95,6 +97,7 @@ function buildDefaultState(): BuilderState {
     sendTime: "07:30",
     timezone: DEFAULT_TIMEZONE,
     language: "en-US",
+    deliveryEmail: "",
     tone: "editorial",
     layoutStyle: "newspaper",
     modules: buildDefaultModules(),
@@ -124,6 +127,7 @@ function mapProfileToBuilder(profile: UserDigestProfile): BuilderState {
     sendTime: profile.scheduling_config.time,
     timezone: profile.timezone,
     language: profile.digest_config.locale ?? "en-US",
+    deliveryEmail: typeof personalization.deliveryEmail === "string" ? personalization.deliveryEmail : "",
     tone: profile.digest_config.voice,
     layoutStyle: (personalization.layoutStyle as BuilderState["layoutStyle"]) ?? "newspaper",
     modules: moduleConfig,
@@ -153,6 +157,7 @@ function builderToPayload(builder: BuilderState) {
       personalization: {
         internalLabel: builder.internalLabel,
         layoutStyle: builder.layoutStyle,
+        deliveryEmail: builder.deliveryEmail.trim(),
       },
     },
     module_config: builder.modules
@@ -172,6 +177,8 @@ function validateBuilder(builder: BuilderState) {
 
   if (!builder.digestName.trim()) issues.push("Digest name is required.");
   if (!builder.internalLabel.trim()) issues.push("Internal label is required to help you organize variants.");
+  if (!isValidIanaTimeZone(builder.timezone)) issues.push("Timezone must be a valid IANA value (for example: America/New_York).");
+  if (!isValidEmail(builder.deliveryEmail)) issues.push("Delivery email is required to activate or test a digest.");
   if (builder.frequency === "weekly" && (builder.dayOfWeek < 0 || builder.dayOfWeek > 6)) issues.push("Pick a valid day of week for weekly schedule.");
   if (builder.frequency === "custom" && builder.customDays.length === 0) issues.push("Choose at least one day for custom frequency.");
   if (builder.modules.filter((m) => m.enabled).length === 0) issues.push("Enable at least one module for the digest.");
@@ -203,6 +210,7 @@ export function DigestBuilder({ mode, digestId }: DigestBuilderProps) {
   const [errors, setErrors] = useState<string[]>([]);
   const [testSending, setTestSending] = useState(false);
   const [upcomingSends, setUpcomingSends] = useState<string[]>([]);
+  const [upcomingState, setUpcomingState] = useState<"idle" | "loading" | "error">("idle");
 
   const sortedModules = useMemo(() => builder.modules.slice().sort((a, b) => (a.order ?? 0) - (b.order ?? 0)), [builder.modules]);
   const isDirty = initialSnapshot !== JSON.stringify(builder);
@@ -260,15 +268,20 @@ export function DigestBuilder({ mode, digestId }: DigestBuilderProps) {
       const token = sessionData.session?.access_token;
       if (!token) return;
 
+      setUpcomingState("loading");
       const response = await fetch(`/api/digests/${digestId}/upcoming`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
-      if (!response.ok) return;
+      if (!response.ok) {
+        setUpcomingState("error");
+        return;
+      }
       const payload = (await response.json()) as { upcoming?: string[] };
       setUpcomingSends(payload.upcoming ?? []);
+      setUpcomingState("idle");
     }
 
     void loadUpcoming();
@@ -277,8 +290,13 @@ export function DigestBuilder({ mode, digestId }: DigestBuilderProps) {
   async function sendTestNow() {
     if (!client || !digestId) return;
 
-    const to = window.prompt("Send test digest to email:", "");
+    const defaultRecipient = builder.deliveryEmail.trim();
+    const to = window.prompt("Send test digest to email:", defaultRecipient);
     if (!to) return;
+    if (!isValidEmail(to)) {
+      setToast({ tone: "error", message: "Please enter a valid recipient email address." });
+      return;
+    }
 
     setTestSending(true);
     try {
@@ -584,6 +602,15 @@ export function DigestBuilder({ mode, digestId }: DigestBuilderProps) {
                 <span>Timezone</span>
                 <Input value={builder.timezone} onChange={(event) => patchBuilder({ timezone: event.target.value })} placeholder="America/New_York" />
               </label>
+              <label className="space-y-2 text-sm md:col-span-2">
+                <span>Delivery email</span>
+                <Input
+                  type="email"
+                  value={builder.deliveryEmail}
+                  onChange={(event) => patchBuilder({ deliveryEmail: event.target.value })}
+                  placeholder="you@example.com"
+                />
+              </label>
             </CardContent>
           </Card>
 
@@ -731,10 +758,10 @@ export function DigestBuilder({ mode, digestId }: DigestBuilderProps) {
                   <Button variant="quiet" onClick={() => void duplicateDigest()}>
                     <Copy className="mr-2 h-4 w-4" /> Duplicate digest
                   </Button>
-                  <Button variant="quiet" onClick={() => void persist(builder.state === "active" ? "paused" : "active")}>
+                  <Button variant="quiet" disabled={saving} onClick={() => void persist(builder.state === "active" ? "paused" : "active")}>
                     {builder.state === "active" ? "Pause" : "Activate"}
                   </Button>
-                  <Button variant="quiet" onClick={() => void sendTestNow()} disabled={testSending}>
+                  <Button variant="quiet" onClick={() => void sendTestNow()} disabled={testSending || saving}>
                     <Send className="mr-2 h-4 w-4" /> Send test now
                   </Button>
                   <Button variant="quiet" onClick={() => void deleteDigest()}>
@@ -789,13 +816,16 @@ export function DigestBuilder({ mode, digestId }: DigestBuilderProps) {
               <div className="mt-4 rounded-xl border border-border/60 bg-background/70 p-3">
                 <p className="text-xs font-medium uppercase tracking-[0.12em] text-foreground/70">Upcoming sends</p>
                 <ul className="mt-2 space-y-1 text-xs text-foreground/80">
-                  {upcomingSends.length > 0 ? (
+                  {upcomingState === "loading" ? <li>Loading upcoming sends…</li> : null}
+                  {upcomingState === "error" ? <li>Unable to load upcoming sends right now.</li> : null}
+                  {upcomingState === "idle" && upcomingSends.length > 0 ? (
                     upcomingSends.map((runAt) => (
                       <li key={runAt}>{new Date(runAt).toLocaleString()}</li>
                     ))
-                  ) : (
+                  ) : null}
+                  {upcomingState === "idle" && upcomingSends.length === 0 ? (
                     <li>No upcoming sends scheduled yet.</li>
-                  )}
+                  ) : null}
                 </ul>
               </div>
             ) : null}

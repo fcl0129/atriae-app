@@ -175,6 +175,17 @@ export function DigestOverview() {
         </Card>
       ) : null}
 
+      {state === "loading" ? (
+        <Card className="animate-pulse">
+          <CardHeader>
+            <div className="h-6 w-52 rounded bg-muted" />
+          </CardHeader>
+          <CardContent>
+            <div className="h-20 rounded bg-muted/70" />
+          </CardContent>
+        </Card>
+      ) : null}
+
       {state === "ready" && profiles.length === 0 ? (
         <Card surface="glass">
           <CardHeader>

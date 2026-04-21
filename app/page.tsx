@@ -54,8 +54,8 @@ export default function HomePage() {
         </div>
       </RevealSection>
 
-      <RevealSection className="space-y-12">
-        <p className="text-[0.65rem] uppercase tracking-[0.28em] text-muted-foreground">Signature</p>
+      <RevealSection className="space-y-12" id="features">
+        <p className="text-[0.65rem] uppercase tracking-[0.28em] text-muted-foreground">Features</p>
         <div className="grid gap-12 md:grid-cols-3 md:gap-14">
           {signatureItems.map((item) => (
             <article key={item.title} className="space-y-5">
@@ -78,7 +78,7 @@ export default function HomePage() {
         </div>
       </RevealSection>
 
-      <RevealSection className="space-y-12">
+      <RevealSection className="space-y-12" id="experience">
         <p className="text-[0.65rem] uppercase tracking-[0.28em] text-muted-foreground">Experience</p>
         <div className="grid gap-10 md:grid-cols-12 md:gap-14">
           <h2 className="text-[2rem] leading-[0.95] md:col-span-7 md:text-[3.8rem]">

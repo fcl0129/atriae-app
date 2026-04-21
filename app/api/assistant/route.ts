@@ -1,5 +1,4 @@
 import OpenAI from "openai";
-import type { ResponseCreateParamsBase } from "openai/resources/responses/responses";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -10,8 +9,6 @@ const requestSchema = z.object({
   input: z.string().trim().min(1).max(3000),
   mode: z.enum(["learn", "plan", "focus", "organize"]).optional()
 });
-
-const TOOL_DEFS: ResponseCreateParamsBase["tools"] = [];
 
 function fallbackResponse(input: string) {
   return `You wrote: "${input}"\n\nAtriae is not connected to its intelligence layer yet.\n\nInstead, try to:

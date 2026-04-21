@@ -2,6 +2,7 @@ import { sendEmail } from "@/lib/email/mailer";
 import { renderDigestForProfile } from "@/lib/digests/rendering/engine";
 import type { DigestRepository } from "@/lib/digests/repository";
 import type { DigestRun, UserDigestProfile } from "@/lib/digests/types";
+import { isValidEmail, redactSmtpError } from "@/lib/digests/validation";
 
 const MAX_RETRIES = 3;
 
@@ -13,7 +14,7 @@ function isTransientError(message: string) {
 function resolveRecipient(profile: UserDigestProfile) {
   const personalization = (profile.digest_config.personalization ?? {}) as Record<string, unknown>;
   const email = personalization.deliveryEmail;
-  return typeof email === "string" && email.includes("@") ? email : null;
+  return typeof email === "string" && isValidEmail(email) ? email : null;
 }
 
 async function markRunFailed(repository: DigestRepository, run: DigestRun, error: unknown) {
@@ -46,11 +47,6 @@ async function markRunFailed(repository: DigestRepository, run: DigestRun, error
 
 export async function deliverRun(repository: DigestRepository, run: DigestRun) {
   try {
-    await repository.updateRun(run.id, {
-      status: "rendering",
-      started_at: run.started_at ?? new Date().toISOString(),
-    });
-
     const profile = await repository.getProfileById(run.profile_id);
     if (!profile) throw new Error(`Profile ${run.profile_id} not found.`);
 
@@ -75,7 +71,7 @@ export async function deliverRun(repository: DigestRepository, run: DigestRun) {
     });
 
     if (!sent.ok) {
-      throw new Error(sent.error);
+      throw new Error(redactSmtpError(sent.error));
     }
 
     await repository.updateRun(run.id, {

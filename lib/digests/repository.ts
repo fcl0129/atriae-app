@@ -149,6 +149,22 @@ export class DigestRepository {
     return data as DigestRun;
   }
 
+  async claimRunForDelivery(runId: string, expectedStatus: DigestRun["status"], startedAtIso: string) {
+    const { data, error } = await this.table("digest_runs")
+      .update({
+        status: "rendering",
+        started_at: startedAtIso,
+        error_message: null,
+      } as never)
+      .eq("id", runId)
+      .eq("status", expectedStatus)
+      .select("*")
+      .maybeSingle();
+
+    if (error) throw error;
+    return (data ?? null) as DigestRun | null;
+  }
+
   async createSource(input: TableInsert<"digest_sources">) {
     const { data, error } = await this.table("digest_sources")
       .insert(input as never)

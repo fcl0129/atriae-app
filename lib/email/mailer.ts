@@ -4,6 +4,7 @@ import { Socket, connect as connectTcp } from "node:net";
 import { hostname } from "node:os";
 import { connect as connectTls, TLSSocket } from "node:tls";
 
+import { redactSmtpError } from "@/lib/digests/validation";
 import { assertSmtpEnv } from "@/lib/env/smtp";
 
 export type SendEmailInput = {
@@ -200,13 +201,15 @@ export async function verifySmtpTransport() {
     const result = await sendViaSmtp({ to: "verify@example.com", subject: "", html: "", text: "" }, true);
     return result;
   } catch (error) {
+    const safeError = redactSmtpError(error);
     console.error("[email][smtp-verify-failed]", {
-      message: error instanceof Error ? error.message : "Unknown SMTP verify failure"
+      message: error instanceof Error ? error.message : "Unknown SMTP verify failure",
+      safeError,
     });
 
     return {
       ok: false as const,
-      error: error instanceof Error ? error.message : "Unknown SMTP verify failure"
+      error: safeError,
     };
   }
 }
@@ -215,15 +218,17 @@ export async function sendEmail(input: SendEmailInput) {
   try {
     return await sendViaSmtp(input, false);
   } catch (error) {
+    const safeError = redactSmtpError(error);
     console.error("[email][smtp-send-failed]", {
       to: input.to,
       subject: input.subject,
-      message: error instanceof Error ? error.message : "Unknown SMTP send failure"
+      message: error instanceof Error ? error.message : "Unknown SMTP send failure",
+      safeError,
     });
 
     return {
       ok: false as const,
-      error: error instanceof Error ? error.message : "Unknown SMTP send failure"
+      error: safeError,
     };
   }
 }

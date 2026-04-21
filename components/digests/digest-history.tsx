@@ -40,17 +40,20 @@ export function DigestHistory() {
   const client = useMemo(() => supabase, []);
   const [rows, setRows] = useState<RunRow[]>([]);
   const [message, setMessage] = useState("");
+  const [state, setState] = useState<"loading" | "ready" | "error">("loading");
 
   useEffect(() => {
     async function load() {
       if (!client) {
         setMessage("Supabase is not configured.");
+        setState("error");
         return;
       }
 
       const { data: authData } = await client.auth.getUser();
       if (!authData.user) {
         setMessage("Please sign in to view digest history.");
+        setState("error");
         return;
       }
 
@@ -63,10 +66,12 @@ export function DigestHistory() {
 
       if (error) {
         setMessage(error.message);
+        setState("error");
         return;
       }
 
       setRows((data ?? []) as unknown as RunRow[]);
+      setState("ready");
     }
 
     void load();
@@ -113,6 +118,17 @@ export function DigestHistory() {
       {message ? (
         <Card className="border-red-200/80 bg-red-50/40">
           <CardContent className="py-5 text-sm">{message}</CardContent>
+        </Card>
+      ) : null}
+
+      {state === "loading" ? (
+        <Card className="animate-pulse">
+          <CardHeader>
+            <div className="h-6 w-44 rounded bg-muted" />
+          </CardHeader>
+          <CardContent>
+            <div className="h-24 rounded bg-muted/70" />
+          </CardContent>
         </Card>
       ) : null}
 

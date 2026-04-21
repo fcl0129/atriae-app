@@ -1,5 +1,8 @@
 "use client";
 
+import { Check, Dot } from "lucide-react";
+
+import { LiquidGlassCard } from "@/components/ui/liquid-glass-card";
 import { StackingCard, StackingCards } from "@/components/ui/stacking-cards";
 
 const storyCards = [
@@ -44,6 +47,31 @@ export function AtriaeFeatureStorySection() {
           Atriae guides the full event arc — from first concept to live execution — with restrained motion and clear
           hierarchy built for modern hospitality teams.
         </p>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-[1fr_auto] md:items-start">
+        <div />
+        <div className="grid w-full max-w-sm gap-3 md:-mt-8">
+          <LiquidGlassCard className="md:translate-x-3" tone="neutral">
+            <p className="text-[0.68rem] uppercase tracking-[0.18em] text-muted-foreground">Floating event preview</p>
+            <h3 className="mt-2 text-lg leading-tight">Gallery Dinner · Thursday</h3>
+            <p className="mt-1 text-xs text-muted-foreground">48 guests · 7:30 PM · Main courtyard</p>
+          </LiquidGlassCard>
+
+          <LiquidGlassCard className="md:-translate-x-1" tone="warm" padding="compact">
+            <p className="text-[0.68rem] uppercase tracking-[0.18em] text-muted-foreground">RSVP status</p>
+            <ul className="mt-2 space-y-1.5 text-xs text-foreground/85">
+              <li className="flex items-center gap-2">
+                <Check className="h-3.5 w-3.5 text-foreground/70" />
+                36 confirmed
+              </li>
+              <li className="flex items-center gap-2">
+                <Dot className="h-3.5 w-3.5 text-foreground/55" />
+                9 pending response
+              </li>
+            </ul>
+          </LiquidGlassCard>
+        </div>
       </div>
 
       <StackingCards

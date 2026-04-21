@@ -254,7 +254,7 @@ export async function POST(request: Request) {
         toolCalls.map(async (call) => {
           const output = await executeTool(supabase, user.id, call);
           return {
-            type: "function_call_output",
+            type: "function_call_output" as const,
             call_id: call.call_id,
             output: JSON.stringify(output)
           };

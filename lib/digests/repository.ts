@@ -64,6 +64,46 @@ export class DigestRepository {
     return (data ?? []) as TableRow<"user_digest_profiles">[];
   }
 
+
+  async getProfileById(profileId: string) {
+    const { data, error } = await this.table("user_digest_profiles")
+      .select("*")
+      .eq("id", profileId)
+      .maybeSingle();
+
+    if (error) throw error;
+    return (data ?? null) as UserDigestProfile | null;
+  }
+
+  async listDueProfiles(nowIso: string, limit = 50) {
+    const { data, error } = await this.table("user_digest_profiles")
+      .select("*")
+      .eq("status", "active")
+      .not("next_run_at", "is", null)
+      .lte("next_run_at", nowIso)
+      .order("next_run_at", { ascending: true })
+      .limit(limit);
+
+    if (error) throw error;
+    return (data ?? []) as UserDigestProfile[];
+  }
+
+  async listRunsForDelivery(nowIso: string, limit = 50) {
+    const { data, error } = await this.table("digest_runs")
+      .select("*")
+      .in("status", ["queued", "failed"])
+      .lte("scheduled_for", nowIso)
+      .order("scheduled_for", { ascending: true })
+      .limit(limit);
+
+    if (error) throw error;
+
+    return ((data ?? []) as DigestRun[]).filter((run) => {
+      const nextAttemptAt = (run.delivery_meta?.nextAttemptAt as string | undefined) ?? null;
+      return !nextAttemptAt || nextAttemptAt <= nowIso;
+    });
+  }
+
   async updateUserProfile(profileId: string, updates: TableUpdate<"user_digest_profiles">) {
     const { data, error } = await this.table("user_digest_profiles")
       .update(updates as never)
@@ -86,6 +126,17 @@ export class DigestRepository {
   }
 
 
+
+
+  async getRunById(runId: string) {
+    const { data, error } = await this.table("digest_runs")
+      .select("*")
+      .eq("id", runId)
+      .maybeSingle();
+
+    if (error) throw error;
+    return (data ?? null) as DigestRun | null;
+  }
 
   async updateRun(runId: string, updates: TableUpdate<"digest_runs">) {
     const { data, error } = await this.table("digest_runs")
@@ -118,6 +169,19 @@ export class DigestRepository {
     if (error) throw error;
     return (data ?? []) as DigestSource[];
   }
+
+  async listUpcomingRuns(profileId: string, fromIso: string, limit = 5) {
+    const { data, error } = await this.table("digest_runs")
+      .select("*")
+      .eq("profile_id", profileId)
+      .gte("scheduled_for", fromIso)
+      .order("scheduled_for", { ascending: true })
+      .limit(limit);
+
+    if (error) throw error;
+    return (data ?? []) as TableRow<"digest_runs">[];
+  }
+
 
   async listRunsForProfile(profileId: string) {
     const { data, error } = await this.table("digest_runs")

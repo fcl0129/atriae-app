@@ -73,3 +73,11 @@ Keeping these two configurations aligned avoids sender mismatch and deliverabili
 
 - This v1 focuses on architecture, visual consistency, and polished placeholders.
 - Auth flows, data models, and business logic are intentionally deferred for next iterations.
+
+
+## Curated digest automation
+
+- Trigger scheduled digest orchestration with `POST /api/internal/digests/cron` (optionally secured by `DIGEST_CRON_SECRET` using `x-cron-secret`).
+- Job flow: select due profiles (`next_run_at <= now`) -> create unique queued run per `profile_id + scheduled_for` -> render -> send via SMTP -> transition run status through `queued`, `rendering`, `sending`, `sent` / `failed`.
+- Retry metadata is persisted in `digest_runs.delivery_meta` (`retryCount`, `nextAttemptAt`) for transient SMTP failures.
+- Manual preview delivery is available at `POST /api/digests/:id/send-test` and upcoming send projections at `GET /api/digests/:id/upcoming`.

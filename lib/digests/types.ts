@@ -23,9 +23,9 @@ export type DigestModuleKey = (typeof DIGEST_MODULE_KEYS)[number];
 
 export type RitualType = "ritual" | "brief" | "digest";
 export type ProfileStatus = "active" | "paused" | "archived";
-export type DigestRunStatus = "queued" | "composing" | "sent" | "failed" | "skipped";
+export type DigestRunStatus = "queued" | "rendering" | "sending" | "sent" | "failed";
 
-export type DigestCadence = "daily" | "weekly" | "monthly";
+export type DigestCadence = "daily" | "weekly" | "monthly" | "custom";
 
 export interface SchedulingConfig {
   timezone: string;
@@ -33,6 +33,7 @@ export interface SchedulingConfig {
   time: string;
   days?: number[];
   dayOfMonth?: number;
+  intervalDays?: number;
 }
 
 export interface ModuleConfig {

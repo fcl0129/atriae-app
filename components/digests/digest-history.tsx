@@ -82,14 +82,14 @@ export function DigestHistory() {
   const scheduled = rows.filter((run) => ["queued", "rendering", "sending"].includes(run.status));
 
   return (
-    <PageContainer className="space-y-8 pb-16">
+    <PageContainer className="space-y-7 pb-16 md:space-y-8">
       <SectionHeader
         eyebrow="Curated digests"
-        title="Send history"
-        description="Every run in one place — sent, failed, and upcoming in the queue."
+        title="Dispatch history"
+        description="Every issue in one place — sent, failed, and queued."
         action={
           <Button variant="quiet" asChild>
-            <Link href="/digests">Back to overview</Link>
+            <Link href="/digests">Back to rituals</Link>
           </Button>
         }
       />
@@ -135,20 +135,20 @@ export function DigestHistory() {
       {rows.length === 0 ? (
         <Card surface="glass">
           <CardHeader>
-            <CardTitle>No digest runs yet</CardTitle>
-            <CardDescription>Your first send will appear here with subject and delivery state.</CardDescription>
+            <CardTitle>No dispatches yet</CardTitle>
+            <CardDescription>Your first sent issue will appear here with subject and delivery state.</CardDescription>
           </CardHeader>
         </Card>
       ) : null}
 
       {rows.length > 0 ? (
-        <Card surface="paper" className="border-border/80">
+        <Card surface="paper" className="overflow-hidden border-border/80">
           <CardContent className="p-0">
             <div className="overflow-x-auto">
               <table className="min-w-full text-left text-sm">
                 <thead className="border-b border-border/70 bg-paper/60 text-xs uppercase tracking-[0.14em] text-muted-foreground">
                   <tr>
-                    <th className="px-5 py-3">Digest</th>
+                    <th className="px-5 py-3">Ritual</th>
                     <th className="px-5 py-3">Subject line</th>
                     <th className="px-5 py-3">Scheduled</th>
                     <th className="px-5 py-3">Sent at</th>

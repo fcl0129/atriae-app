@@ -60,13 +60,13 @@ interface BuilderState {
 }
 
 const STEPS: { key: BuilderStep; label: string }[] = [
-  { key: "starting_point", label: "1. Starting point" },
+  { key: "starting_point", label: "1. Foundation" },
   { key: "schedule", label: "2. Schedule" },
-  { key: "tone_style", label: "3. Tone & style" },
+  { key: "tone_style", label: "3. Voice & style" },
   { key: "modules", label: "4. Modules" },
-  { key: "arrange", label: "5. Arrange" },
-  { key: "preview", label: "6. Live preview" },
-  { key: "save", label: "7. Save & activate" },
+  { key: "arrange", label: "5. Sequence" },
+  { key: "preview", label: "6. Preview" },
+  { key: "save", label: "7. Publish" },
 ];
 
 const WEEKDAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -178,10 +178,10 @@ function validateBuilder(builder: BuilderState) {
   if (!builder.digestName.trim()) issues.push("Digest name is required.");
   if (!builder.internalLabel.trim()) issues.push("Internal label is required to help you organize variants.");
   if (!isValidIanaTimeZone(builder.timezone)) issues.push("Timezone must be a valid IANA value (for example: America/New_York).");
-  if (!isValidEmail(builder.deliveryEmail)) issues.push("Delivery email is required to activate or test a digest.");
+  if (!isValidEmail(builder.deliveryEmail)) issues.push("A delivery email is required to activate or test this digest.");
   if (builder.frequency === "weekly" && (builder.dayOfWeek < 0 || builder.dayOfWeek > 6)) issues.push("Pick a valid day of week for weekly schedule.");
   if (builder.frequency === "custom" && builder.customDays.length === 0) issues.push("Choose at least one day for custom frequency.");
-  if (builder.modules.filter((m) => m.enabled).length === 0) issues.push("Enable at least one module for the digest.");
+  if (builder.modules.filter((m) => m.enabled).length === 0) issues.push("Enable at least one module before publishing.");
 
   for (const moduleEntry of builder.modules) {
     if (moduleEntry.settings.itemCount < 1 || moduleEntry.settings.itemCount > 12) {
@@ -291,7 +291,7 @@ export function DigestBuilder({ mode, digestId }: DigestBuilderProps) {
     if (!client || !digestId) return;
 
     const defaultRecipient = builder.deliveryEmail.trim();
-    const to = window.prompt("Send test digest to email:", defaultRecipient);
+    const to = window.prompt("Send test issue to email:", defaultRecipient);
     if (!to) return;
     if (!isValidEmail(to)) {
       setToast({ tone: "error", message: "Please enter a valid recipient email address." });
@@ -314,9 +314,9 @@ export function DigestBuilder({ mode, digestId }: DigestBuilderProps) {
       });
 
       const payload = (await response.json()) as { error?: string; messageId?: string };
-      if (!response.ok) throw new Error(payload.error ?? "Unable to send test digest.");
+      if (!response.ok) throw new Error(payload.error ?? "Unable to send test issue.");
 
-      setToast({ tone: "success", message: `Test digest sent to ${to}. Message ID: ${payload.messageId ?? "n/a"}` });
+      setToast({ tone: "success", message: `Test issue sent to ${to}. Message ID: ${payload.messageId ?? "n/a"}` });
     } catch (error) {
       setToast({ tone: "error", message: error instanceof Error ? error.message : String(error) });
     } finally {
@@ -367,7 +367,7 @@ export function DigestBuilder({ mode, digestId }: DigestBuilderProps) {
     const { data: authData, error: authError } = await client.auth.getUser();
     if (authError || !authData.user) {
       setSaving(false);
-      setToast({ tone: "error", message: "Please sign in to save your digest." });
+      setToast({ tone: "error", message: "Please sign in to save this digest." });
       return;
     }
 
@@ -390,7 +390,7 @@ export function DigestBuilder({ mode, digestId }: DigestBuilderProps) {
       const snapshot = JSON.stringify({ ...builder, state: nextState });
       setBuilder((prev) => ({ ...prev, state: nextState }));
       setInitialSnapshot(snapshot);
-      setToast({ tone: "success", message: nextState === "active" ? "Digest updated and activated." : "Draft saved successfully." });
+      setToast({ tone: "success", message: nextState === "active" ? "Digest updated and activated." : "Draft saved." });
       return;
     }
 
@@ -428,7 +428,7 @@ export function DigestBuilder({ mode, digestId }: DigestBuilderProps) {
 
   async function deleteDigest() {
     if (!client || !digestId) return;
-    const confirmed = window.confirm("Delete this digest? This action cannot be undone.");
+    const confirmed = window.confirm("Delete this digest? This cannot be undone.");
     if (!confirmed) return;
 
     const { error } = await client.from("user_digest_profiles").delete().eq("id", digestId);
@@ -454,11 +454,11 @@ export function DigestBuilder({ mode, digestId }: DigestBuilderProps) {
   }
 
   return (
-    <PageContainer className="space-y-6 pb-12 pt-4">
+    <PageContainer className="space-y-6 pb-12 pt-4 md:space-y-7">
       <SectionHeader
-        eyebrow="Digest Builder"
+        eyebrow="Digest studio"
         title={mode === "create" ? "Compose a custom ritual" : "Refine your digest"}
-        description="Premium editorial controls for schedule, voice, modules, and delivery behavior."
+        description="Editorial controls for cadence, voice, modules, and delivery."
       />
 
       {toast ? (
@@ -485,12 +485,12 @@ export function DigestBuilder({ mode, digestId }: DigestBuilderProps) {
         </Card>
       ) : null}
 
-      <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
+      <div className="grid gap-4 lg:grid-cols-[1.15fr_0.85fr] lg:gap-5">
         <div className="space-y-4">
-          <Card surface="glass">
+          <Card surface="glass" className="border-border/70">
             <CardHeader>
-              <CardTitle className="text-lg">Builder flow</CardTitle>
-              <CardDescription>Move step by step. Your preview updates instantly.</CardDescription>
+              <CardTitle className="text-lg">Studio flow</CardTitle>
+              <CardDescription>Move step by step. Your preview updates in real time.</CardDescription>
               <div className="mt-2 flex flex-wrap gap-2">
                 {STEPS.map((item) => (
                   <Button key={item.key} variant={item.key === step ? "primary" : "quiet"} size="sm" onClick={() => setStep(item.key)}>
@@ -501,14 +501,14 @@ export function DigestBuilder({ mode, digestId }: DigestBuilderProps) {
             </CardHeader>
           </Card>
 
-          <Card surface="paper">
+          <Card surface="paper" className="border-border/80">
             <CardHeader>
               <CardTitle className="text-lg">Core identity</CardTitle>
             </CardHeader>
             <CardContent className="grid gap-4 md:grid-cols-2">
               <label className="space-y-2 text-sm">
                 <span>Digest name</span>
-                <Input value={builder.digestName} onChange={(event) => patchBuilder({ digestName: event.target.value })} placeholder="e.g. Morning Briefing" />
+                <Input value={builder.digestName} onChange={(event) => patchBuilder({ digestName: event.target.value })} placeholder="e.g. Morning Brief" />
               </label>
               <label className="space-y-2 text-sm">
                 <span>Internal label</span>
@@ -517,9 +517,9 @@ export function DigestBuilder({ mode, digestId }: DigestBuilderProps) {
             </CardContent>
           </Card>
 
-          <Card surface="paper">
+          <Card surface="paper" className="border-border/80">
             <CardHeader>
-              <CardTitle className="text-lg">1) Choose a starting point</CardTitle>
+              <CardTitle className="text-lg">1) Choose your foundation</CardTitle>
             </CardHeader>
             <CardContent className="grid gap-3 md:grid-cols-2">
               <button
@@ -527,8 +527,8 @@ export function DigestBuilder({ mode, digestId }: DigestBuilderProps) {
                 onClick={() => patchBuilder({ startFrom: "template" })}
                 className={`rounded-xl border p-4 text-left transition ${builder.startFrom === "template" ? "border-foreground/50 bg-foreground/[0.04]" : "border-border"}`}
               >
-                <p className="font-medium">Start from template</p>
-                <p className="mt-1 text-xs text-foreground/70">Preload premium defaults and module balance.</p>
+                <p className="font-medium">Start from a template</p>
+                <p className="mt-1 text-xs text-foreground/70">Begin from a proven editorial structure.</p>
               </button>
               <button
                 type="button"
@@ -536,12 +536,12 @@ export function DigestBuilder({ mode, digestId }: DigestBuilderProps) {
                 className={`rounded-xl border p-4 text-left transition ${builder.startFrom === "scratch" ? "border-foreground/50 bg-foreground/[0.04]" : "border-border"}`}
               >
                 <p className="font-medium">Start from scratch</p>
-                <p className="mt-1 text-xs text-foreground/70">Begin clean and craft every section manually.</p>
+                <p className="mt-1 text-xs text-foreground/70">Begin with a blank canvas and shape every section.</p>
               </button>
             </CardContent>
           </Card>
 
-          <Card surface="paper">
+          <Card surface="paper" className="border-border/80">
             <CardHeader>
               <CardTitle className="text-lg">2) Configure schedule</CardTitle>
             </CardHeader>
@@ -551,7 +551,7 @@ export function DigestBuilder({ mode, digestId }: DigestBuilderProps) {
                 <select className="w-full rounded-md border bg-background px-3 py-2" value={builder.frequency} onChange={(event) => patchBuilder({ frequency: event.target.value as Frequency })}>
                   <option value="daily">Daily</option>
                   <option value="weekly">Weekly</option>
-                  <option value="custom">Custom</option>
+                  <option value="custom">Custom rhythm</option>
                 </select>
               </label>
 
@@ -570,7 +570,7 @@ export function DigestBuilder({ mode, digestId }: DigestBuilderProps) {
 
               {builder.frequency === "custom" ? (
                 <div className="space-y-2 text-sm md:col-span-2">
-                  <span>Custom days</span>
+                  <span>Custom weekdays</span>
                   <div className="flex flex-wrap gap-2">
                     {WEEKDAYS.map((day, index) => {
                       const enabled = builder.customDays.includes(index);
@@ -594,7 +594,7 @@ export function DigestBuilder({ mode, digestId }: DigestBuilderProps) {
               ) : null}
 
               <label className="space-y-2 text-sm">
-                <span>Send time</span>
+                <span>Send time (local)</span>
                 <Input type="time" value={builder.sendTime} onChange={(event) => patchBuilder({ sendTime: event.target.value })} />
               </label>
 
@@ -603,7 +603,7 @@ export function DigestBuilder({ mode, digestId }: DigestBuilderProps) {
                 <Input value={builder.timezone} onChange={(event) => patchBuilder({ timezone: event.target.value })} placeholder="America/New_York" />
               </label>
               <label className="space-y-2 text-sm md:col-span-2">
-                <span>Delivery email</span>
+                <span>Delivery address</span>
                 <Input
                   type="email"
                   value={builder.deliveryEmail}
@@ -614,7 +614,7 @@ export function DigestBuilder({ mode, digestId }: DigestBuilderProps) {
             </CardContent>
           </Card>
 
-          <Card surface="paper">
+          <Card surface="paper" className="border-border/80">
             <CardHeader>
               <CardTitle className="text-lg">3) Tone and style</CardTitle>
             </CardHeader>
@@ -630,11 +630,11 @@ export function DigestBuilder({ mode, digestId }: DigestBuilderProps) {
                 </select>
               </label>
               <label className="space-y-2 text-sm">
-                <span>Tone</span>
+                <span>Voice</span>
                 <select className="w-full rounded-md border bg-background px-3 py-2" value={builder.tone} onChange={(event) => patchBuilder({ tone: event.target.value as BuilderState["tone"] })}>
                   {["elegant", "editorial", "warm", "polished", "gentle", "uplifted", "clear", "smart"].map((tone) => (
                     <option key={tone} value={tone}>
-                      {tone}
+                      {tone[0].toUpperCase() + tone.slice(1)}
                     </option>
                   ))}
                 </select>
@@ -650,16 +650,16 @@ export function DigestBuilder({ mode, digestId }: DigestBuilderProps) {
             </CardContent>
           </Card>
 
-          <Card surface="paper">
+          <Card surface="paper" className="border-border/80">
             <CardHeader>
               <CardTitle className="text-lg">4) Select modules</CardTitle>
-              <CardDescription>Toggle modules and choose item volume with fallback behavior.</CardDescription>
+              <CardDescription>Select modules and define graceful fallback behavior.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
               {sortedModules.map((moduleEntry) => {
                 const definition = digestModuleRegistry.get(moduleEntry.module);
                 return (
-                  <div key={moduleEntry.module} className="rounded-xl border border-border/70 p-3">
+                  <div key={moduleEntry.module} className="rounded-2xl border border-border/70 bg-paper/50 p-3 md:p-4">
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <div>
                         <p className="text-sm font-medium">{definition?.title ?? moduleEntry.module}</p>
@@ -667,7 +667,7 @@ export function DigestBuilder({ mode, digestId }: DigestBuilderProps) {
                       </div>
                       <label className="inline-flex items-center gap-2 text-sm">
                         <input type="checkbox" checked={Boolean(moduleEntry.enabled)} onChange={(event) => patchModule(moduleEntry.module, { enabled: event.target.checked })} />
-                        On
+                        Include
                       </label>
                     </div>
                     <div className="mt-3 grid gap-3 md:grid-cols-3">
@@ -682,7 +682,7 @@ export function DigestBuilder({ mode, digestId }: DigestBuilderProps) {
                         />
                       </label>
                       <label className="space-y-1 text-xs">
-                        <span>Fallback behavior</span>
+                        <span>Fallback</span>
                         <select
                           className="w-full rounded-md border bg-background px-3 py-2"
                           value={moduleEntry.settings.fallbackBehavior}
@@ -694,7 +694,7 @@ export function DigestBuilder({ mode, digestId }: DigestBuilderProps) {
                         >
                           <option value="skip">Skip section</option>
                           <option value="use_previous">Use recent data</option>
-                          <option value="insert_placeholder">Insert elegant placeholder</option>
+                          <option value="insert_placeholder">Insert editorial placeholder</option>
                         </select>
                       </label>
                       {moduleEntry.module === "free_text_custom_block" ? (
@@ -721,13 +721,13 @@ export function DigestBuilder({ mode, digestId }: DigestBuilderProps) {
             </CardContent>
           </Card>
 
-          <Card surface="paper">
+          <Card surface="paper" className="border-border/80">
             <CardHeader>
               <CardTitle className="text-lg">5) Arrange modules</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
               {sortedModules.map((moduleEntry, index) => (
-                <div key={moduleEntry.module} className="flex items-center justify-between rounded-lg border px-3 py-2 text-sm">
+                <div key={moduleEntry.module} className="flex items-center justify-between rounded-xl border border-border/70 bg-paper/40 px-3 py-2 text-sm">
                   <span>{digestModuleRegistry.get(moduleEntry.module)?.title}</span>
                   <div className="flex items-center gap-2">
                     <Button size="sm" variant="quiet" onClick={() => moveModule(moduleEntry.module, "up")} disabled={index === 0}>
@@ -742,9 +742,9 @@ export function DigestBuilder({ mode, digestId }: DigestBuilderProps) {
             </CardContent>
           </Card>
 
-          <Card surface="paper">
+          <Card surface="paper" className="border-border/80">
             <CardHeader>
-              <CardTitle className="text-lg">7) Save and activate</CardTitle>
+              <CardTitle className="text-lg">7) Save and publish</CardTitle>
             </CardHeader>
             <CardContent className="flex flex-wrap gap-2">
               <Button onClick={() => void persist("paused")} disabled={saving}>
@@ -762,7 +762,7 @@ export function DigestBuilder({ mode, digestId }: DigestBuilderProps) {
                     {builder.state === "active" ? "Pause" : "Activate"}
                   </Button>
                   <Button variant="quiet" onClick={() => void sendTestNow()} disabled={testSending || saving}>
-                    <Send className="mr-2 h-4 w-4" /> Send test now
+                    <Send className="mr-2 h-4 w-4" /> Send test issue
                   </Button>
                   <Button variant="quiet" onClick={() => void deleteDigest()}>
                     <Trash2 className="mr-2 h-4 w-4" /> Delete
@@ -770,29 +770,29 @@ export function DigestBuilder({ mode, digestId }: DigestBuilderProps) {
                 </>
               ) : null}
               <Link className="ml-auto text-sm text-foreground/70 underline-offset-4 hover:underline" href="/digests/templates">
-                Browse templates
+                Browse template collection
               </Link>
             </CardContent>
           </Card>
         </div>
 
-        <Card surface="glass" className="sticky top-4 h-fit">
+        <Card surface="glass" className="h-fit border-border/70 lg:sticky lg:top-4">
           <CardHeader>
-            <CardTitle className="text-lg">6) Live email preview</CardTitle>
-            <CardDescription>A realistic editorial message shell that updates with every choice.</CardDescription>
+            <CardTitle className="text-lg">6) Live issue preview</CardTitle>
+            <CardDescription>An editorial preview shell that updates with every change.</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="rounded-2xl border border-border/70 bg-white p-5 text-slate-900 shadow-inner">
-              <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Atriae digest</p>
+            <div className="rounded-2xl border border-border/70 bg-white p-4 text-slate-900 shadow-inner sm:p-5">
+              <p className="text-[0.7rem] uppercase tracking-[0.2em] text-slate-500">Atriae digest</p>
               <h3 className="mt-2 text-2xl font-semibold leading-tight">{builder.digestName || "Untitled Digest"}</h3>
               <p className="mt-2 text-sm text-slate-600">
                 {builder.frequency} · {builder.sendTime} · {builder.timezone}
               </p>
               <p className="mt-1 text-sm text-slate-500">
-                {builder.language} · {builder.tone} tone · {builder.layoutStyle} layout
+                {builder.language} · {builder.tone} voice · {builder.layoutStyle} layout
               </p>
 
-              <div className="mt-5 space-y-3">
+              <div className="mt-5 space-y-3 border-t border-slate-200/80 pt-4">
                 {sortedModules
                   .filter((moduleEntry) => moduleEntry.enabled)
                   .map((moduleEntry) => (
@@ -802,29 +802,29 @@ export function DigestBuilder({ mode, digestId }: DigestBuilderProps) {
                       {moduleEntry.module === "free_text_custom_block" && moduleEntry.settings.customText ? (
                         <p className="mt-2 text-sm leading-relaxed text-slate-700">{moduleEntry.settings.customText}</p>
                       ) : (
-                        <p className="mt-2 text-sm text-slate-600">Sample preview copy for this module appears here as it would in email.</p>
+                        <p className="mt-2 text-sm text-slate-600">Sample editorial copy for this module appears here as it would in email.</p>
                       )}
                     </div>
                   ))}
                 {sortedModules.filter((moduleEntry) => moduleEntry.enabled).length === 0 ? (
-                  <p className="text-sm text-slate-500">Enable modules to generate your live preview.</p>
+                  <p className="text-sm text-slate-500">Enable at least one module to render a preview issue.</p>
                 ) : null}
               </div>
             </div>
             {isDirty ? <p className="mt-3 text-xs text-amber-700">You have unsaved changes.</p> : null}
             {mode === "edit" ? (
               <div className="mt-4 rounded-xl border border-border/60 bg-background/70 p-3">
-                <p className="text-xs font-medium uppercase tracking-[0.12em] text-foreground/70">Upcoming sends</p>
+                <p className="text-xs font-medium uppercase tracking-[0.12em] text-foreground/70">Upcoming dispatches</p>
                 <ul className="mt-2 space-y-1 text-xs text-foreground/80">
-                  {upcomingState === "loading" ? <li>Loading upcoming sends…</li> : null}
-                  {upcomingState === "error" ? <li>Unable to load upcoming sends right now.</li> : null}
+                  {upcomingState === "loading" ? <li>Loading upcoming dispatches…</li> : null}
+                  {upcomingState === "error" ? <li>Unable to load upcoming dispatches right now.</li> : null}
                   {upcomingState === "idle" && upcomingSends.length > 0 ? (
                     upcomingSends.map((runAt) => (
                       <li key={runAt}>{new Date(runAt).toLocaleString()}</li>
                     ))
                   ) : null}
                   {upcomingState === "idle" && upcomingSends.length === 0 ? (
-                    <li>No upcoming sends scheduled yet.</li>
+                    <li>No upcoming dispatches scheduled yet.</li>
                   ) : null}
                 </ul>
               </div>

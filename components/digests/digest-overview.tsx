@@ -103,14 +103,14 @@ export function DigestOverview() {
     .sort((a, b) => new Date(a).getTime() - new Date(b).getTime())[0] ?? null;
 
   return (
-    <PageContainer className="space-y-8 pb-16">
+    <PageContainer className="space-y-7 pb-16 md:space-y-8">
       <SectionHeader
         eyebrow="Curated digests"
-        title="Digest management"
-        description="A calm control room for what is live, what is paused, and what sends next."
+        title="Ritual overview"
+        description="A calm control room for what is live, what is paused, and what is scheduled next."
         action={
           <Button asChild>
-            <Link href="/digests/new">Create digest</Link>
+            <Link href="/digests/new">Compose new digest</Link>
           </Button>
         }
       />
@@ -138,13 +138,13 @@ export function DigestOverview() {
 
       <Card surface="paper" className="border-border/80">
         <CardHeader>
-          <CardTitle className="text-2xl">Quick actions</CardTitle>
-          <CardDescription>Move smoothly between setup, history, and templates.</CardDescription>
+          <CardTitle className="text-2xl">Studio shortcuts</CardTitle>
+          <CardDescription>Move between templates, history, and builder without losing context.</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <Button variant="quiet" asChild className="justify-between">
             <Link href="/digests/history">
-              View send history
+              Open dispatch history
               <ArrowRight className="h-4 w-4" />
             </Link>
           </Button>
@@ -156,7 +156,7 @@ export function DigestOverview() {
           </Button>
           <Button variant="quiet" asChild className="justify-between">
             <Link href="/digests/new">
-              Build new digest
+              Compose new digest
               <ArrowRight className="h-4 w-4" />
             </Link>
           </Button>
@@ -189,8 +189,8 @@ export function DigestOverview() {
       {state === "ready" && profiles.length === 0 ? (
         <Card surface="glass">
           <CardHeader>
-            <CardTitle>No digests yet</CardTitle>
-            <CardDescription>Start with a template, then shape the rhythm over time.</CardDescription>
+            <CardTitle>Your collection is empty</CardTitle>
+            <CardDescription>Begin with a template, then refine the ritual over time.</CardDescription>
           </CardHeader>
         </Card>
       ) : null}
@@ -204,7 +204,7 @@ export function DigestOverview() {
                 <CardTitle className="text-2xl">{profile.title}</CardTitle>
                 <CardDescription className="flex items-center gap-2">
                   <CalendarClock className="h-4 w-4" />
-                  Next run: {formatDate(profile.next_run_at)}
+                  Next delivery: {formatDate(profile.next_run_at)}
                 </CardDescription>
               </CardHeader>
               <CardContent className="flex flex-wrap gap-2">
@@ -222,7 +222,7 @@ export function DigestOverview() {
                 <Button variant="ghost" size="sm" asChild>
                   <Link href={`/digests/${profile.id}`}>
                     <MailCheck className="mr-2 h-4 w-4" />
-                    Open detail
+                    Open brief
                   </Link>
                 </Button>
                 <Button variant="ghost" size="sm" asChild>
@@ -240,8 +240,8 @@ export function DigestOverview() {
       {failedRuns.length > 0 ? (
         <Card surface="tinted" className="border-border/70">
           <CardHeader>
-            <CardTitle className="text-xl">Recent send issues</CardTitle>
-            <CardDescription>Clear guidance so fixes feel fast and predictable.</CardDescription>
+            <CardTitle className="text-xl">Recent delivery issues</CardTitle>
+            <CardDescription>Clear guidance so fixes remain quick and predictable.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             {failedRuns.map((run) => (

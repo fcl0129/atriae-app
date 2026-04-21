@@ -1,3 +1,5 @@
+import { IntelligenceInput } from "@/components/ui/intelligence-input";
+
 const focusItems = [
   {
     title: "Write one clear paragraph for your thesis chapter",
@@ -54,6 +56,11 @@ export default function DashboardPage() {
         <h1 className="text-[clamp(2.1rem,4vw,3.1rem)] leading-[0.95]">{greeting}</h1>
         <p className="text-sm text-muted-foreground">{today}</p>
       </header>
+
+      <IntelligenceInput
+        heading="Ask Atriae to help structure your day"
+        placeholder="Capture a thought, plan, or question"
+      />
 
       <section className="space-y-5" aria-labelledby="todays-focus">
         <h2 id="todays-focus" className="text-2xl md:text-[2rem]">

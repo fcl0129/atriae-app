@@ -44,7 +44,7 @@ export default function LoginPage() {
         return
       }
 
-      router.replace(redirectTo)
+      window.location.assign(redirectTo)
     } catch {
       setError('Something went wrong. Please try again.')
     } finally {

@@ -1,4 +1,5 @@
 import OpenAI from "openai";
+import type { ResponseCreateParamsBase } from "openai/resources/responses/responses";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -10,7 +11,7 @@ const requestSchema = z.object({
   mode: z.enum(["learn", "plan", "focus", "organize"]).optional()
 });
 
-const TOOL_DEFS = [
+const TOOL_DEFS: ResponseCreateParamsBase["tools"] = [
   {
     type: "function",
     name: "get_user_profile",
@@ -86,7 +87,7 @@ const TOOL_DEFS = [
       additionalProperties: false
     }
   }
-] as const;
+];
 
 type ResponseFunctionCallItem = {
   type: "function_call";

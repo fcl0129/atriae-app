@@ -93,9 +93,9 @@ const TEMPLATE_PREVIEWS: Record<string, PreviewContent> = {
 };
 
 const toneStyles: Record<PreviewTone, string> = {
-  warm: "from-rose-50/70 via-paper to-amber-50/60",
-  focused: "from-slate-100/80 via-paper to-zinc-100/60",
-  light: "from-indigo-50/70 via-paper to-cyan-50/60"
+  warm: "from-rose-50/75 via-paper to-amber-50/65",
+  focused: "from-slate-100/85 via-paper to-zinc-100/65",
+  light: "from-indigo-50/75 via-paper to-cyan-50/65"
 };
 
 function fallbackPreview(template: DigestTemplate): PreviewContent {
@@ -115,16 +115,16 @@ export function TemplatePreview({ template }: { template: DigestTemplate }) {
   const preview = getTemplatePreview(template);
 
   return (
-    <div className={`rounded-3xl border border-border/70 bg-gradient-to-br p-6 ${toneStyles[preview.tone]}`}>
-      <p className="text-[0.65rem] uppercase text-muted-foreground" style={{ letterSpacing: "var(--text-eyebrow-tracking)" }}>
-        Digest preview
+    <div className={`rounded-3xl border border-border/60 bg-gradient-to-br p-5 shadow-[0_12px_28px_-24px_rgba(15,23,42,0.55)] md:p-7 ${toneStyles[preview.tone]}`}>
+      <p className="text-[0.65rem] uppercase text-muted-foreground/90" style={{ letterSpacing: "var(--text-eyebrow-tracking)" }}>
+        Editorial preview
       </p>
-      <h3 className="mt-3 text-2xl leading-tight">{preview.headline}</h3>
-      <p className="mt-2 text-sm leading-7 text-muted-foreground">{preview.dek}</p>
+      <h3 className="mt-3 text-[1.7rem] leading-tight tracking-tight">{preview.headline}</h3>
+      <p className="mt-2 text-sm leading-7 text-foreground/75">{preview.dek}</p>
 
-      <div className="mt-5 space-y-2">
+      <div className="mt-6 space-y-2.5 border-t border-border/50 pt-4">
         {preview.sampleBlocks.map((block) => (
-          <div key={block} className="rounded-2xl border border-border/70 bg-paper/80 px-4 py-3 text-sm text-foreground/90">
+          <div key={block} className="rounded-2xl border border-border/65 bg-paper/85 px-4 py-3 text-sm leading-6 text-foreground/90">
             {block}
           </div>
         ))}

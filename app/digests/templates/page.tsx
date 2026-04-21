@@ -26,14 +26,14 @@ const templateCategoryBySlug: Record<string, string> = {
 };
 
 const recommendedUseBySlug: Record<string, string> = {
-  "morning-brief": "Ideal if you want a stylish daily orientation before messages take over.",
-  "executive-morning": "Built for operators and leaders who need a sharp summary before meetings.",
-  "sunday-reset": "Use this to close your week gently and stage Monday with less friction.",
-  "culture-edit": "For curious minds who want intentional film, reading, and audio recommendations.",
-  "soft-life-evening": "Best when you want evenings to feel softer, calmer, and less reactive.",
-  "host-mode": "Turn this on before hosting windows to stay organized and socially prepared.",
-  "learning-drop": "Designed for steady intellectual growth without overwhelming your schedule.",
-  "commute-capsule": "A compact briefing for commute windows when attention is limited."
+  "morning-brief": "Ideal when you want a poised morning brief before the day gets noisy.",
+  "executive-morning": "Built for operators who need a clean strategic brief before first meetings.",
+  "sunday-reset": "Use this ritual to close the week with intention and open Monday with clarity.",
+  "culture-edit": "For curious readers who want thoughtful recommendations with discernment.",
+  "soft-life-evening": "Best when your evening ritual should feel quieter, slower, and restorative.",
+  "host-mode": "Designed for hosting windows where composure matters more than last-minute hustle.",
+  "learning-drop": "A steady learning digest for sustained intellectual momentum.",
+  "commute-capsule": "A concise commute brief when your attention is narrow and time is short."
 };
 
 const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -142,21 +142,21 @@ export default function DigestTemplatesPage() {
       return;
     }
 
-    setStatusMessage(`“${template.display_name}” is now active in your digest profiles.`);
+      setStatusMessage(`“${template.display_name}” is now active in your rituals.`);
     setActiveTemplateId(null);
   }
 
   function handleCustomize(template: DigestTemplate) {
     setSelectedTemplate(template);
-    setStatusMessage(`Customization studio for “${template.display_name}” is next. Preview and activate, then refine modules from settings.`);
+    setStatusMessage(`“${template.display_name}” is selected. Activate it now, then refine cadence, tone, and modules in the builder.`);
   }
 
   return (
     <PageContainer className="space-y-7 pb-12 pt-3 md:space-y-9">
       <SectionHeader
         eyebrow="Curated digests"
-        title="Template Library"
-        description="Choose a refined digest ritual, preview the voice, and activate instantly. Designed to feel editorial, calm, and quietly premium."
+        title="Template collection"
+        description="Choose a crafted ritual, review the editorial preview, and begin with one click."
       />
 
       {statusMessage ? (
@@ -188,9 +188,9 @@ export default function DigestTemplatesPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-xl">
               <TriangleAlert className="h-5 w-5" />
-              Could not load template library
+              Could not load the collection
             </CardTitle>
-            <CardDescription>{statusMessage || "Something went wrong while loading templates."}</CardDescription>
+              <CardDescription>{statusMessage || "Something went wrong while loading templates."}</CardDescription>
           </CardHeader>
           <CardContent>
             <Button onClick={() => window.location.reload()}>Retry</Button>
@@ -201,9 +201,9 @@ export default function DigestTemplatesPage() {
       {state === "empty" ? (
         <Card surface="glass">
           <CardHeader>
-            <CardTitle className="text-xl">No system templates yet</CardTitle>
+            <CardTitle className="text-xl">No templates available yet</CardTitle>
             <CardDescription>
-              Seeded templates were not found. Run Supabase seeds, then return to explore curated digest rituals.
+              Seeded templates were not found. Run the Supabase seeds, then return to browse the collection.
             </CardDescription>
           </CardHeader>
         </Card>
@@ -234,8 +234,8 @@ export default function DigestTemplatesPage() {
             <CardContent className="flex items-start gap-3 py-4">
               <Sparkles className="mt-0.5 h-5 w-5 text-muted-foreground" />
               <p className="text-sm leading-7 text-muted-foreground">
-                The library currently includes eight system templates: Morning Brief, Executive Morning, Sunday Reset, Culture Edit,
-                Soft Life Evening, Host Mode, Learning Drop, and Commute Capsule.
+                Eight signature templates are available today: Morning Brief, Executive Morning, Sunday Reset, Culture Edit, Soft Life Evening,
+                Host Mode, Learning Drop, and Commute Capsule.
               </p>
             </CardContent>
           </Card>

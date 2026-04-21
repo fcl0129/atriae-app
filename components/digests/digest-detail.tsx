@@ -158,10 +158,10 @@ export function DigestDetail({ digestId, initialRunId }: DigestDetailProps) {
       <SectionHeader
         eyebrow="Curated digests"
         title={profile?.title ?? "Digest detail"}
-        description="Review sent issues, open historical previews, and manage the lifecycle of this ritual."
+        description="Review past issues, open historical previews, and manage this ritual with precision."
         action={
           <Button variant="quiet" asChild>
-            <Link href="/digests/history">History</Link>
+            <Link href="/digests/history">Dispatch history</Link>
           </Button>
         }
       />
@@ -182,8 +182,8 @@ export function DigestDetail({ digestId, initialRunId }: DigestDetailProps) {
 
       {state !== "loading" ? <Card surface="paper" className="border-border/80">
         <CardHeader>
-          <CardTitle className="text-2xl">Management actions</CardTitle>
-          <CardDescription>Pause, resume, duplicate, test, edit, or archive cleanly.</CardDescription>
+          <CardTitle className="text-2xl">Ritual controls</CardTitle>
+          <CardDescription>Pause, resume, duplicate, test, edit, or archive with one-step control.</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-wrap items-center gap-2">
           {profile?.status === "active" ? (
@@ -228,11 +228,11 @@ export function DigestDetail({ digestId, initialRunId }: DigestDetailProps) {
       {state !== "loading" ? <div className="grid gap-4 lg:grid-cols-[0.95fr_1.05fr]">
         <Card surface="tinted" className="border-border/70">
           <CardHeader>
-            <CardTitle className="text-xl">Past runs</CardTitle>
-            <CardDescription>Open any run to view the exact rendered email preview.</CardDescription>
+            <CardTitle className="text-xl">Published issues</CardTitle>
+            <CardDescription>Open any issue to view the exact rendered email.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-2">
-            {runs.length === 0 ? <p className="text-sm text-muted-foreground">No runs yet for this digest.</p> : null}
+            {runs.length === 0 ? <p className="text-sm text-muted-foreground">No issues yet for this digest.</p> : null}
             {runs.map((run) => (
               <button
                 key={run.id}
@@ -254,8 +254,8 @@ export function DigestDetail({ digestId, initialRunId }: DigestDetailProps) {
 
         <Card surface="glass" className="border-border/70">
           <CardHeader>
-            <CardTitle className="text-xl">Email preview</CardTitle>
-            <CardDescription>Rendered output from the selected run.</CardDescription>
+            <CardTitle className="text-xl">Issue preview</CardTitle>
+            <CardDescription>Rendered output from the selected issue.</CardDescription>
           </CardHeader>
           <CardContent>
             {selectedRun && renderHtml ? (

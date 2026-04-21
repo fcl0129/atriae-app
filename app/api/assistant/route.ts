@@ -14,18 +14,21 @@ const requestSchema = z.object({
 const TOOL_DEFS: ResponseCreateParamsBase["tools"] = [
   {
     type: "function",
+    strict: true,
     name: "get_user_profile",
     description: "Get the authenticated user's profile and preferences.",
     parameters: { type: "object", properties: {}, additionalProperties: false }
   },
   {
     type: "function",
+    strict: true,
     name: "get_learning_topics",
     description: "List the authenticated user's learning topics.",
     parameters: { type: "object", properties: {}, additionalProperties: false }
   },
   {
     type: "function",
+    strict: true,
     name: "create_learning_topic",
     description: "Create a new learning topic.",
     parameters: {
@@ -42,12 +45,14 @@ const TOOL_DEFS: ResponseCreateParamsBase["tools"] = [
   },
   {
     type: "function",
+    strict: true,
     name: "get_rituals",
     description: "List the authenticated user's rituals.",
     parameters: { type: "object", properties: {}, additionalProperties: false }
   },
   {
     type: "function",
+    strict: true,
     name: "create_ritual",
     description: "Create a ritual for the authenticated user.",
     parameters: {
@@ -63,6 +68,7 @@ const TOOL_DEFS: ResponseCreateParamsBase["tools"] = [
   },
   {
     type: "function",
+    strict: true,
     name: "complete_ritual",
     description: "Record a ritual completion check-in.",
     parameters: {
@@ -76,6 +82,7 @@ const TOOL_DEFS: ResponseCreateParamsBase["tools"] = [
   },
   {
     type: "function",
+    strict: true,
     name: "update_profile_preferences",
     description: "Update display name and morning reminder preferences.",
     parameters: {

@@ -23,10 +23,11 @@ export async function renderDigestForProfile(
     locale,
     voice: profile.digest_config.voice,
     length: profile.digest_config.length,
+    preview: Boolean(options.preview),
   };
 
   const resolvedModules = resolveEnabledModules(profile);
-  const modules = renderModules(resolvedModules, context, options.moduleOverrides);
+  const modules = await renderModules(resolvedModules, context, options.moduleOverrides);
   const { subjectLine, previewLine } = buildDigestSubject(profile, modules);
 
   const personalization = (profile.digest_config.personalization ?? {}) as Record<string, unknown>;

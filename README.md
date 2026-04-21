@@ -75,6 +75,18 @@ Keeping these two configurations aligned avoids sender mismatch and deliverabili
 - Auth flows, data models, and business logic are intentionally deferred for next iterations.
 
 
+
+## Curated digest providers
+
+Digest modules now use provider abstractions so integrations can be swapped without touching UI components:
+
+- Calendar: `mock`, `google` (integration-ready), `outlook` (integration-ready)
+- Weather: `mock`, `open_meteo`
+- Headlines: `mock`, `newsapi`
+- Recommendations (culture/series/music/podcast): `mock`, `tmdb` (integration-ready), `spotify` (integration-ready), `listen_notes` (integration-ready)
+
+Set provider mode with `DIGEST_*_PROVIDER` environment variables. Keep provider keys in runtime secrets (`.env.local`, Vercel env vars, etc.) and never hardcode credentials in module renderers.
+
 ## Curated digest automation
 
 - Trigger scheduled digest orchestration with `POST /api/internal/digests/cron` (optionally secured by `DIGEST_CRON_SECRET` using `x-cron-secret`).

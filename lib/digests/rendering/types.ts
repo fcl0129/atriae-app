@@ -25,6 +25,7 @@ export interface DigestRenderContext {
   locale: string;
   voice: UserDigestProfile["digest_config"]["voice"];
   length: UserDigestProfile["digest_config"]["length"];
+  preview: boolean;
 }
 
 export interface DigestRenderResult {

@@ -67,7 +67,7 @@ export function PremiumNavbar({ items, activeHref, className }: PremiumNavbarPro
       <div className="surface-glass rounded-[var(--radius-nav)] px-3 py-2.5 md:px-4 md:py-3">
         <div className="flex items-center justify-between gap-4">
           <Link
-            href="/"
+            href="/app"
             className="font-serif text-[1.45rem] leading-none tracking-tight text-foreground transition-opacity duration-300 hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring md:text-[1.65rem]"
           >
             Atriaé

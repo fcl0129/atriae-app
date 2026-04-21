@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 type CtaButtonProps = {
-  href?: string;
+  href?: ComponentProps<typeof Link>["href"];
   children: ReactNode;
 } & Omit<ComponentProps<typeof Button>, "children">;
 

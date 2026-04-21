@@ -1,5 +1,4 @@
 import { CtaSection } from "@/components/sections/cta";
-import { DevicesSection } from "@/components/sections/devices";
 import { HeroSection } from "@/components/sections/hero";
 import { PublicSiteNavbar } from "@/components/sections/public-site-navbar";
 import { SystemSection } from "@/components/sections/system";
@@ -11,9 +10,8 @@ export default function LandingPage() {
       <PublicSiteNavbar />
       <main className="mx-auto mt-8 flex w-full max-w-7xl flex-col gap-8 px-1 md:mt-12 md:gap-12">
         <HeroSection />
-        <ValueSection />
         <SystemSection />
-        <DevicesSection />
+        <ValueSection />
         <CtaSection />
       </main>
     </div>

@@ -14,7 +14,7 @@ export function CtaButton({ href = "/login", children, className, ...props }: Ct
     <Button
       asChild
       className={cn(
-        "h-11 rounded-[0.85rem] bg-[#7ea86d] px-6 text-sm font-medium tracking-[0.01em] text-[#f8f8f2] shadow-[0_18px_36px_-24px_rgba(38,67,43,0.7)] transition duration-300 hover:scale-[1.015] hover:bg-[#6f9760]",
+        "rounded-full bg-[#739b64] px-7 text-sm font-medium tracking-[0.04em] text-[#f7f9f3] transition duration-300 hover:scale-[1.02] hover:bg-[#668a59]",
         className
       )}
       {...props}

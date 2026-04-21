@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { RevealSection } from "@/components/layout/reveal-section";
 import { AtriaeFeatureStorySection } from "@/components/sections/atriae-feature-story-section";
+import { AtriaeStatementRevealSection } from "@/components/sections/atriae-statement-reveal-section";
 import { LandingHeroSection } from "@/components/sections/landing-hero-section";
 
 const signatureItems = [
@@ -33,7 +34,11 @@ export default function HomePage() {
     <div className="mx-auto w-full max-w-6xl space-y-[var(--space-section)] pb-24 pt-14 md:pt-20">
       <LandingHeroSection />
 
-      <RevealSection id="story">
+      <RevealSection id="statement">
+        <AtriaeStatementRevealSection />
+      </RevealSection>
+
+      <RevealSection>
         <AtriaeFeatureStorySection />
       </RevealSection>
 

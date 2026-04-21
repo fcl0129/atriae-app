@@ -87,6 +87,24 @@ const TOOL_DEFS = [
   }
 ] as const;
 
+type ResponseFunctionCallItem = {
+  type: "function_call";
+  call_id: string;
+  name: string;
+  arguments: string;
+};
+
+type ResponseMessageItem = {
+  type: "message";
+  content?: Array<{ type?: string; text?: string }>;
+};
+
+type OpenAIResponse = {
+  id?: string;
+  output_text?: string;
+  output?: Array<ResponseFunctionCallItem | ResponseMessageItem | { type?: string }>;
+};
+
 async function callResponsesApi(body: Record<string, unknown>) {
   const res = await fetch("https://api.openai.com/v1/responses", {
     method: "POST",
@@ -102,7 +120,7 @@ async function callResponsesApi(body: Record<string, unknown>) {
     throw new Error(`OpenAI error: ${errorText}`);
   }
 
-  return (await res.json()) as Record<string, any>;
+  return (await res.json()) as OpenAIResponse;
 }
 
 async function executeTool(supabase: Awaited<ReturnType<typeof createServerSupabaseClient>>, userId: string, call: { name: string; arguments: string }) {
@@ -175,12 +193,20 @@ async function executeTool(supabase: Awaited<ReturnType<typeof createServerSupab
   }
 }
 
-function extractText(response: Record<string, any>) {
+function isFunctionCallItem(item: ResponseFunctionCallItem | ResponseMessageItem | { type?: string }): item is ResponseFunctionCallItem {
+  return item.type === "function_call";
+}
+
+function isMessageItem(item: ResponseFunctionCallItem | ResponseMessageItem | { type?: string }): item is ResponseMessageItem {
+  return item.type === "message";
+}
+
+function extractText(response: OpenAIResponse) {
   if (typeof response.output_text === "string" && response.output_text.length > 0) {
     return response.output_text;
   }
 
-  const messages = (response.output ?? []).filter((item: any) => item.type === "message");
+  const messages = (response.output ?? []).filter(isMessageItem);
   for (const msg of messages) {
     for (const part of msg.content ?? []) {
       if (part.type === "output_text" && typeof part.text === "string") return part.text;
@@ -222,13 +248,16 @@ export async function POST(request: Request) {
     });
 
     for (let loop = 0; loop < 8; loop += 1) {
-      const toolCalls = (response.output ?? []).filter((item: any) => item.type === "function_call");
+      const toolCalls = (response.output ?? []).filter(isFunctionCallItem);
       if (toolCalls.length === 0) {
         break;
       }
+      if (!response.id) {
+        throw new Error("OpenAI response missing id for tool continuation.");
+      }
 
       const toolOutputs = await Promise.all(
-        toolCalls.map(async (call: any) => {
+        toolCalls.map(async (call) => {
           const output = await executeTool(supabase, user.id, call);
           return {
             type: "function_call_output",

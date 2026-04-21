@@ -26,7 +26,7 @@ export function IntelligencePanel() {
       }
 
       setResponse(data.output ?? "");
-    } catch (_error) {
+    } catch {
       setError("The intelligence layer is unavailable right now. Please try again in a moment.");
     } finally {
       setLoading(false);

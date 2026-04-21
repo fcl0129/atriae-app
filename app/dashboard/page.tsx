@@ -1,3 +1,6 @@
+import { createServerSupabaseClient } from '@/lib/supabase/server'
+import { redirect } from 'next/navigation'
+
 import { IntelligenceInput } from "@/components/ui/intelligence-input";
 
 const focusItems = [
@@ -32,7 +35,23 @@ function getGreeting(hour: number) {
   return "Good evening";
 }
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const supabase = await createServerSupabaseClient()
+
+  const {
+    data: { user }
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    redirect('/login')
+  }
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', user.id)
+    .single()
+
   const now = new Date();
   const greeting = getGreeting(now.getHours());
   const today = new Intl.DateTimeFormat("en-US", {
@@ -49,6 +68,7 @@ export default function DashboardPage() {
         </p>
         <h1 className="text-[clamp(2.1rem,4vw,3.1rem)] leading-[0.95]">{greeting}</h1>
         <p className="text-sm text-muted-foreground">{today}</p>
+        <p className="text-xs text-muted-foreground">{profile?.email}</p>
       </header>
 
       <IntelligenceInput

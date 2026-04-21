@@ -12,8 +12,8 @@ export function SectionWrapper({ children, className, surface = "none" }: Sectio
   return (
     <section
       className={cn(
-        "rounded-[2rem] py-12 md:py-20",
-        surface === "soft" && "border border-foreground/10 bg-[#fffdf8]/86 shadow-[0_28px_70px_-52px_rgba(17,24,18,0.65)]",
+        "rounded-[1.9rem] py-12 md:py-16",
+        surface === "soft" && "border border-foreground/10 bg-[#fffdf8]/84 shadow-[0_24px_64px_-50px_rgba(17,24,18,0.62)]",
         className
       )}
     >

@@ -12,27 +12,28 @@ export default function AboutPage() {
           <Container className="max-w-4xl">
             <Reveal>
               <p className="text-xs tracking-[0.22em] text-[#274837]">ABOUT ATRIAE</p>
-              <h1 className="mt-4 text-4xl text-[#101d14] md:text-6xl">A calm operating system for real life.</h1>
-              <p className="mt-7 text-lg leading-8 text-[#213429]/92">
-                Atriae is a focused space for organizing the full shape of your life: thinking, planning, action, and
-                reflection.
+              <h1 className="mt-4 max-w-[16ch] text-4xl leading-[1.02] text-[#101d14] md:text-6xl">
+                A calm system for thoughtful people.
+              </h1>
+              <p className="mt-7 max-w-[52ch] text-lg leading-8 text-[#213429]/90">
+                Atriae brings thinking, planning, learning, and reflection into one deliberate workspace.
               </p>
             </Reveal>
 
-            <Reveal delay={100} className="mt-12 space-y-8 text-[#1f3126]/92">
+            <Reveal delay={90} className="mt-12 space-y-8 text-[#1f3126]/90">
               <div>
-                <h2 className="text-2xl text-[#111f16]">Why it exists</h2>
-                <p className="mt-3 leading-8">
-                  Most tools optimize for engagement. Atriae is built for clarity. No feeds, no algorithmic noise, and
-                  no pressure to perform productivity.
+                <h2 className="text-[1.9rem] text-[#111f16]">Why it exists</h2>
+                <p className="mt-3 max-w-[60ch] leading-8">
+                  Most software competes for your attention. Atriae is designed to protect it — with clear structure,
+                  quiet interfaces, and tools that help you decide better.
                 </p>
               </div>
               <div>
-                <h2 className="text-2xl text-[#111f16]">Philosophy</h2>
+                <h2 className="text-[1.9rem] text-[#111f16]">Principles</h2>
                 <ul className="mt-3 space-y-2 leading-8">
                   <li>Clarity over volume.</li>
-                  <li>Intentionality over urgency.</li>
-                  <li>Quiet systems over constant notifications.</li>
+                  <li>Understanding over urgency.</li>
+                  <li>Intentional systems over engagement loops.</li>
                 </ul>
               </div>
             </Reveal>

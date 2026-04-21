@@ -5,10 +5,10 @@ import { CtaButton } from "@/components/landing/cta-button";
 
 export function PublicSiteNavbar() {
   return (
-    <header className="sticky top-4 z-40">
+    <header className="sticky top-3 z-40">
       <Container>
-        <nav className="flex items-center justify-between rounded-2xl border border-white/50 bg-[#fffdf8]/70 px-4 py-3 backdrop-blur-xl md:px-6">
-          <Link href="/" className="text-lg font-semibold tracking-[0.04em] text-[#111f16]">
+        <nav className="flex items-center justify-between rounded-2xl border border-white/50 bg-[#fffdf8]/72 px-4 py-3.5 backdrop-blur-xl md:px-6">
+          <Link href="/" className="font-serif text-[1.65rem] font-medium tracking-[0.02em] text-[#111f16]">
             Atriae
           </Link>
 

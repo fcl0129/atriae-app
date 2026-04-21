@@ -1,6 +1,14 @@
-import { DigestBuilder } from "@/components/digests/digest-builder";
+import { DigestDetail } from "@/components/digests/digest-detail";
 
-export default async function DigestDetailPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function DigestDetailPage({
+  params,
+  searchParams
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ run?: string }>;
+}) {
   const { id } = await params;
-  return <DigestBuilder mode="edit" digestId={id} />;
+  const { run } = await searchParams;
+
+  return <DigestDetail digestId={id} initialRunId={run} />;
 }

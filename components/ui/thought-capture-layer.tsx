@@ -21,10 +21,10 @@ export function ThoughtCaptureLayer({ onCapture }: ThoughtCaptureLayerProps) {
   };
 
   return (
-    <section className="space-y-4">
+    <section className="space-y-4 rounded-3xl bg-card/55 p-5 md:p-6">
       <div className="space-y-2">
         <p className="text-[0.68rem] uppercase tracking-[0.24em] text-muted-foreground">Thought capture</p>
-        <h2 className="text-2xl leading-tight md:text-[2rem]">Capture ideas instantly</h2>
+        <h2 className="text-2xl leading-tight md:text-[2rem]">Catch a thought before it disappears</h2>
       </div>
 
       <form onSubmit={handleCapture} className="flex flex-col gap-3 sm:flex-row">
@@ -32,11 +32,11 @@ export function ThoughtCaptureLayer({ onCapture }: ThoughtCaptureLayerProps) {
           value={value}
           onChange={(event) => setValue(event.target.value)}
           placeholder="Add an idea or reflection"
-          className="w-full rounded-full border border-border/70 bg-background/70 px-4 py-2.5 text-sm outline-none transition focus:border-foreground/30 focus:ring-2 focus:ring-ring/30"
+          className="w-full rounded-full bg-background/72 px-4 py-2.5 text-sm outline-none transition focus:bg-background/90 focus:ring-2 focus:ring-ring/30"
         />
         <button
           type="submit"
-          className="rounded-full border border-border/80 bg-background/70 px-4 py-2 text-xs uppercase tracking-[0.14em] text-muted-foreground transition-colors hover:text-foreground"
+          className="rounded-full bg-background/78 px-4 py-2 text-xs uppercase tracking-[0.14em] text-muted-foreground transition-colors hover:text-foreground"
         >
           Capture
         </button>
@@ -51,7 +51,7 @@ export function ThoughtCaptureLayer({ onCapture }: ThoughtCaptureLayerProps) {
           ))}
         </ul>
       ) : (
-        <p className="text-sm text-muted-foreground">Quick captures stay lightweight and ready for later structuring.</p>
+        <p className="text-sm text-muted-foreground">Quick captures stay light and ready for structuring later.</p>
       )}
     </section>
   );

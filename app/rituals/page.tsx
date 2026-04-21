@@ -31,8 +31,8 @@ export default function RitualsPage() {
     <PageContainer>
       <SectionHeader
         eyebrow="Rituals"
-        title="Gentle routines and resets"
-        description="Design daily practices that protect your attention and create emotional continuity."
+        title="Routines that protect clarity"
+        description="Shape light practices that reset attention and support emotional continuity."
         action={<Button>Craft ritual</Button>}
       />
 
@@ -44,15 +44,13 @@ export default function RitualsPage() {
             <Card key={ritual.title} surface="tinted">
               <CardHeader>
                 <p className="text-xs uppercase text-muted-foreground" style={{ letterSpacing: "var(--text-eyebrow-tracking)" }}>
-                  Ritual Card
+                  Ritual
                 </p>
                 <CardTitle className="pt-3 text-2xl">{ritual.title}</CardTitle>
                 <CardDescription>{ritual.cadence}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="rounded-xl border border-border/80 bg-paper/80 p-4 text-sm text-muted-foreground">
-                  {ritual.prompt}
-                </div>
+                <div className="rounded-xl bg-paper/70 p-4 text-sm text-muted-foreground">{ritual.prompt}</div>
                 <Button variant="quiet" className="w-full justify-start">
                   <Icon className="mr-2 h-4 w-4" />
                   Begin ritual
@@ -65,10 +63,8 @@ export default function RitualsPage() {
 
       <Card surface="glass">
         <CardHeader>
-          <CardTitle className="text-xl">Beautiful empty state</CardTitle>
-          <CardDescription>
-            No custom rituals yet. Start with one two-minute check-in to set a gentle rhythm.
-          </CardDescription>
+          <CardTitle className="text-xl">No custom rituals yet</CardTitle>
+          <CardDescription>Start with one two-minute check-in and build from there.</CardDescription>
         </CardHeader>
       </Card>
     </PageContainer>

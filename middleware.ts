@@ -4,6 +4,21 @@ import { createServerClient } from '@supabase/ssr'
 
 const protectedRoutes = ['/dashboard', '/learn', '/rituals', '/settings']
 
+function buildLoginUrl(request: NextRequest, reason?: 'config' | 'auth') {
+  const url = new URL('/login', request.url)
+  const nextPath = `${request.nextUrl.pathname}${request.nextUrl.search}`
+
+  if (nextPath && nextPath !== '/login') {
+    url.searchParams.set('redirectTo', nextPath)
+  }
+
+  if (reason) {
+    url.searchParams.set('error', reason)
+  }
+
+  return url
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
   const isProtected = protectedRoutes.some((route) => pathname.startsWith(route))
@@ -13,9 +28,7 @@ export async function middleware(request: NextRequest) {
 
   if (!supabaseUrl || !supabaseAnonKey) {
     if (isProtected) {
-      const url = new URL('/login', request.url)
-      url.searchParams.set('error', 'config')
-      return NextResponse.redirect(url)
+      return NextResponse.redirect(buildLoginUrl(request, 'config'))
     }
 
     return NextResponse.next({ request })
@@ -31,7 +44,6 @@ export async function middleware(request: NextRequest) {
         },
         setAll(cookiesToSet: Array<{ name: string; value: string; options: Record<string, unknown> }>) {
           cookiesToSet.forEach(({ name, value, options }) => {
-            request.cookies.set(name, value)
             response.cookies.set(name, value, options)
           })
         }
@@ -43,19 +55,22 @@ export async function middleware(request: NextRequest) {
     } = await supabase.auth.getUser()
 
     if (!user && isProtected) {
-      return NextResponse.redirect(new URL('/login', request.url))
+      return NextResponse.redirect(buildLoginUrl(request))
     }
 
     if (user && pathname === '/login') {
+      const redirectTo = request.nextUrl.searchParams.get('redirectTo')
+      if (redirectTo && redirectTo.startsWith('/')) {
+        return NextResponse.redirect(new URL(redirectTo, request.url))
+      }
+
       return NextResponse.redirect(new URL('/dashboard', request.url))
     }
 
     return response
   } catch {
     if (isProtected) {
-      const url = new URL('/login', request.url)
-      url.searchParams.set('error', 'auth')
-      return NextResponse.redirect(url)
+      return NextResponse.redirect(buildLoginUrl(request, 'auth'))
     }
 
     return response

@@ -7,7 +7,9 @@ import { LandingNavSection } from "@/components/sections/landing-nav-section";
 
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const showAuthenticatedNav = pathname.startsWith("/app");
+
+  const protectedRoutes = ['/dashboard', '/learn', '/rituals', '/settings']
+  const showAuthenticatedNav = protectedRoutes.some((route) => pathname.startsWith(route))
 
   return (
     <div className="min-h-dvh">

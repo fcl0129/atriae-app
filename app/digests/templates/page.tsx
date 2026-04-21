@@ -10,7 +10,7 @@ import { TemplatePreview } from "@/components/digests/template-preview";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import type { DigestTemplate } from "@/lib/digests";
-import { createSupabaseClient } from "@/lib/supabase";
+import { supabase } from "@/lib/supabase";
 
 type AsyncState = "idle" | "loading" | "success" | "empty" | "error";
 
@@ -58,7 +58,7 @@ function formatModuleTags(template: DigestTemplate) {
 }
 
 export default function DigestTemplatesPage() {
-  const supabase = useMemo(() => createSupabaseClient(), []);
+  const client = useMemo(() => supabase, []);
 
   const [state, setState] = useState<AsyncState>("loading");
   const [templates, setTemplates] = useState<DigestTemplate[]>([]);
@@ -71,7 +71,13 @@ export default function DigestTemplatesPage() {
       setState("loading");
       setStatusMessage("");
 
-      const { data, error } = await supabase
+      if (!client) {
+        setState("error");
+        setStatusMessage("Supabase is not configured. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.");
+        return;
+      }
+
+      const { data, error } = await client
         .from("digest_templates")
         .select("*")
         .eq("is_system", true)
@@ -98,13 +104,19 @@ export default function DigestTemplatesPage() {
     }
 
     void loadTemplates();
-  }, [supabase]);
+  }, [client]);
 
   async function useTemplate(template: DigestTemplate) {
     setStatusMessage("");
     setActiveTemplateId(template.id);
 
-    const { data: authData, error: authError } = await supabase.auth.getUser();
+    if (!client) {
+      setStatusMessage("Supabase is not configured. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.");
+      setActiveTemplateId(null);
+      return;
+    }
+
+    const { data: authData, error: authError } = await client.auth.getUser();
     if (authError || !authData.user) {
       setStatusMessage("Please sign in first to activate a digest template.");
       setActiveTemplateId(null);
@@ -113,7 +125,7 @@ export default function DigestTemplatesPage() {
 
     const userId = authData.user.id;
 
-    const { error } = await supabase.from("user_digest_profiles").insert({
+    const { error } = await client.from("user_digest_profiles").insert({
       user_id: userId,
       template_id: template.id,
       title: `${template.display_name} · Personal`,

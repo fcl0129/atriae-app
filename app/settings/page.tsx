@@ -5,6 +5,7 @@ import { SectionHeader } from "@/components/layout/section-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { SendTestEmailCard } from "@/components/settings/send-test-email-card";
 
 export default function SettingsPage() {
   return (
@@ -63,6 +64,10 @@ export default function SettingsPage() {
             })}
           </CardContent>
         </Card>
+      </div>
+
+      <div className="mt-4 grid gap-4 lg:max-w-2xl">
+        <SendTestEmailCard />
       </div>
     </PageContainer>
   );

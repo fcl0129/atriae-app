@@ -27,6 +27,8 @@ A production-ready foundation for **Atriaé**, a calm personal operating system 
 - `components/ui/` → reusable UI primitives
 - `lib/design/` → Atriaé design tokens
 - `lib/supabase/` → Supabase environment and client scaffolding
+- `lib/email/` → SMTP transport + template rendering utilities
+- `lib/env/` → shared environment variable validation helpers
 
 ## Run locally
 
@@ -41,6 +43,31 @@ Copy `.env.example` to `.env.local` and add:
 
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+
+### App-level SMTP env vars (Atriae product emails)
+
+These variables are used by Atriae server-side email actions for product emails (digests, reminders, notifications, and test messages):
+
+- `SMTP_HOST`
+- `SMTP_PORT`
+- `SMTP_USER`
+- `SMTP_PASS`
+- `SMTP_FROM_EMAIL`
+- `SMTP_FROM_NAME`
+
+## SMTP architecture notes
+
+Atriae uses **SMTP only** and separates responsibility in two layers:
+
+1. **Supabase Auth emails**
+   - Configure SMTP in Supabase Dashboard → Authentication → Email settings.
+   - Supabase sends auth-specific mail (magic links, OTP, invites, password reset) through that SMTP provider.
+
+2. **Atriae product emails**
+   - Configure the app-level `SMTP_*` variables in your runtime (`.env.local`, Vercel, etc.).
+   - Atriae uses `lib/email/mailer.ts` for product-generated emails and operational test sends from `/settings`.
+
+Keeping these two configurations aligned avoids sender mismatch and deliverability issues.
 
 ## Notes
 

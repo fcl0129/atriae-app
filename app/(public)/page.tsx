@@ -6,9 +6,9 @@ import { ValueSection } from "@/components/sections/value";
 
 export default function LandingPage() {
   return (
-    <div className="pb-16 pt-4 md:pb-24 md:pt-6">
+    <div className="pb-12 pt-4 md:pb-16 md:pt-6">
       <PublicSiteNavbar />
-      <main className="mx-auto mt-8 flex w-full max-w-7xl flex-col gap-8 px-1 md:mt-12 md:gap-12">
+      <main className="mx-auto w-full">
         <HeroSection />
         <SystemSection />
         <ValueSection />

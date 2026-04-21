@@ -1,20 +1,30 @@
+import Link from "next/link";
+
 import { Container } from "@/components/landing/container";
 import { CtaButton } from "@/components/landing/cta-button";
 import { Reveal } from "@/components/landing/reveal";
-import { SectionWrapper } from "@/components/landing/section-wrapper";
 
 export function CtaSection() {
   return (
-    <SectionWrapper className="pb-16 pt-12 md:pb-20 md:pt-14" surface="soft">
-      <Container className="text-center">
-        <Reveal>
-          <p className="mx-auto max-w-[20ch] text-[2rem] leading-[1.03] text-[#111f16] md:text-[3rem]">Request access.</p>
-          <p className="mx-auto mt-4 max-w-[48ch] text-base leading-8 text-[#1c2f23]/90 md:text-lg">
-            Private access. Thoughtfully built for people who value clarity. No feeds. No distractions. No noise.
+    <section className="py-24 md:py-32">
+      <Container className="max-w-5xl">
+        <Reveal className="space-y-8">
+          <p className="text-xs uppercase tracking-[0.22em] text-[#2a4234]/80">Private access</p>
+          <h2 className="max-w-3xl text-4xl leading-[1.02] text-[#102017] md:text-6xl">Request access.</h2>
+          <p className="max-w-3xl text-base leading-8 text-[#21362a]/86 md:text-lg">
+            Built for people who value calm, precision, and better judgment over noise.
           </p>
-          <CtaButton className="mt-9">Request access</CtaButton>
+          <div className="flex flex-wrap items-center gap-6">
+            <CtaButton className="h-14 px-8 text-base">Request access</CtaButton>
+            <Link
+              href="/about"
+              className="inline-flex items-center gap-2 text-sm uppercase tracking-[0.18em] text-[#173124] transition hover:translate-x-0.5"
+            >
+              Learn more <span aria-hidden>→</span>
+            </Link>
+          </div>
         </Reveal>
       </Container>
-    </SectionWrapper>
+    </section>
   );
 }

@@ -23,12 +23,12 @@
   --radius-nav: 1.4rem;
 
   --space-page-y: clamp(1.5rem, 3.8vw, 2.8rem);
-  --space-section: clamp(3.4rem, 8.2vw, 7.4rem);
+  --space-section: clamp(4rem, 9vw, 8rem);
   --space-card: clamp(1.1rem, 2.2vw, 1.8rem);
 
   --text-eyebrow-tracking: 0.28em;
   --text-body-size: clamp(0.97rem, 0.92rem + 0.16vw, 1.05rem);
-  --text-body-leading: 1.78;
+  --text-body-leading: 1.72;
   --text-body-tracking: 0.01em;
   --text-body-color: hsl(140 22% 14% / 0.95);
   --text-max-width: 68ch;
@@ -44,12 +44,13 @@ body {
   line-height: var(--text-body-leading);
   letter-spacing: var(--text-body-tracking);
   color: var(--text-body-color);
-  background-image: radial-gradient(120% 88% at 16% 0%, rgba(239, 187, 191, 0.62), rgba(239, 187, 191, 0.06) 58%, transparent 78%),
-    radial-gradient(88% 62% at 84% 14%, rgba(252, 239, 220, 0.56), rgba(252, 239, 220, 0) 72%),
-    radial-gradient(120% 90% at 50% 112%, rgba(157, 193, 151, 0.36), rgba(157, 193, 151, 0.08) 62%, transparent 86%),
-    linear-gradient(180deg, #f6d8d8 0%, #f6eee2 46%, #dce6da 100%);
-  background-size: 120% 120%, 120% 120%, 115% 115%, 100% 100%;
-  animation: editorialGradient 52s ease-in-out infinite alternate;
+  background-image: radial-gradient(120% 88% at 16% 0%, rgba(226, 176, 183, 0.44), rgba(226, 176, 183, 0.05) 58%, transparent 78%),
+    radial-gradient(88% 62% at 84% 14%, rgba(243, 229, 210, 0.42), rgba(243, 229, 210, 0) 72%),
+    radial-gradient(120% 90% at 50% 112%, rgba(145, 178, 138, 0.3), rgba(145, 178, 138, 0.08) 62%, transparent 86%),
+    radial-gradient(46rem 32rem at 48% 27%, rgba(255, 249, 240, 0.5), transparent 66%),
+    linear-gradient(180deg, #f2d9d8 0%, #efe8de 46%, #d8e1d7 100%);
+  background-size: 120% 120%, 120% 120%, 115% 115%, 100% 100%, 100% 100%;
+  animation: editorialGradient 64s ease-in-out infinite alternate;
   position: relative;
 }
 
@@ -113,12 +114,22 @@ p {
   line-height: var(--text-body-leading);
 }
 
+
+.hero-cutout {
+  color: transparent;
+  background-image: radial-gradient(120% 130% at 30% 20%, rgba(255, 245, 235, 0.95), rgba(214, 225, 210, 0.78));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 1px rgba(20, 35, 26, 0.16);
+}
+
 @keyframes editorialGradient {
   0% {
-    background-position: 0% 0%, 100% 5%, 45% 100%, 50% 50%;
+    background-position: 0% 0%, 100% 5%, 45% 100%, 52% 24%, 50% 50%;
   }
   100% {
-    background-position: 8% 6%, 94% 12%, 53% 94%, 50% 50%;
+    background-position: 8% 6%, 94% 12%, 53% 94%, 48% 30%, 50% 50%;
   }
 }
 
@@ -268,6 +279,26 @@ p {
 }
 
 @layer utilities {
+  .type-label {
+    @apply text-xs uppercase tracking-[0.22em];
+    line-height: 1.4;
+  }
+
+  .type-meta {
+    @apply text-sm tracking-[0.04em];
+    line-height: 1.5;
+  }
+
+  .type-body {
+    @apply text-base;
+    line-height: 1.75;
+  }
+
+  .type-display {
+    @apply font-serif tracking-tight;
+    line-height: 0.95;
+  }
+
   .page-padding {
     @apply px-4 pb-24 md:px-7 md:pb-8;
     padding-top: var(--space-page-y);

@@ -6,27 +6,35 @@ import {
 } from "@/lib/digests/schemas";
 import type { Database, DigestRun, DigestTemplate, UserDigestProfile } from "@/lib/digests/types";
 
+type PublicTables = Database["public"]["Tables"];
+type TableName = keyof PublicTables;
+
+type TableRow<T extends TableName> = PublicTables[T]["Row"];
+type TableInsert<T extends TableName> = PublicTables[T]["Insert"];
+type TableUpdate<T extends TableName> = PublicTables[T]["Update"];
+
 export class DigestRepository {
   constructor(private readonly db: SupabaseClient<Database>) {}
 
+  private table<T extends TableName>(name: T) {
+    return this.db.from(name);
+  }
+
   async listTemplates() {
-    const client = this.db as any;
-    const { data, error } = await client
-      .from("digest_templates")
+    const { data, error } = await this.table("digest_templates")
       .select("*")
       .eq("is_active", true)
       .order("display_name", { ascending: true });
 
     if (error) throw error;
-    return data ?? [];
+    return (data ?? []) as TableRow<"digest_templates">[];
   }
 
-  async createTemplate(input: Database["public"]["Tables"]["digest_templates"]["Insert"]) {
+  async createTemplate(input: TableInsert<"digest_templates">) {
     const parsed = digestTemplateInsertSchema.parse(input);
-    const client = this.db as any;
-    const { data, error } = await client
-      .from("digest_templates")
-      .insert(parsed)
+
+    const { data, error } = await this.table("digest_templates")
+      .insert(parsed as never)
       .select("*")
       .single();
 
@@ -34,13 +42,11 @@ export class DigestRepository {
     return data as DigestTemplate;
   }
 
-  async createUserProfile(input: Database["public"]["Tables"]["user_digest_profiles"]["Insert"]) {
+  async createUserProfile(input: TableInsert<"user_digest_profiles">) {
     const parsed = userDigestProfileInsertSchema.parse(input);
 
-    const client = this.db as any;
-    const { data, error } = await client
-      .from("user_digest_profiles")
-      .insert(parsed)
+    const { data, error } = await this.table("user_digest_profiles")
+      .insert(parsed as never)
       .select("*")
       .single();
 
@@ -49,25 +55,18 @@ export class DigestRepository {
   }
 
   async listUserProfiles(userId: string) {
-    const client = this.db as any;
-    const { data, error } = await client
-      .from("user_digest_profiles")
+    const { data, error } = await this.table("user_digest_profiles")
       .select("*")
       .eq("user_id", userId)
       .order("created_at", { ascending: false });
 
     if (error) throw error;
-    return data ?? [];
+    return (data ?? []) as TableRow<"user_digest_profiles">[];
   }
 
-  async updateUserProfile(
-    profileId: string,
-    updates: Database["public"]["Tables"]["user_digest_profiles"]["Update"],
-  ) {
-    const client = this.db as any;
-    const { data, error } = await client
-      .from("user_digest_profiles")
-      .update(updates)
+  async updateUserProfile(profileId: string, updates: TableUpdate<"user_digest_profiles">) {
+    const { data, error } = await this.table("user_digest_profiles")
+      .update(updates as never)
       .eq("id", profileId)
       .select("*")
       .single();
@@ -76,11 +75,9 @@ export class DigestRepository {
     return data as UserDigestProfile;
   }
 
-  async createRun(input: Database["public"]["Tables"]["digest_runs"]["Insert"]) {
-    const client = this.db as any;
-    const { data, error } = await client
-      .from("digest_runs")
-      .insert(input)
+  async createRun(input: TableInsert<"digest_runs">) {
+    const { data, error } = await this.table("digest_runs")
+      .insert(input as never)
       .select("*")
       .single();
 
@@ -89,14 +86,12 @@ export class DigestRepository {
   }
 
   async listRunsForProfile(profileId: string) {
-    const client = this.db as any;
-    const { data, error } = await client
-      .from("digest_runs")
+    const { data, error } = await this.table("digest_runs")
       .select("*")
       .eq("profile_id", profileId)
       .order("scheduled_for", { ascending: false });
 
     if (error) throw error;
-    return data ?? [];
+    return (data ?? []) as TableRow<"digest_runs">[];
   }
 }

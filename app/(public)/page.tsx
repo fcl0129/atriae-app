@@ -1,4 +1,3 @@
-import { CtaSection } from "@/components/sections/cta";
 import { HeroSection } from "@/components/sections/hero";
 import { PublicSiteNavbar } from "@/components/sections/public-site-navbar";
 import { SystemSection } from "@/components/sections/system";
@@ -12,7 +11,6 @@ export default function LandingPage() {
         <HeroSection />
         <SystemSection />
         <ValueSection />
-        <CtaSection />
       </main>
     </div>
   );

@@ -1,4 +1,4 @@
-# Atriaé v1 Foundation
+# Atriaé v1 Foundations
 
 A production-ready foundation for **Atriaé**, a calm personal operating system built with Next.js App Router, TypeScript, Tailwind CSS, shadcn/ui conventions, and Supabase scaffolding.
 

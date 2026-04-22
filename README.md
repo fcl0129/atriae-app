@@ -43,6 +43,24 @@ Copy `.env.example` to `.env.local` and add:
 
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `OPENAI_API_KEY`
+
+
+### Vercel environment variables
+
+In Vercel Project Settings -> Environment Variables, add:
+
+- `OPENAI_API_KEY` (Production, Preview, Development)
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SMTP_HOST`
+- `SMTP_PORT`
+- `SMTP_USER`
+- `SMTP_PASS`
+- `SMTP_FROM_EMAIL`
+- `SMTP_FROM_NAME`
+
+Atriae intelligence runs through `POST /api/intelligence` server-side. Never expose `OPENAI_API_KEY` to the browser or commit it to the repository.
 
 ### App-level SMTP env vars (Atriae product emails)
 

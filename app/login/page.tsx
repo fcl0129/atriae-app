@@ -1,7 +1,15 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { createBrowserSupabaseClient } from '@/lib/supabase/browser'
+
+function sanitizeRedirectTarget(value: string | null) {
+  if (!value || !value.startsWith('/') || value.startsWith('//')) {
+    return '/dashboard'
+  }
+
+  return value
+}
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -12,13 +20,10 @@ export default function LoginPage() {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
-    const next = params.get('redirectTo')
-    if (next && next.startsWith('/')) {
-      setRedirectTo(next)
-    }
+    setRedirectTo(sanitizeRedirectTarget(params.get('redirectTo')))
   }, [])
 
-  async function handleLogin(e?: React.FormEvent) {
+  async function handleLogin(e?: FormEvent) {
     e?.preventDefault()
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL

@@ -1,11 +1,14 @@
 import Link from "next/link";
+import type { ComponentProps } from "react";
 
 import { Reveal } from "@/components/landing/reveal";
 import { ProductDemoTransition } from "@/components/sections/product-demo-transition";
 import { PublicSiteNavbar } from "@/components/sections/public-site-navbar";
 import { GlassContainer } from "@/components/ui/glass-container";
 
-function PrimaryButton({ href, label }: { href: string; label: string }) {
+type LinkHref = ComponentProps<typeof Link>["href"];
+
+function PrimaryButton({ href, label }: { href: LinkHref; label: string }) {
   return (
     <Link
       href={href}
@@ -16,7 +19,7 @@ function PrimaryButton({ href, label }: { href: string; label: string }) {
   );
 }
 
-function SecondaryButton({ href, label }: { href: string; label: string }) {
+function SecondaryButton({ href, label }: { href: LinkHref; label: string }) {
   return (
     <Link
       href={href}

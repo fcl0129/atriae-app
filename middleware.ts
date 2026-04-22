@@ -4,6 +4,14 @@ import { createServerClient } from '@supabase/ssr'
 
 const protectedRoutes = ['/dashboard', '/learn', '/rituals', '/settings']
 
+function getSafeRedirectTarget(value: string | null) {
+  if (!value || !value.startsWith('/') || value.startsWith('//')) {
+    return null
+  }
+
+  return value
+}
+
 function buildLoginUrl(request: NextRequest, reason?: 'config' | 'auth') {
   const url = new URL('/login', request.url)
   const nextPath = `${request.nextUrl.pathname}${request.nextUrl.search}`
@@ -59,8 +67,8 @@ export async function middleware(request: NextRequest) {
     }
 
     if (user && pathname === '/login') {
-      const redirectTo = request.nextUrl.searchParams.get('redirectTo')
-      if (redirectTo && redirectTo.startsWith('/')) {
+      const redirectTo = getSafeRedirectTarget(request.nextUrl.searchParams.get('redirectTo'))
+      if (redirectTo) {
         return NextResponse.redirect(new URL(redirectTo, request.url))
       }
 

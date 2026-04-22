@@ -20,12 +20,16 @@ export function IntelligencePanel() {
         body: JSON.stringify({ input: payload.text, mode: payload.mode })
       });
 
-      const data = (await res.json()) as { text?: string; error?: string };
+      const data = (await res.json().catch(() => null)) as { text?: unknown; error?: unknown } | null;
+      const text = typeof data?.text === "string" && data.text.trim().length > 0
+        ? data.text
+        : "I’m here with you. Try reframing this as one concrete next step, then submit again.";
+
       if (!res.ok) {
-        throw new Error(data.error ?? "Assistant unavailable");
+        setError("I’m having trouble reaching the intelligence layer right now. You can keep going, and try again in a moment.");
       }
 
-      setResponse(data.text ?? "");
+      setResponse(text);
     } catch {
       setError("I'm having trouble reaching the intelligence layer right now. You can keep going, and try again in a moment.");
       setResponse("I'm temporarily unable to respond right now, but your thought was captured. Please try again shortly.");

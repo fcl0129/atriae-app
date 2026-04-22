@@ -1,4 +1,3 @@
-import OpenAI from "openai";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -17,21 +16,29 @@ function fallbackResponse(input: string) {
 - Remove one distraction`
 }
 
+function safeJsonText(text: string) {
+  return NextResponse.json({ text });
+}
+
 export async function POST(request: Request) {
   try {
-    const parsed = requestSchema.safeParse(await request.json());
+    const body = await request.json().catch(() => null);
+    const parsed = requestSchema.safeParse(body);
 
     if (!parsed.success) {
-      return NextResponse.json({ text: "Invalid input." });
+      return safeJsonText("Please share one clear thought so Atriae can help you shape it.");
     }
 
     const supabase = await createServerSupabaseClient();
+    if (!supabase) {
+      return safeJsonText(fallbackResponse(parsed.data.input));
+    }
     const {
       data: { user }
     } = await supabase.auth.getUser();
 
     if (!user) {
-      return NextResponse.json({ text: "Please log in again." });
+      return safeJsonText("Your session appears to be inactive. Please sign in again.");
     }
 
     let apiKey: string;
@@ -39,36 +46,43 @@ export async function POST(request: Request) {
     try {
       apiKey = assertOpenAIKey();
     } catch {
-      return NextResponse.json({
-        text: fallbackResponse(parsed.data.input)
-      });
+      return safeJsonText(fallbackResponse(parsed.data.input));
     }
 
     try {
-      const client = new OpenAI({ apiKey });
-
-      const response = await client.responses.create({
-        model: "gpt-5.1",
-        input: parsed.data.input
+      const modePrefix = parsed.data.mode ? `Mode: ${parsed.data.mode}\n\n` : "";
+      const response = await fetch("https://api.openai.com/v1/responses", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({
+          model: "gpt-5.1",
+          input: `${modePrefix}${parsed.data.input}`
+        })
       });
 
-      return NextResponse.json({
-        text: response.output_text ?? fallbackResponse(parsed.data.input)
-      });
+      if (!response.ok) {
+        const errorBody = await response.text().catch(() => "");
+        console.error("OpenAI error response:", response.status, errorBody);
+        return safeJsonText(fallbackResponse(parsed.data.input));
+      }
+
+      const data = (await response.json().catch(() => null)) as { output_text?: unknown } | null;
+      const text = typeof data?.output_text === "string" ? data.output_text.trim() : "";
+
+      return safeJsonText(text || fallbackResponse(parsed.data.input));
 
     } catch (err) {
       console.error("OpenAI error:", err);
 
-      return NextResponse.json({
-        text: fallbackResponse(parsed.data.input)
-      });
+      return safeJsonText(fallbackResponse(parsed.data.input));
     }
 
   } catch (err) {
     console.error("Assistant fatal error:", err);
 
-    return NextResponse.json({
-      text: "Something went wrong, but you can keep going."
-    });
+    return safeJsonText("Atriae hit a temporary issue, but you can keep moving with one small next step.");
   }
 }

@@ -27,6 +27,7 @@ type IntelligenceInputProps = {
   submitLabel?: string;
   attachmentLabel?: string;
   allowAttachments?: boolean;
+  isSubmitting?: boolean;
   onSubmit?: (payload: SubmissionPayload) => void;
 };
 
@@ -54,6 +55,7 @@ export function IntelligenceInput({
   submitLabel = "Shape this",
   attachmentLabel = "Attach note",
   allowAttachments = true,
+  isSubmitting = false,
   onSubmit
 }: IntelligenceInputProps) {
   const attachmentId = useId();
@@ -62,7 +64,7 @@ export function IntelligenceInput({
   const [attachments, setAttachments] = useState<File[]>([]);
   const [lastSubmittedIntent, setLastSubmittedIntent] = useState<string>("");
 
-  const canSubmit = text.trim().length > 0;
+  const canSubmit = text.trim().length > 0 && !isSubmitting;
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -92,9 +94,10 @@ export function IntelligenceInput({
               type="button"
               role="tab"
               aria-selected={isActive}
+              disabled={isSubmitting}
               onClick={() => setMode(option.value)}
               className={cn(
-                "rounded-full px-4 py-1.5 text-[0.68rem] uppercase tracking-[0.14em] transition-all duration-300",
+                "rounded-full px-4 py-1.5 text-[0.68rem] uppercase tracking-[0.14em] transition-all duration-300 disabled:opacity-65",
                 isActive
                   ? "bg-foreground/90 text-background"
                   : "bg-background/58 text-muted-foreground hover:bg-background/72 hover:text-foreground"
@@ -116,7 +119,8 @@ export function IntelligenceInput({
           value={text}
           onChange={(event) => setText(event.target.value)}
           placeholder={placeholder}
-          className="min-h-28 w-full resize-y rounded-2xl bg-background/72 px-4 py-3 text-[0.96rem] text-foreground outline-none transition focus:bg-background/90 focus:ring-2 focus:ring-ring/25"
+          disabled={isSubmitting}
+          className="min-h-28 w-full resize-y rounded-2xl bg-background/72 px-4 py-3 text-[0.96rem] text-foreground outline-none transition focus:bg-background/90 focus:ring-2 focus:ring-ring/25 disabled:opacity-70"
         />
 
         <div className="flex flex-wrap items-center justify-between gap-3">
@@ -126,7 +130,8 @@ export function IntelligenceInput({
                 key={suggestion}
                 type="button"
                 onClick={() => setText(suggestion)}
-                className="rounded-full bg-background/64 px-3 py-1.5 text-[0.66rem] uppercase tracking-[0.12em] text-muted-foreground transition-colors hover:text-foreground"
+                disabled={isSubmitting}
+                className="rounded-full bg-background/64 px-3 py-1.5 text-[0.66rem] uppercase tracking-[0.12em] text-muted-foreground transition-colors hover:text-foreground disabled:opacity-70"
               >
                 {suggestion}
               </button>
@@ -140,6 +145,7 @@ export function IntelligenceInput({
                   id={attachmentId}
                   type="file"
                   className="sr-only"
+                  disabled={isSubmitting}
                   onChange={(event) => {
                     const selectedFiles = event.target.files ? Array.from(event.target.files) : [];
                     setAttachments(selectedFiles);
@@ -158,7 +164,7 @@ export function IntelligenceInput({
               disabled={!canSubmit}
               className="rounded-full bg-foreground px-4 py-2 text-xs uppercase tracking-[0.14em] text-background transition-opacity disabled:cursor-not-allowed disabled:opacity-45"
             >
-              {submitLabel}
+              {isSubmitting ? "Shaping…" : submitLabel}
             </button>
           </div>
         </div>

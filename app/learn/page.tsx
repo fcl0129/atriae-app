@@ -7,6 +7,9 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 export default async function LearnPage() {
   const supabase = await createServerSupabaseClient();
+  if (!supabase) {
+    redirect("/login?error=config");
+  }
   const {
     data: { user }
   } = await supabase.auth.getUser();

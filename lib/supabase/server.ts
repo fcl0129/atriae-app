@@ -3,12 +3,15 @@ import { createServerClient } from '@supabase/ssr'
 import { getSupabaseEnv } from './config'
 
 export async function createServerSupabaseClient() {
-  const { url, anonKey } = getSupabaseEnv()
+  const env = getSupabaseEnv()
+  if (!env) {
+    return null
+  }
   const cookieStore = await cookies()
 
   return createServerClient(
-    url,
-    anonKey,
+    env.url,
+    env.anonKey,
     {
       cookies: {
         getAll() {

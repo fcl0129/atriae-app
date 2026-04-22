@@ -30,6 +30,9 @@ export async function POST(request: Request) {
     }
 
     const supabase = await createServerSupabaseClient();
+    if (!supabase) {
+      return safeJsonText(fallbackResponse(parsed.data.input));
+    }
     const {
       data: { user }
     } = await supabase.auth.getUser();

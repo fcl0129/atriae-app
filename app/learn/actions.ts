@@ -7,6 +7,9 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 async function requireUser() {
   const supabase = await createServerSupabaseClient();
+  if (!supabase) {
+    throw new Error("Supabase is not configured.");
+  }
   const {
     data: { user }
   } = await supabase.auth.getUser();

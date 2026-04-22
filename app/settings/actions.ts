@@ -42,6 +42,9 @@ export async function savePreferencesAction(
   }
 
   const supabase = await createServerSupabaseClient();
+  if (!supabase) {
+    return { status: "error", message: "Supabase is not configured." };
+  }
   const {
     data: { user }
   } = await supabase.auth.getUser();
@@ -68,6 +71,9 @@ export async function savePreferencesAction(
 
 export async function logoutAction() {
   const supabase = await createServerSupabaseClient();
+  if (!supabase) {
+    redirect("/");
+  }
   await supabase.auth.signOut();
   redirect("/");
 }

@@ -11,6 +11,9 @@ function getGreeting(hour: number) {
 
 export default async function DashboardPage() {
   const supabase = await createServerSupabaseClient();
+  if (!supabase) {
+    redirect("/login?error=config");
+  }
 
   const {
     data: { user }

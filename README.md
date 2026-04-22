@@ -48,11 +48,14 @@ Copy `.env.example` to `.env.local` and add:
 
 ### Vercel environment variables
 
-In Vercel Project Settings -> Environment Variables, add:
+In Vercel Project Settings -> Environment Variables, add these required intelligence variables to **Production, Preview, and Development**:
 
-- `OPENAI_API_KEY` (Production, Preview, Development)
+- `OPENAI_API_KEY` (server-side only)
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+
+Additional app email variables:
+
 - `SMTP_HOST`
 - `SMTP_PORT`
 - `SMTP_USER`
@@ -61,6 +64,10 @@ In Vercel Project Settings -> Environment Variables, add:
 - `SMTP_FROM_NAME`
 
 Atriae intelligence runs through `POST /api/intelligence` server-side. Never expose `OPENAI_API_KEY` to the browser or commit it to the repository.
+
+### Intelligence API diagnostics
+
+`POST /api/intelligence` now returns structured errors with `error.code`, `error.message`, `error.retryable`, and a `request_id` to help trace production failures in logs.
 
 ### App-level SMTP env vars (Atriae product emails)
 

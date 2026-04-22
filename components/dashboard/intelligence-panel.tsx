@@ -17,11 +17,72 @@ type IntelligenceResult = {
   mode: AtriaeIntentMode;
 };
 
+type IntelligenceApiErrorCode =
+  | "SUPABASE_CONFIG_MISSING"
+  | "SESSION_MISSING"
+  | "INVALID_INPUT"
+  | "OPENAI_CONFIG_MISSING"
+  | "OPENAI_TIMEOUT"
+  | "OPENAI_REQUEST_FAILED"
+  | "MODEL_OUTPUT_MALFORMED"
+  | "MODEL_OUTPUT_INVALID"
+  | "UNKNOWN_SERVER_ERROR";
+
+type IntelligenceApiError = {
+  code: IntelligenceApiErrorCode;
+  message: string;
+  retryable: boolean;
+};
+
+type IntelligenceApiResponse = Partial<IntelligenceResult> & {
+  error?: IntelligenceApiError;
+  request_id?: string;
+};
+
 function ModeBadge({ mode }: { mode: AtriaeIntentMode }) {
   return (
     <span className="rounded-full bg-background/70 px-3 py-1 text-[0.64rem] uppercase tracking-[0.16em] text-muted-foreground">
       {mode}
     </span>
+  );
+}
+
+function mapApiErrorToUiMessage(error: IntelligenceApiError | undefined, fallback: string): string {
+  if (!error) return fallback;
+
+  switch (error.code) {
+    case "SESSION_MISSING":
+      return "You’re signed out. Please sign in again, then retry.";
+    case "SUPABASE_CONFIG_MISSING":
+      return "Atriae is missing Supabase configuration. Please contact support or check deployment settings.";
+    case "OPENAI_CONFIG_MISSING":
+      return "Atriae intelligence is not configured yet. Please set OPENAI_API_KEY in the server environment.";
+    case "OPENAI_TIMEOUT":
+      return "Atriae is taking longer than expected right now. Please try again in a moment.";
+    case "OPENAI_REQUEST_FAILED":
+      return "Atriae is temporarily unable to reach intelligence services. Please retry shortly.";
+    case "MODEL_OUTPUT_MALFORMED":
+    case "MODEL_OUTPUT_INVALID":
+      return "Atriae returned an unexpected response format. Please retry.";
+    case "INVALID_INPUT":
+      return "Please enter a thought or question so Atriae can shape a response.";
+    default:
+      return error.message?.trim() || fallback;
+  }
+}
+
+function isValidResult(data: IntelligenceApiResponse | null): data is IntelligenceResult {
+  return Boolean(
+    data &&
+      typeof data.title === "string" &&
+      typeof data.summary === "string" &&
+      Array.isArray(data.sections) &&
+      data.sections.every(
+        (section) => section && typeof section.heading === "string" && typeof section.content === "string"
+      ) &&
+      Array.isArray(data.next_steps) &&
+      data.next_steps.every((step) => typeof step === "string") &&
+      typeof data.mode === "string"
   );
 }
 
@@ -43,31 +104,22 @@ export function IntelligencePanel() {
         body: JSON.stringify({ input: payload.text, mode: payload.mode })
       });
 
-      const data = (await res.json().catch(() => null)) as
-        | (Partial<IntelligenceResult> & { error?: string })
-        | null;
+      const data = (await res.json().catch(() => null)) as IntelligenceApiResponse | null;
 
       if (!res.ok) {
-        setError(
-          data?.error?.trim() ||
-            "Atriae couldn’t shape this right now. Please pause, then try again."
-        );
+        const fallback = "Atriae couldn’t shape this right now. Please pause, then try again.";
+        const message = mapApiErrorToUiMessage(data?.error, fallback);
+        const requestIdSuffix = data?.request_id ? ` (Ref: ${data.request_id})` : "";
+        setError(`${message}${requestIdSuffix}`);
         return;
       }
 
-      if (
-        !data ||
-        typeof data.title !== "string" ||
-        typeof data.summary !== "string" ||
-        !Array.isArray(data.sections) ||
-        !Array.isArray(data.next_steps) ||
-        typeof data.mode !== "string"
-      ) {
+      if (!isValidResult(data)) {
         setError("Atriae returned an incomplete response. Please try again.");
         return;
       }
 
-      setResponse(data as IntelligenceResult);
+      setResponse(data);
     } catch {
       setError("Atriae is temporarily quiet. Please try shaping this again in a moment.");
     } finally {

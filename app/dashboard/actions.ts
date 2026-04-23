@@ -6,11 +6,12 @@ import { widgetById } from "@/lib/dashboard/registry";
 import { createViewWithTemplate } from "@/lib/dashboard/service";
 import { templateByKey } from "@/lib/dashboard/templates";
 import { DashboardTemplateKey, WidgetSize } from "@/lib/dashboard/types";
+import { SUPABASE_PUBLIC_ENV_ERROR } from "@/lib/env";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 async function requireUser() {
   const supabase = await createServerSupabaseClient();
-  if (!supabase) throw new Error("Supabase is not configured");
+  if (!supabase) throw new Error(SUPABASE_PUBLIC_ENV_ERROR);
   const {
     data: { user }
   } = await supabase.auth.getUser();

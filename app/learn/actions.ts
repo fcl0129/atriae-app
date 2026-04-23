@@ -3,12 +3,13 @@
 import { revalidatePath } from "next/cache";
 
 import { learningTopicCreateSchema, learningTopicUpdateSchema } from "@/lib/atriae/types";
+import { SUPABASE_PUBLIC_ENV_ERROR } from "@/lib/env";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 async function requireUser() {
   const supabase = await createServerSupabaseClient();
   if (!supabase) {
-    throw new Error("Supabase is not configured.");
+    throw new Error(SUPABASE_PUBLIC_ENV_ERROR);
   }
   const {
     data: { user }

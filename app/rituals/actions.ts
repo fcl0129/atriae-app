@@ -3,11 +3,12 @@
 import { revalidatePath } from "next/cache";
 
 import { completeRitualSchema, ritualCreateSchema } from "@/lib/atriae/types";
+import { SUPABASE_PUBLIC_ENV_ERROR } from "@/lib/env";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 async function requireUser() {
   const supabase = await createServerSupabaseClient();
-  if (!supabase) throw new Error("Supabase is not configured.");
+  if (!supabase) throw new Error(SUPABASE_PUBLIC_ENV_ERROR);
   const {
     data: { user }
   } = await supabase.auth.getUser();

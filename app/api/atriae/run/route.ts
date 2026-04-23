@@ -8,6 +8,7 @@ import {
   guidedRunRequestSchema,
   type GuidedMode
 } from "@/lib/ai/guided-system";
+import { SUPABASE_PUBLIC_ENV_ERROR } from "@/lib/env";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 function getTitle(mode: GuidedMode, input: string) {
@@ -37,7 +38,7 @@ export async function POST(request: Request) {
 
     const supabase = await createServerSupabaseClient();
     if (!supabase) {
-      return NextResponse.json({ error: "Supabase is not configured." }, { status: 503 });
+      return NextResponse.json({ error: SUPABASE_PUBLIC_ENV_ERROR }, { status: 503 });
     }
 
     const {

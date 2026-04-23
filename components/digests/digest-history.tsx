@@ -7,7 +7,8 @@ import { PageContainer } from "@/components/layout/page-container";
 import { SectionHeader } from "@/components/layout/section-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { supabase } from "@/lib/supabase";
+import { SUPABASE_PUBLIC_ENV_ERROR } from "@/lib/env";
+import { createOptionalBrowserSupabaseClient } from "@/lib/supabase/browser";
 
 type RunRow = {
   id: string;
@@ -37,7 +38,7 @@ function statusStyle(status: string) {
 }
 
 export function DigestHistory() {
-  const client = useMemo(() => supabase, []);
+  const client = useMemo(() => createOptionalBrowserSupabaseClient(), []);
   const [rows, setRows] = useState<RunRow[]>([]);
   const [message, setMessage] = useState("");
   const [state, setState] = useState<"loading" | "ready" | "error">("loading");
@@ -45,7 +46,7 @@ export function DigestHistory() {
   useEffect(() => {
     async function load() {
       if (!client) {
-        setMessage("Supabase is not configured.");
+        setMessage(SUPABASE_PUBLIC_ENV_ERROR);
         setState("error");
         return;
       }

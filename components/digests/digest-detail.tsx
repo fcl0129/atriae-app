@@ -11,7 +11,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import type { DigestRun, UserDigestProfile } from "@/lib/digests";
 import { isValidEmail } from "@/lib/digests/validation";
-import { supabase } from "@/lib/supabase";
+import { SUPABASE_PUBLIC_ENV_ERROR } from "@/lib/env";
+import { createOptionalBrowserSupabaseClient } from "@/lib/supabase/browser";
 
 type DigestDetailProps = {
   digestId: string;
@@ -31,7 +32,7 @@ function formatDate(value: string | null) {
 
 export function DigestDetail({ digestId, initialRunId }: DigestDetailProps) {
   const router = useRouter();
-  const client = useMemo(() => supabase, []);
+  const client = useMemo(() => createOptionalBrowserSupabaseClient(), []);
   const [profile, setProfile] = useState<UserDigestProfile | null>(null);
   const [runs, setRuns] = useState<DigestRun[]>([]);
   const [selectedRunId, setSelectedRunId] = useState<string | null>(initialRunId ?? null);
@@ -42,7 +43,7 @@ export function DigestDetail({ digestId, initialRunId }: DigestDetailProps) {
   useEffect(() => {
     async function load() {
       if (!client) {
-        setMessage("Supabase is not configured.");
+        setMessage(SUPABASE_PUBLIC_ENV_ERROR);
         setState("error");
         return;
       }

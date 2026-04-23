@@ -2,6 +2,7 @@
 
 import { useEffect, useState, type FormEvent } from 'react'
 import { createBrowserSupabaseClient } from '@/lib/supabase/browser'
+import { AUTH_CONFIGURATION_ERROR, isSupabasePublicEnvConfigured } from '@/lib/env'
 
 function sanitizeRedirectTarget(value: string | null) {
   if (!value || !value.startsWith('/') || value.startsWith('//')) {
@@ -26,11 +27,8 @@ export default function LoginPage() {
   async function handleLogin(e?: FormEvent) {
     e?.preventDefault()
 
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-
-    if (!supabaseUrl || !supabaseAnonKey) {
-      setError('Authentication is not configured. Add Supabase env variables in Vercel.')
+    if (!isSupabasePublicEnvConfigured()) {
+      setError(AUTH_CONFIGURATION_ERROR)
       return
     }
 

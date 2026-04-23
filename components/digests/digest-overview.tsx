@@ -9,7 +9,8 @@ import { SectionHeader } from "@/components/layout/section-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import type { DigestRun, UserDigestProfile } from "@/lib/digests";
-import { supabase } from "@/lib/supabase";
+import { SUPABASE_PUBLIC_ENV_ERROR } from "@/lib/env";
+import { createOptionalBrowserSupabaseClient } from "@/lib/supabase/browser";
 
 type AsyncState = "loading" | "ready" | "error";
 
@@ -36,7 +37,7 @@ function summarizeError(error: string | null) {
 }
 
 export function DigestOverview() {
-  const client = useMemo(() => supabase, []);
+  const client = useMemo(() => createOptionalBrowserSupabaseClient(), []);
   const [state, setState] = useState<AsyncState>("loading");
   const [message, setMessage] = useState("");
   const [profiles, setProfiles] = useState<UserDigestProfile[]>([]);
@@ -45,7 +46,7 @@ export function DigestOverview() {
   useEffect(() => {
     async function load() {
       if (!client) {
-        setMessage("Supabase is not configured.");
+        setMessage(SUPABASE_PUBLIC_ENV_ERROR);
         setState("error");
         return;
       }

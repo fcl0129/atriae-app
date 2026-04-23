@@ -10,7 +10,11 @@ type GuidedMode = "clarity" | "plan" | "focus" | "decision";
 type GuidedResponse = {
   sessionId: string;
   mode: GuidedMode;
-  output: Record<string, unknown>;
+  modeAutoDetected?: boolean;
+  output: Record<string, unknown> & {
+    follow_up_question?: string | null;
+    next_mode?: GuidedMode | null;
+  };
   error?: string;
 };
 
@@ -150,7 +154,10 @@ export function AtriaeHomeExperienceSection() {
         {response ? (
           <article className="space-y-5 rounded-3xl bg-card/65 p-5 md:p-6">
             <p className="text-[0.66rem] uppercase tracking-[0.2em] text-muted-foreground">{response.mode} mode</p>
+            {response.modeAutoDetected ? <p className="text-xs text-muted-foreground">Auto-detected mode</p> : null}
             {renderStructuredOutput(response)}
+            {response.output.follow_up_question ? <p className="text-sm leading-7 text-muted-foreground"><strong>Follow-up:</strong> {response.output.follow_up_question}</p> : null}
+            {response.output.next_mode ? <p className="text-sm leading-7 text-muted-foreground">Continue with a {response.output.next_mode} →</p> : null}
           </article>
         ) : (
           <p className="max-w-3xl text-sm leading-7 text-muted-foreground md:text-base md:leading-8">

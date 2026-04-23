@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import {
+  detectMode,
   extractActions,
   generateGuidedSystemOutput,
   GuidedModelError,
@@ -12,6 +13,17 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 function getTitle(mode: GuidedMode, input: string) {
   const preview = input.trim().replace(/\s+/g, " ").slice(0, 72);
   return `${mode}: ${preview}${preview.length >= 72 ? "…" : ""}`;
+}
+
+function hasStrongModeSignal(input: string, mode: GuidedMode) {
+  const text = input.toLowerCase();
+  const signalMap: Record<GuidedMode, RegExp> = {
+    clarity: /\b(confused|overwhelmed|unclear|stuck|messy|can't think|not sure what matters)\b/,
+    plan: /\b(plan|roadmap|steps|schedule|timeline|sequence|organize)\b/,
+    focus: /\b(focus|distraction|start now|ship|execute|deep work|commit)\b/,
+    decision: /\b(decide|choice|choose|option|tradeoff|pros and cons|which one)\b/
+  };
+  return signalMap[mode].test(text);
 }
 
 export async function POST(request: Request) {
@@ -37,13 +49,16 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
     }
 
-    const { mode, input } = parsed.data;
+    const { input } = parsed.data;
+    let mode = parsed.data.mode;
     let sessionId = parsed.data.sessionId;
+    let modeAutoDetected = false;
+    let previousMode: GuidedMode | null = null;
 
     if (sessionId) {
       const { data: existingSession, error: sessionError } = await supabase
         .from("sessions")
-        .select("id")
+        .select("id, mode")
         .eq("id", sessionId)
         .eq("user_id", user.id)
         .maybeSingle();
@@ -56,11 +71,18 @@ export async function POST(request: Request) {
       if (!existingSession) {
         return NextResponse.json({ error: "Session not found." }, { status: 404 });
       }
+
+      previousMode = existingSession.mode as GuidedMode;
     } else {
+      if (!mode) {
+        mode = await detectMode(input);
+        modeAutoDetected = true;
+      }
+
       const { data: createdSession, error: createError } = await supabase
         .from("sessions")
         .insert({ user_id: user.id, mode, title: getTitle(mode, input) })
-        .select("id")
+        .select("id, mode")
         .single();
 
       if (createError || !createdSession) {
@@ -69,6 +91,19 @@ export async function POST(request: Request) {
       }
 
       sessionId = createdSession.id;
+      previousMode = createdSession.mode as GuidedMode;
+    }
+
+    if (!mode) {
+      if (!previousMode) {
+        mode = await detectMode(input);
+      } else {
+        const detectedMode = await detectMode(input);
+        mode = hasStrongModeSignal(input, detectedMode) ? detectedMode : previousMode;
+      }
+      modeAutoDetected = true;
+    } else if (sessionId && previousMode && mode !== previousMode) {
+      modeAutoDetected = false;
     }
 
     const { error: userMessageError } = await supabase.from("messages").insert({
@@ -113,7 +148,7 @@ export async function POST(request: Request) {
 
     const { error: sessionUpdateError } = await supabase
       .from("sessions")
-      .update({ updated_at: new Date().toISOString() })
+      .update({ mode, updated_at: new Date().toISOString() })
       .eq("id", sessionId)
       .eq("user_id", user.id);
 
@@ -121,7 +156,7 @@ export async function POST(request: Request) {
       console.error("[atriae.run] session update failed", sessionUpdateError);
     }
 
-    return NextResponse.json({ sessionId, mode, output: generated.output }, { status: 200 });
+    return NextResponse.json({ sessionId, mode, output: generated.output, modeAutoDetected }, { status: 200 });
   } catch (error) {
     console.error("[atriae.run] request failed", error);
 

@@ -9,6 +9,8 @@ type ClarityOutput = {
   what_matters: string[];
   what_doesnt_matter: string[];
   next_step: string;
+  follow_up_question: string | null;
+  next_mode: AtriaeIntentMode | null;
 };
 
 type PlanOutput = {
@@ -16,6 +18,8 @@ type PlanOutput = {
   steps: string[];
   timeline: string;
   first_action: string;
+  follow_up_question: string | null;
+  next_mode: AtriaeIntentMode | null;
 };
 
 type FocusOutput = {
@@ -23,6 +27,8 @@ type FocusOutput = {
   ignore: string[];
   duration: string;
   definition_of_done: string;
+  follow_up_question: string | null;
+  next_mode: AtriaeIntentMode | null;
 };
 
 type DecisionOutput = {
@@ -31,12 +37,15 @@ type DecisionOutput = {
   risks: string[];
   recommendation: string;
   reasoning: string;
+  follow_up_question: string | null;
+  next_mode: AtriaeIntentMode | null;
 };
 
 type RunResponse = {
   sessionId: string;
   mode: AtriaeIntentMode;
   output: ClarityOutput | PlanOutput | FocusOutput | DecisionOutput;
+  modeAutoDetected?: boolean;
   error?: string;
 };
 
@@ -60,20 +69,26 @@ function isRunResponse(data: unknown): data is RunResponse {
         isStringArray(output.what_matters) &&
         isStringArray(output.what_doesnt_matter) &&
         typeof output.next_step === "string"
+        && (typeof output.follow_up_question === "string" || output.follow_up_question === null)
+        && (["clarity", "plan", "focus", "decision"].includes(String(output.next_mode)) || output.next_mode === null)
       );
     case "plan":
       return (
         typeof output.goal === "string" &&
         isStringArray(output.steps) &&
         typeof output.timeline === "string" &&
-        typeof output.first_action === "string"
+        typeof output.first_action === "string" &&
+        (typeof output.follow_up_question === "string" || output.follow_up_question === null) &&
+        (["clarity", "plan", "focus", "decision"].includes(String(output.next_mode)) || output.next_mode === null)
       );
     case "focus":
       return (
         typeof output.focus_task === "string" &&
         isStringArray(output.ignore) &&
         typeof output.duration === "string" &&
-        typeof output.definition_of_done === "string"
+        typeof output.definition_of_done === "string" &&
+        (typeof output.follow_up_question === "string" || output.follow_up_question === null) &&
+        (["clarity", "plan", "focus", "decision"].includes(String(output.next_mode)) || output.next_mode === null)
       );
     case "decision":
       return (
@@ -81,7 +96,9 @@ function isRunResponse(data: unknown): data is RunResponse {
         isStringArray(output.criteria) &&
         isStringArray(output.risks) &&
         typeof output.recommendation === "string" &&
-        typeof output.reasoning === "string"
+        typeof output.reasoning === "string" &&
+        (typeof output.follow_up_question === "string" || output.follow_up_question === null) &&
+        (["clarity", "plan", "focus", "decision"].includes(String(output.next_mode)) || output.next_mode === null)
       );
     default:
       return false;
@@ -150,6 +167,7 @@ export function IntelligencePanel() {
         <article className="surface-paper space-y-5 p-4 text-sm leading-7 text-foreground/95 sm:p-5">
           <header className="space-y-2 border-b border-border/45 pb-3">
             <span className="rounded-full bg-background/70 px-3 py-1 text-[0.64rem] uppercase tracking-[0.16em] text-muted-foreground">{response.mode}</span>
+            {response.modeAutoDetected ? <p className="text-xs text-muted-foreground">Auto-detected mode</p> : null}
           </header>
 
           {response.mode === "clarity" ? (
@@ -194,6 +212,13 @@ export function IntelligencePanel() {
               <p><strong>Recommendation:</strong> {(response.output as DecisionOutput).recommendation}</p>
               <p><strong>Reasoning:</strong> {(response.output as DecisionOutput).reasoning}</p>
             </section>
+          ) : null}
+
+          {(response.output as { follow_up_question?: string | null }).follow_up_question ? (
+            <p><strong>Follow-up:</strong> {(response.output as { follow_up_question: string }).follow_up_question}</p>
+          ) : null}
+          {(response.output as { next_mode?: AtriaeIntentMode | null }).next_mode ? (
+            <p className="text-muted-foreground">Continue with {(response.output as { next_mode: AtriaeIntentMode }).next_mode} →</p>
           ) : null}
         </article>
       ) : null}

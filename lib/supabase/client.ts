@@ -1,16 +1,15 @@
-import { createClient } from "@supabase/supabase-js";
+import { createBrowserSupabaseClient, createOptionalBrowserSupabaseClient } from "@/lib/supabase/browser";
 
-import { getSupabasePublicEnvOrNull, getSupabasePublishableKey, getSupabaseUrl } from "@/lib/env";
-
+/**
+ * @deprecated Use createBrowserSupabaseClient from '@/lib/supabase/browser'.
+ */
 export function createSupabaseClient() {
-  return createClient(getSupabaseUrl(), getSupabasePublishableKey());
+  return createBrowserSupabaseClient();
 }
 
+/**
+ * @deprecated Use createOptionalBrowserSupabaseClient from '@/lib/supabase/browser'.
+ */
 export function createOptionalSupabaseClient() {
-  const env = getSupabasePublicEnvOrNull();
-  if (!env) {
-    return null;
-  }
-
-  return createClient(env.url, env.publishableKey);
+  return createOptionalBrowserSupabaseClient();
 }

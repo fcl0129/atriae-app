@@ -1,3 +1,5 @@
+-- NOTE: Legacy alias retained for existing remote migration histories.
+-- Canonical timestamped equivalent: 20260421000000_create_profiles_auth.sql
 -- Atriae auth foundation
 -- Creates a public.profiles table linked to auth.users,
 -- auto-creates profile rows for new auth users,

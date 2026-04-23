@@ -12,7 +12,7 @@ type IntentModeOption = {
 };
 
 export type SubmissionPayload = {
-  mode: AtriaeIntentMode;
+  mode?: AtriaeIntentMode;
   text: string;
   attachments: File[];
 };
@@ -60,6 +60,7 @@ export function IntelligenceInput({
 }: IntelligenceInputProps) {
   const attachmentId = useId();
   const [mode, setMode] = useState<AtriaeIntentMode>(modeOptions[0]?.value ?? "clarity");
+  const [hasModeOverride, setHasModeOverride] = useState(false);
   const [text, setText] = useState("");
   const [attachments, setAttachments] = useState<File[]>([]);
   const [lastSubmittedIntent, setLastSubmittedIntent] = useState<string>("");
@@ -71,7 +72,7 @@ export function IntelligenceInput({
     if (!canSubmit) return;
 
     const normalizedText = text.trim();
-    onSubmit?.({ mode, text: normalizedText, attachments });
+    onSubmit?.({ mode: hasModeOverride ? mode : undefined, text: normalizedText, attachments });
     setLastSubmittedIntent(normalizedText);
   };
 
@@ -95,7 +96,10 @@ export function IntelligenceInput({
               role="tab"
               aria-selected={isActive}
               disabled={isSubmitting}
-              onClick={() => setMode(option.value)}
+              onClick={() => {
+                setMode(option.value);
+                setHasModeOverride(true);
+              }}
               className={cn(
                 "rounded-full px-4 py-1.5 text-[0.68rem] uppercase tracking-[0.14em] transition-all duration-300 disabled:opacity-65",
                 isActive
@@ -175,7 +179,7 @@ export function IntelligenceInput({
 
         {lastSubmittedIntent ? (
           <p className="text-xs text-muted-foreground">
-            Captured in <span className="font-medium text-foreground">{modeOptions.find((option) => option.value === mode)?.label}</span> mode:
+            Captured in <span className="font-medium text-foreground">{hasModeOverride ? modeOptions.find((option) => option.value === mode)?.label : "Auto"}</span> mode:
             <span className="ml-1 italic">“{lastSubmittedIntent}”</span>
           </p>
         ) : (

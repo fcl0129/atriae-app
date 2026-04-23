@@ -50,10 +50,11 @@ const modeScaffolds: Record<AtriaeIntentMode, StructuredSection[]> = {
 };
 
 export function transformIntentToOutput(payload: SubmissionPayload, refinementNote?: string): StructuredOutput {
+  const resolvedMode: AtriaeIntentMode = payload.mode ?? "clarity";
   const normalizedRefinement = refinementNote?.trim().toLowerCase();
   const refinementAction = normalizedRefinement ? refinementTemplates[normalizedRefinement] : undefined;
 
-  const sections = modeScaffolds[payload.mode].map((section, index) => {
+  const sections = modeScaffolds[resolvedMode].map((section, index) => {
     if (index !== 2 || !refinementAction) return section;
 
     return {
@@ -64,7 +65,7 @@ export function transformIntentToOutput(payload: SubmissionPayload, refinementNo
 
   return {
     id: `${Date.now()}-${Math.random().toString(16).slice(2, 8)}`,
-    mode: payload.mode,
+    mode: resolvedMode,
     source: payload.text,
     refinementNote,
     sections

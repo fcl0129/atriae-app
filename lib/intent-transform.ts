@@ -46,6 +46,16 @@ const modeScaffolds: Record<AtriaeIntentMode, StructuredSection[]> = {
     { title: "Current issue", points: ["Multiple options are competing for attention."] },
     { title: "Suggested structure", points: ["List options clearly.", "Define decision criteria.", "Assess risk by option."] },
     { title: "Actionable steps", points: ["Rank options against criteria.", "Choose the strongest recommendation.", "Commit to a next checkpoint."] }
+  ],
+  learn: [
+    { title: "Current issue", points: ["The topic feels dense or abstract."] },
+    { title: "Suggested structure", points: ["Start with core ideas.", "Connect to one concrete example.", "Review with a short recap."] },
+    { title: "Actionable steps", points: ["Read one section with intent.", "Write a three-line summary.", "Teach it back in plain language."] }
+  ],
+  organize: [
+    { title: "Current issue", points: ["Thoughts are scattered across multiple priorities."] },
+    { title: "Suggested structure", points: ["Group similar inputs.", "Name what matters most.", "Stage next actions by effort."] },
+    { title: "Actionable steps", points: ["Create three buckets: now, next, later.", "Move one task into now.", "Archive what is not useful today."] }
   ]
 };
 

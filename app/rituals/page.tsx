@@ -44,8 +44,8 @@ export default async function RitualsPage() {
     <PageContainer>
       <SectionHeader
         eyebrow="Rituals"
-        title="Routines that protect clarity"
-        description="Shape light practices that reset attention and support emotional continuity."
+        title="Rituals for reset and continuity"
+        description="Design gentle practices that help you reset and return with steadier attention."
       />
       <RitualsClient rituals={rituals} statuses={statuses} />
     </PageContainer>

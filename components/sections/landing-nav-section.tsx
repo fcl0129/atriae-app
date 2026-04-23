@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { PremiumNavbar, type PremiumNavbarItem } from "@/components/ui/premium-navbar";
 
 const appNavigation: PremiumNavbarItem[] = [
-  { label: "Dashboard", href: "/dashboard", kind: "route" },
+  { label: "Today", href: "/dashboard", kind: "route" },
   { label: "Learn", href: "/learn", kind: "route" },
   { label: "Rituals", href: "/rituals", kind: "route" },
   { label: "Settings", href: "/settings", kind: "route" }

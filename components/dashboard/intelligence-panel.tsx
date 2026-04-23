@@ -2,224 +2,140 @@
 
 import { useState } from "react";
 
-import { IntelligenceInput, type AtriaeIntentMode, type SubmissionPayload } from "@/components/ui/intelligence-input";
+import { IntelligenceInput } from "@/components/ui/intelligence-input";
+import { cn } from "@/lib/utils";
 
-type ClarityOutput = {
-  core_problem: string;
-  what_matters: string[];
-  what_doesnt_matter: string[];
-  next_step: string;
-  follow_up_question: string | null;
-  next_mode: AtriaeIntentMode | null;
+type AtriaeMode = "learn" | "plan" | "focus" | "organize";
+
+type IntelligenceResponse = {
+  title: string;
+  summary: string;
+  sections: { heading: string; content: string }[];
+  next_steps: string[];
+  mode: AtriaeMode;
 };
 
-type PlanOutput = {
-  goal: string;
-  steps: string[];
-  timeline: string;
-  first_action: string;
-  follow_up_question: string | null;
-  next_mode: AtriaeIntentMode | null;
+type IntelligencePanelProps = {
+  heading?: string;
+  contextLabel?: string;
+  className?: string;
+  defaultMode?: AtriaeMode;
 };
 
-type FocusOutput = {
-  focus_task: string;
-  ignore: string[];
-  duration: string;
-  definition_of_done: string;
-  follow_up_question: string | null;
-  next_mode: AtriaeIntentMode | null;
-};
+const modeOptions = [
+  { value: "plan", label: "Plan" },
+  { value: "focus", label: "Focus" },
+  { value: "learn", label: "Learn" },
+  { value: "organize", label: "Organize" }
+] as const;
 
-type DecisionOutput = {
-  options: string[];
-  criteria: string[];
-  risks: string[];
-  recommendation: string;
-  reasoning: string;
-  follow_up_question: string | null;
-  next_mode: AtriaeIntentMode | null;
-};
-
-type RunResponse = {
-  sessionId: string;
-  mode: AtriaeIntentMode;
-  output: ClarityOutput | PlanOutput | FocusOutput | DecisionOutput;
-  modeAutoDetected?: boolean;
-  error?: string;
-};
-
-function isStringArray(value: unknown): value is string[] {
-  return Array.isArray(value) && value.every((item) => typeof item === "string");
+function mapLegacyMode(mode?: "clarity" | "plan" | "focus" | "decision" | "learn" | "organize"): AtriaeMode {
+  if (mode === "focus") return "focus";
+  if (mode === "plan") return "plan";
+  if (mode === "organize" || mode === "decision") return "organize";
+  return mode === "learn" ? "learn" : "learn";
 }
 
-function isRunResponse(data: unknown): data is RunResponse {
-  if (!data || typeof data !== "object") return false;
-
-  const candidate = data as Record<string, unknown>;
-  if (typeof candidate.sessionId !== "string") return false;
-  if (!["clarity", "plan", "focus", "decision"].includes(String(candidate.mode))) return false;
-  if (!candidate.output || typeof candidate.output !== "object") return false;
-
-  const output = candidate.output as Record<string, unknown>;
-  switch (candidate.mode) {
-    case "clarity":
-      return (
-        typeof output.core_problem === "string" &&
-        isStringArray(output.what_matters) &&
-        isStringArray(output.what_doesnt_matter) &&
-        typeof output.next_step === "string"
-        && (typeof output.follow_up_question === "string" || output.follow_up_question === null)
-        && (["clarity", "plan", "focus", "decision"].includes(String(output.next_mode)) || output.next_mode === null)
-      );
-    case "plan":
-      return (
-        typeof output.goal === "string" &&
-        isStringArray(output.steps) &&
-        typeof output.timeline === "string" &&
-        typeof output.first_action === "string" &&
-        (typeof output.follow_up_question === "string" || output.follow_up_question === null) &&
-        (["clarity", "plan", "focus", "decision"].includes(String(output.next_mode)) || output.next_mode === null)
-      );
-    case "focus":
-      return (
-        typeof output.focus_task === "string" &&
-        isStringArray(output.ignore) &&
-        typeof output.duration === "string" &&
-        typeof output.definition_of_done === "string" &&
-        (typeof output.follow_up_question === "string" || output.follow_up_question === null) &&
-        (["clarity", "plan", "focus", "decision"].includes(String(output.next_mode)) || output.next_mode === null)
-      );
-    case "decision":
-      return (
-        isStringArray(output.options) &&
-        isStringArray(output.criteria) &&
-        isStringArray(output.risks) &&
-        typeof output.recommendation === "string" &&
-        typeof output.reasoning === "string" &&
-        (typeof output.follow_up_question === "string" || output.follow_up_question === null) &&
-        (["clarity", "plan", "focus", "decision"].includes(String(output.next_mode)) || output.next_mode === null)
-      );
-    default:
-      return false;
-  }
-}
-
-export function IntelligencePanel() {
-  const [response, setResponse] = useState<RunResponse | null>(null);
+export function IntelligencePanel({
+  heading = "Shape today clearly",
+  contextLabel,
+  className,
+  defaultMode = "plan"
+}: IntelligencePanelProps) {
+  const [response, setResponse] = useState<IntelligenceResponse | null>(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [sessionId, setSessionId] = useState<string | undefined>();
-
-  const handleSubmit = async (payload: SubmissionPayload) => {
-    if (loading) return;
-
-    try {
-      setLoading(true);
-      setError("");
-
-      const res = await fetch("/api/atriae/run", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ input: payload.text, mode: payload.mode, sessionId })
-      });
-
-      const data = (await res.json().catch(() => null)) as RunResponse | { error?: string } | null;
-
-      if (!res.ok) {
-        setError(data && typeof data === "object" && typeof data.error === "string" ? data.error : "Request failed. Please retry.");
-        return;
-      }
-
-      if (!isRunResponse(data)) {
-        setError("Atriae returned an invalid response shape. Please retry.");
-        return;
-      }
-
-      setSessionId(data.sessionId);
-      setResponse(data);
-    } catch {
-      setError("Atriae is temporarily unavailable. Please try again in a moment.");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [error, setError] = useState<string | null>(null);
 
   return (
-    <section className="space-y-4">
+    <section className={cn("space-y-4", className)}>
       <IntelligenceInput
-        heading="What deserves your clearest attention right now?"
-        placeholder="Capture a thought, challenge, or decision"
-        isSubmitting={loading}
-        onSubmit={handleSubmit}
+        heading={heading}
+        placeholder="Capture one thought and let Atriae structure it."
+        modeOptions={modeOptions.map((mode) => ({ value: mode.value, label: mode.label }))}
+        suggestions={[
+          "Shape one clear focus for today",
+          "Turn this into a gentle plan",
+          "Help me understand this better",
+          "Organize this mental clutter"
+        ]}
+        allowAttachments={false}
+        submitLabel="Shape response"
+        onSubmit={async (payload) => {
+          try {
+            setLoading(true);
+            setError(null);
+
+            const mode = payload.mode ? mapLegacyMode(payload.mode) : defaultMode;
+
+            const res = await fetch("/api/intelligence", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                mode,
+                input: payload.text,
+                context: contextLabel ? { context: contextLabel } : undefined
+              })
+            });
+
+            const data = (await res.json().catch(() => null)) as Record<string, unknown> | null;
+
+            if (!res.ok) {
+              const message =
+                data && typeof data.error === "object" && data.error && typeof (data.error as { message?: string }).message === "string"
+                  ? (data.error as { message: string }).message
+                  : "Atriae could not shape this right now. Please try again.";
+              setError(message);
+              return;
+            }
+
+            if (!data || typeof data !== "object" || !("title" in data)) {
+              setError("Atriae returned an incomplete response. Please retry.");
+              return;
+            }
+
+            setResponse(data as unknown as IntelligenceResponse);
+          } catch {
+            setError("Atriae is temporarily unavailable. Please return in a moment.");
+          } finally {
+            setLoading(false);
+          }
+        }}
       />
 
-      {loading ? <p className="text-sm text-muted-foreground">Generating a structured response…</p> : null}
+      {loading ? <p className="text-sm text-muted-foreground">Shaping a calm brief…</p> : null}
 
       {error ? (
-        <div className="surface-paper space-y-2 p-4 text-sm text-foreground/90">
-          <p>{error}</p>
-          <p className="text-muted-foreground">Keep your thought as-is and retry when ready.</p>
+        <div className="surface-paper p-4 text-sm text-muted-foreground">
+          <p className="text-foreground">{error}</p>
+          <p className="mt-1">Keep your thought as it is, and try again when ready.</p>
         </div>
       ) : null}
 
       {response ? (
-        <article className="surface-paper space-y-5 p-4 text-sm leading-7 text-foreground/95 sm:p-5">
-          <header className="space-y-2 border-b border-border/45 pb-3">
-            <span className="rounded-full bg-background/70 px-3 py-1 text-[0.64rem] uppercase tracking-[0.16em] text-muted-foreground">{response.mode}</span>
-            {response.modeAutoDetected ? <p className="text-xs text-muted-foreground">Auto-detected mode</p> : null}
+        <article className="surface-paper space-y-4 p-5">
+          <header className="space-y-2 border-b border-border/50 pb-3">
+            <p className="type-label text-muted-foreground">{response.mode}</p>
+            <h3 className="text-2xl">{response.title}</h3>
+            <p className="text-sm text-muted-foreground">{response.summary}</p>
           </header>
 
-          {response.mode === "clarity" ? (
-            <section className="space-y-3">
-              <p><strong>Core problem:</strong> {(response.output as ClarityOutput).core_problem}</p>
-              <p><strong>What matters:</strong></p>
-              <ul className="list-disc space-y-1.5 pl-5">{(response.output as ClarityOutput).what_matters.map((item) => <li key={item}>{item}</li>)}</ul>
-              <p><strong>What doesn’t matter:</strong></p>
-              <ul className="list-disc space-y-1.5 pl-5">{(response.output as ClarityOutput).what_doesnt_matter.map((item) => <li key={item}>{item}</li>)}</ul>
-              <p><strong>Next step:</strong> {(response.output as ClarityOutput).next_step}</p>
-            </section>
-          ) : null}
+          <div className="grid gap-3 md:grid-cols-2">
+            {response.sections.map((section) => (
+              <section key={section.heading} className="rounded-2xl border border-border/50 bg-background/50 p-3.5">
+                <h4 className="text-sm font-semibold text-foreground">{section.heading}</h4>
+                <p className="mt-1.5 text-sm text-muted-foreground">{section.content}</p>
+              </section>
+            ))}
+          </div>
 
-          {response.mode === "plan" ? (
-            <section className="space-y-3">
-              <p><strong>Goal:</strong> {(response.output as PlanOutput).goal}</p>
-              <p><strong>Timeline:</strong> {(response.output as PlanOutput).timeline}</p>
-              <p><strong>Steps:</strong></p>
-              <ul className="list-disc space-y-1.5 pl-5">{(response.output as PlanOutput).steps.map((item) => <li key={item}>{item}</li>)}</ul>
-              <p><strong>First action:</strong> {(response.output as PlanOutput).first_action}</p>
-            </section>
-          ) : null}
-
-          {response.mode === "focus" ? (
-            <section className="space-y-3">
-              <p><strong>Focus task:</strong> {(response.output as FocusOutput).focus_task}</p>
-              <p><strong>Duration:</strong> {(response.output as FocusOutput).duration}</p>
-              <p><strong>Ignore:</strong></p>
-              <ul className="list-disc space-y-1.5 pl-5">{(response.output as FocusOutput).ignore.map((item) => <li key={item}>{item}</li>)}</ul>
-              <p><strong>Definition of done:</strong> {(response.output as FocusOutput).definition_of_done}</p>
-            </section>
-          ) : null}
-
-          {response.mode === "decision" ? (
-            <section className="space-y-3">
-              <p><strong>Options:</strong></p>
-              <ul className="list-disc space-y-1.5 pl-5">{(response.output as DecisionOutput).options.map((item) => <li key={item}>{item}</li>)}</ul>
-              <p><strong>Criteria:</strong></p>
-              <ul className="list-disc space-y-1.5 pl-5">{(response.output as DecisionOutput).criteria.map((item) => <li key={item}>{item}</li>)}</ul>
-              <p><strong>Risks:</strong></p>
-              <ul className="list-disc space-y-1.5 pl-5">{(response.output as DecisionOutput).risks.map((item) => <li key={item}>{item}</li>)}</ul>
-              <p><strong>Recommendation:</strong> {(response.output as DecisionOutput).recommendation}</p>
-              <p><strong>Reasoning:</strong> {(response.output as DecisionOutput).reasoning}</p>
-            </section>
-          ) : null}
-
-          {(response.output as { follow_up_question?: string | null }).follow_up_question ? (
-            <p><strong>Follow-up:</strong> {(response.output as { follow_up_question: string }).follow_up_question}</p>
-          ) : null}
-          {(response.output as { next_mode?: AtriaeIntentMode | null }).next_mode ? (
-            <p className="text-muted-foreground">Continue with {(response.output as { next_mode: AtriaeIntentMode }).next_mode} →</p>
-          ) : null}
+          <section className="space-y-2">
+            <p className="type-label text-muted-foreground">Next steps</p>
+            <ol className="space-y-1.5 text-sm text-foreground/90">
+              {response.next_steps.map((step) => (
+                <li key={step} className="rounded-xl bg-secondary/40 px-3 py-2">{step}</li>
+              ))}
+            </ol>
+          </section>
         </article>
       ) : null}
     </section>

@@ -1,22 +1,13 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
-import { CalendarDays, Check, Grip, LayoutTemplate, Plus, Save, Search, Settings2, Trash2, Undo2 } from "lucide-react";
+import { Grip, LayoutTemplate, Plus, Save, Search, Settings2, Trash2, Undo2 } from "lucide-react";
 
-import {
-  addWidgetAction,
-  applyTemplateToViewAction,
-  createDashboardViewAction,
-  deleteDashboardViewAction,
-  deleteWidgetAction,
-  duplicateDashboardViewAction,
-  renameDashboardViewAction,
-  saveDashboardLayoutAction
-} from "@/app/dashboard/actions";
+import { addWidgetAction, deleteWidgetAction, saveDashboardLayoutAction } from "@/app/dashboard/actions";
+import { IntelligencePanel } from "@/components/dashboard/intelligence-panel";
 import { renderWidgetBody } from "@/components/dashboard/widget-content";
 import { Button } from "@/components/ui/button";
 import { widgetRegistry } from "@/lib/dashboard/registry";
-import { dashboardTemplates } from "@/lib/dashboard/templates";
 import { DashboardSuggestion, DashboardView, DashboardWidget, WidgetSize } from "@/lib/dashboard/types";
 import { cn } from "@/lib/utils";
 
@@ -40,7 +31,6 @@ export function DashboardClient({ initialViews, initialViewId, suggestions }: Da
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<string>("all");
   const [showPicker, setShowPicker] = useState(false);
-  const [showTemplates, setShowTemplates] = useState(false);
   const [selectedWidget, setSelectedWidget] = useState<DashboardWidget | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [lastDeleted, setLastDeleted] = useState<{ viewId: string; type: string } | null>(null);
@@ -48,13 +38,15 @@ export function DashboardClient({ initialViews, initialViewId, suggestions }: Da
 
   const activeView = views.find((view) => view.id === activeViewId) ?? views[0];
 
-  const filteredWidgets = useMemo(() => {
-    return widgetRegistry.filter((widget) => {
-      const queryMatch = widget.name.toLowerCase().includes(query.toLowerCase()) || widget.description.toLowerCase().includes(query.toLowerCase());
-      const categoryMatch = category === "all" || category === widget.category;
-      return queryMatch && categoryMatch;
-    });
-  }, [query, category]);
+  const filteredWidgets = useMemo(
+    () =>
+      widgetRegistry.filter((widget) => {
+        const queryMatch = widget.name.toLowerCase().includes(query.toLowerCase()) || widget.description.toLowerCase().includes(query.toLowerCase());
+        const categoryMatch = category === "all" || category === widget.category;
+        return queryMatch && categoryMatch;
+      }),
+    [query, category]
+  );
 
   function updateActiveWidgets(nextWidgets: DashboardWidget[]) {
     setViews((current) => current.map((view) => (view.id === activeView.id ? { ...view, widgets: nextWidgets } : view)));
@@ -89,7 +81,7 @@ export function DashboardClient({ initialViews, initialViewId, suggestions }: Da
             settings: widget.settings
           }))
         );
-        setFeedback("Saved changes");
+        setFeedback("Layout saved.");
       } catch (error) {
         setFeedback((error as Error).message);
       }
@@ -105,10 +97,14 @@ export function DashboardClient({ initialViews, initialViewId, suggestions }: Da
 
   return (
     <section className="mx-auto w-full max-w-6xl space-y-6 pb-16">
-      <header className="surface-glass sticky top-4 z-20 flex flex-wrap items-center justify-between gap-3 border border-white/50 px-4 py-4 shadow-[0_12px_35px_-24px_rgba(46,58,48,0.6)]">
-        <div>
-          <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">Dashboard View</p>
-          <div className="mt-1 flex items-center gap-2">
+      <header className="surface-glass space-y-4 border border-white/55 px-4 py-5 sm:px-5">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div className="space-y-1.5">
+            <p className="type-label text-muted-foreground">Daily briefing</p>
+            <h1 className="text-3xl">Return to what matters today.</h1>
+            <p className="text-sm text-muted-foreground">A calm overview of focus, rhythm, and what deserves your attention next.</p>
+          </div>
+          <div className="flex items-center gap-2">
             <select className="rounded-full border border-white/60 bg-white/70 px-3 py-1.5 text-sm" value={activeView.id} onChange={(event) => setActiveViewId(event.target.value)}>
               {views.map((view) => (
                 <option value={view.id} key={view.id}>
@@ -117,31 +113,33 @@ export function DashboardClient({ initialViews, initialViewId, suggestions }: Da
               ))}
             </select>
             <Button size="sm" variant={editMode ? "primary" : "quiet"} onClick={() => setEditMode((current) => !current)}>
-              {editMode ? "Exit Edit" : "Edit"}
+              {editMode ? "Done editing" : "Edit view"}
             </Button>
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
-          <Button size="sm" variant="quiet" onClick={() => setShowTemplates((current) => !current)}>
-            <LayoutTemplate className="mr-1.5 h-4 w-4" /> Templates
-          </Button>
-          <Button size="sm" variant="quiet" onClick={() => setShowPicker(true)}>
-            <Plus className="mr-1.5 h-4 w-4" /> Add Widget
-          </Button>
-          {editMode ? (
+        {editMode ? (
+          <div className="flex flex-wrap items-center gap-2 border-t border-border/45 pt-3">
+            <Button size="sm" variant="quiet" onClick={() => setShowPicker(true)}>
+              <Plus className="mr-1.5 h-4 w-4" /> Add module
+            </Button>
+            <Button size="sm" variant="quiet" onClick={() => setShowPicker(true)}>
+              <LayoutTemplate className="mr-1.5 h-4 w-4" /> Browse library
+            </Button>
             <Button size="sm" onClick={saveLayout} disabled={isPending}>
               <Save className="mr-1.5 h-4 w-4" /> Save
             </Button>
-          ) : null}
-        </div>
+          </div>
+        ) : null}
       </header>
+
+      <IntelligencePanel heading="Shape today clearly" contextLabel="Dashboard daily briefing" defaultMode="plan" />
 
       {feedback ? <p className="text-sm text-muted-foreground">{feedback}</p> : null}
 
-      {suggestions.length > 0 ? (
-        <aside className="surface-glass space-y-3 border border-white/50 p-4">
-          <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Smart suggestions</p>
+      {suggestions.length > 0 && !editMode ? (
+        <aside className="surface-paper space-y-3 border border-white/50 p-4">
+          <p className="type-label text-muted-foreground">Gentle suggestions</p>
           <div className="grid gap-2 md:grid-cols-2">
             {suggestions.map((suggestion) => (
               <article key={suggestion.id} className="rounded-2xl border border-white/60 bg-white/65 p-3">
@@ -149,7 +147,7 @@ export function DashboardClient({ initialViews, initialViewId, suggestions }: Da
                 <p className="mt-1 text-xs text-muted-foreground">{suggestion.body}</p>
                 {suggestion.widgetType ? (
                   <Button size="sm" variant="ghost" className="mt-2" onClick={() => applySuggestion(suggestion.widgetType!)}>
-                    Apply
+                    Add to view
                   </Button>
                 ) : null}
               </article>
@@ -209,21 +207,6 @@ export function DashboardClient({ initialViews, initialViewId, suggestions }: Da
               </header>
 
               {renderWidgetBody(def.id, widget, (patch) => updateWidget(widget.id, patch), editMode)}
-
-              {editMode ? (
-                <footer className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-white/50 pt-3">
-                  <div className="flex items-center gap-1">
-                    {def.supportedSizes.map((size) => (
-                      <button key={size} className={cn("rounded-full px-2 py-1 text-xs", widget.size === size ? "bg-foreground text-background" : "bg-white/70")} onClick={() => updateWidget(widget.id, { size })}>
-                        {size}
-                      </button>
-                    ))}
-                  </div>
-                  <button className="text-xs text-muted-foreground" onClick={() => updateWidget(widget.id, { isHidden: !widget.isHidden })}>
-                    {widget.isHidden ? "Show" : "Hide"}
-                  </button>
-                </footer>
-              ) : null}
             </article>
           );
         })}
@@ -231,7 +214,7 @@ export function DashboardClient({ initialViews, initialViewId, suggestions }: Da
 
       {lastDeleted ? (
         <div className="surface-glass fixed bottom-5 right-5 border border-white/60 px-4 py-2 text-sm">
-          Widget deleted.
+          Module removed.
           <button
             className="ml-3 inline-flex items-center gap-1 text-foreground"
             onClick={() => {
@@ -250,7 +233,7 @@ export function DashboardClient({ initialViews, initialViewId, suggestions }: Da
         <div className="fixed inset-0 z-30 grid place-items-center bg-black/30 p-4">
           <div className="surface-glass w-full max-w-2xl space-y-4 border border-white/60 p-5">
             <div className="flex items-center justify-between">
-              <h3 className="text-xl">Widget Library</h3>
+              <h3 className="text-xl">Dashboard library</h3>
               <button className="text-sm text-muted-foreground" onClick={() => setShowPicker(false)}>
                 Close
               </button>
@@ -258,7 +241,7 @@ export function DashboardClient({ initialViews, initialViewId, suggestions }: Da
             <div className="flex flex-wrap items-center gap-2">
               <div className="flex items-center rounded-full border border-white/60 bg-white/70 px-3">
                 <Search className="h-4 w-4 text-muted-foreground" />
-                <input className="bg-transparent px-2 py-1.5 text-sm outline-none" placeholder="Search widgets" value={query} onChange={(event) => setQuery(event.target.value)} />
+                <input className="bg-transparent px-2 py-1.5 text-sm outline-none" placeholder="Search modules" value={query} onChange={(event) => setQuery(event.target.value)} />
               </div>
               <select className="rounded-full border border-white/60 bg-white/70 px-3 py-1.5 text-sm" value={category} onChange={(event) => setCategory(event.target.value)}>
                 <option value="all">All categories</option>
@@ -269,7 +252,6 @@ export function DashboardClient({ initialViews, initialViewId, suggestions }: Da
                 ))}
               </select>
             </div>
-            {filteredWidgets.length === 0 ? <p className="text-sm text-muted-foreground">No widgets found for this search.</p> : null}
             <div className="grid gap-2 md:grid-cols-2">
               {filteredWidgets.map((widget) => (
                 <button
@@ -284,7 +266,6 @@ export function DashboardClient({ initialViews, initialViewId, suggestions }: Da
                 >
                   <p className="font-medium">{widget.name}</p>
                   <p className="mt-1 text-xs text-muted-foreground">{widget.description}</p>
-                  <p className="mt-2 text-[11px] uppercase tracking-[0.2em] text-muted-foreground">{widget.category}</p>
                 </button>
               ))}
             </div>
@@ -296,7 +277,7 @@ export function DashboardClient({ initialViews, initialViewId, suggestions }: Da
         <div className="fixed inset-0 z-30 grid place-items-center bg-black/30 p-4">
           <div className="surface-glass w-full max-w-lg space-y-4 border border-white/60 p-5">
             <div className="flex items-center justify-between">
-              <h3 className="text-xl">Widget Settings</h3>
+              <h3 className="text-xl">Module settings</h3>
               <button className="text-sm text-muted-foreground" onClick={() => setSelectedWidget(null)}>
                 Close
               </button>
@@ -338,39 +319,6 @@ export function DashboardClient({ initialViews, initialViewId, suggestions }: Da
           </div>
         </div>
       ) : null}
-
-      {showTemplates ? (
-        <div className="surface-glass grid gap-2 border border-white/50 p-4 md:grid-cols-2">
-          {dashboardTemplates.map((template) => (
-            <article key={template.key} className="rounded-2xl border border-white/55 bg-white/70 p-3">
-              <p className="text-base font-medium">{template.name}</p>
-              <p className="text-xs text-muted-foreground">{template.description}</p>
-              <div className="mt-2 flex flex-wrap gap-2">
-                <Button size="sm" variant="quiet" onClick={() => startTransition(async () => { await applyTemplateToViewAction(activeView.id, template.key); location.reload(); })}>
-                  <Check className="mr-1.5 h-4 w-4" /> Apply
-                </Button>
-                <Button size="sm" variant="ghost" onClick={() => startTransition(async () => { await createDashboardViewAction(template.name, template.key); location.reload(); })}>
-                  <Plus className="mr-1.5 h-4 w-4" /> New view
-                </Button>
-              </div>
-            </article>
-          ))}
-        </div>
-      ) : null}
-
-      <section className="surface-glass space-y-3 border border-white/50 p-4">
-        <h3 className="text-lg">Manage views</h3>
-        <div className="flex flex-wrap gap-2">
-          <Button size="sm" variant="quiet" onClick={() => { const name = prompt("View name", "New View"); if (!name) return; startTransition(async () => { await createDashboardViewAction(name, "morning-brief"); location.reload(); }); }}>
-            <Plus className="mr-1.5 h-4 w-4" /> Create
-          </Button>
-          <Button size="sm" variant="quiet" onClick={() => { const name = prompt("Rename view", activeView.name); if (!name) return; startTransition(async () => { await renameDashboardViewAction(activeView.id, name); setViews((current) => current.map((item) => item.id === activeView.id ? { ...item, name } : item)); }); }}>
-            <CalendarDays className="mr-1.5 h-4 w-4" /> Rename
-          </Button>
-          <Button size="sm" variant="quiet" onClick={() => startTransition(async () => { await duplicateDashboardViewAction(activeView.id); location.reload(); })}>Duplicate</Button>
-          <Button size="sm" variant="quiet" onClick={() => { if (!confirm("Delete this view?")) return; startTransition(async () => { await deleteDashboardViewAction(activeView.id); location.reload(); }); }}>Delete</Button>
-        </div>
-      </section>
     </section>
   );
 }

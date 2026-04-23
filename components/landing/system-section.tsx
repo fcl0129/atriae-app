@@ -35,7 +35,7 @@ export function SystemSection() {
         <Reveal className="max-w-[700px] space-y-5 pb-10 md:pb-14">
           <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">What you can use it for</p>
           <h2 className="text-[32px] leading-[1.03] tracking-[-0.01em] text-foreground md:text-[40px]">
-            Built for the way real clarity works
+            What Atriae helps you do
           </h2>
         </Reveal>
 

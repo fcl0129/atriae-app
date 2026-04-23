@@ -24,8 +24,8 @@ export default async function LearnPage() {
     <PageContainer>
       <SectionHeader
         eyebrow="Learn"
-        title="A focused learning space"
-        description="Keep only what sharpens your thinking, then convert it into practical understanding."
+        title="A learning studio for depth"
+        description="Collect ideas worth studying, then turn them into understanding you can actually use."
       />
       <LearnClient topics={topics ?? []} />
     </PageContainer>

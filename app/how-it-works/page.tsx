@@ -31,12 +31,12 @@ export default function HowItWorksPage() {
       <main>
         <SectionFrame className="pt-14 md:pt-20">
           <LandingContainer className="max-w-6xl">
-            <div className="max-w-4xl space-y-7">
-              <p className="text-xs uppercase tracking-[0.22em] text-[#5D735D]">How it works</p>
-              <h1 className="text-4xl leading-[1.02] tracking-[-0.02em] text-[#101d14] md:text-6xl">
+            <div className="max-w-4xl space-y-6">
+              <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">How it works</p>
+              <h1 className="text-4xl leading-[1.02] tracking-[-0.02em] text-foreground md:text-6xl">
                 A simple system for clearer days.
               </h1>
-              <p className="max-w-[62ch] text-[18px] leading-[1.7] text-[#213429]/90">
+              <p className="max-w-[62ch] text-[18px] leading-[1.7] text-foreground/85">
                 Atriae combines reflection, structure, and continuity so you can think with less friction and act with
                 more intention.
               </p>
@@ -44,18 +44,20 @@ export default function HowItWorksPage() {
           </LandingContainer>
         </SectionFrame>
 
-        <SectionFrame className="border-y border-[#D9D0C5]/80 py-14 md:py-20">
+        <SectionFrame className="pt-6 md:pt-8">
           <LandingContainer className="max-w-6xl">
-            <div className="space-y-4">
+            <div className="divide-y divide-border/55">
               {steps.map((step, index) => (
                 <article
                   key={step.title}
-                  className="rounded-2xl border border-[#D9D0C5]/70 bg-[#FBF7F1]/68 px-6 py-6 md:grid md:grid-cols-[120px_1fr] md:items-start md:gap-6"
+                  className="grid gap-4 py-7 md:grid-cols-[120px_1fr] md:items-start md:gap-7 md:py-8"
                 >
-                  <p className="text-xs uppercase tracking-[0.2em] text-[#5D735D]">Step {String(index + 1).padStart(2, "0")}</p>
-                  <div className="pt-3 md:pt-0">
-                    <h2 className="font-serif text-[30px] leading-[1.06] text-[#111f16]">{step.title}</h2>
-                    <p className="pt-3 max-w-[62ch] leading-8 text-[#1f3126]/90">{step.body}</p>
+                  <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                    Step {String(index + 1).padStart(2, "0")}
+                  </p>
+                  <div className={index === 2 ? "surface-tinted rounded-[var(--radius)] p-5 md:p-6" : ""}>
+                    <h2 className="font-serif text-[30px] leading-[1.08] text-foreground">{step.title}</h2>
+                    <p className="pt-3 max-w-[62ch] leading-8 text-foreground/84">{step.body}</p>
                   </div>
                 </article>
               ))}

@@ -1,9 +1,10 @@
+import type { Route } from "next";
 import Link from "next/link";
 
 import { Reveal } from "@/components/landing/reveal";
 import { LandingContainer, SectionFrame } from "@/components/landing/landing-shell";
 
-const pathways = [
+const pathways: Array<{ title: string; href: Route }> = [
   { title: "More clarity", href: "/about" },
   { title: "Better rituals", href: "/rituals" },
   { title: "Deeper learning", href: "/learn" },

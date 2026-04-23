@@ -1,9 +1,10 @@
+import type { Route } from "next";
 import Link from "next/link";
 
 import { Reveal } from "@/components/landing/reveal";
 import { LandingContainer, SectionFrame } from "@/components/landing/landing-shell";
 
-const areas = [
+const areas: Array<{ title: string; description: string; href: Route }> = [
   {
     title: "Rituals",
     description:

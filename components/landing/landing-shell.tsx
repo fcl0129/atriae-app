@@ -3,12 +3,7 @@ import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 export function LandingShell({ children }: { children: ReactNode }) {
-  return (
-    <div className="relative overflow-hidden bg-[#F7F2EA] text-[#1F2A24]">
-      <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(56rem_30rem_at_84%_11%,rgba(230,209,205,0.55),transparent_72%),radial-gradient(52rem_28rem_at_10%_20%,rgba(232,239,228,0.85),transparent_75%),radial-gradient(50rem_24rem_at_65%_84%,rgba(216,182,182,0.24),transparent_74%)]" />
-      {children}
-    </div>
-  );
+  return <div className="relative overflow-visible text-foreground">{children}</div>;
 }
 
 export function LandingContainer({ children, className }: { children: ReactNode; className?: string }) {

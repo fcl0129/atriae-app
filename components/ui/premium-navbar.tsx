@@ -64,7 +64,7 @@ export function PremiumNavbar({ items, activeHref, className }: PremiumNavbarPro
 
   return (
     <div className={cn("w-full", className)}>
-      <div className="surface-glass rounded-[var(--radius-nav)] px-3 py-2.5 md:px-4 md:py-3">
+      <div className="glass-nav rounded-[var(--radius-nav)] px-3 py-2 md:px-4 md:py-2.5">
         <div className="flex items-center justify-between gap-4">
           <Link
             href="/dashboard"
@@ -79,19 +79,19 @@ export function PremiumNavbar({ items, activeHref, className }: PremiumNavbarPro
             aria-controls="premium-mobile-nav"
             aria-label="Toggle navigation menu"
             onClick={() => setMenuOpen((open) => !open)}
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-foreground/15 text-muted-foreground transition hover:border-foreground/30 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring md:hidden"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-foreground/15 text-muted-foreground transition hover:border-foreground/30 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring md:hidden"
           >
             {menuOpen ? <X size={18} /> : <Menu size={18} />}
           </button>
 
           <nav aria-label="Primary" className="hidden md:block">
             <ul
-              className="relative flex items-center rounded-full border border-foreground/10 bg-background/35 p-1 text-[0.66rem] font-medium uppercase tracking-[0.2em]"
+              className="relative flex items-center rounded-full border border-border/55 bg-background/45 p-1 text-[0.66rem] font-medium uppercase tracking-[0.18em]"
               onMouseLeave={() => setCursorToHref(defaultTarget, true)}
             >
               <span
                 aria-hidden="true"
-                className="pointer-events-none absolute bottom-1 top-1 rounded-full bg-foreground/[0.07] shadow-[inset_0_1px_0_rgba(255,255,255,0.4)] transition-all duration-300 ease-out"
+                className="pointer-events-none absolute bottom-1 top-1 rounded-full bg-foreground/[0.055] transition-all duration-300 ease-out"
                 style={{ left: cursorStyle.left, width: cursorStyle.width, opacity: cursorStyle.opacity }}
               />
 
@@ -146,7 +146,7 @@ export function PremiumNavbar({ items, activeHref, className }: PremiumNavbarPro
             menuOpen ? "mt-3 grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
           )}
         >
-          <ul className="min-h-0 space-y-1 rounded-2xl border border-foreground/10 bg-background/55 p-2 text-[0.68rem] font-medium uppercase tracking-[0.18em]">
+          <ul className="surface-paper min-h-0 space-y-1 rounded-xl p-2 text-[0.68rem] font-medium uppercase tracking-[0.17em] shadow-none">
             {items.map((item) => (
               <li key={`mobile-${item.href}`}>
                 {item.kind === "route" ? (

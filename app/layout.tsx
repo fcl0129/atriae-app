@@ -32,7 +32,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${serif.variable} ${sans.variable}`}>
+      <body className={`${serif.variable} ${sans.variable} text-foreground`}>
         <AppShell>{children}</AppShell>
       </body>
     </html>

@@ -30,7 +30,14 @@ export type IntelligenceResponse = z.infer<typeof intelligenceResponseSchema>;
 
 type IntelligenceInput = z.infer<typeof intelligenceRequestSchema>;
 
-const model = "gpt-4.1-mini";
+type OpenAIErrorMeta = {
+  status?: number;
+  code?: string;
+  type?: string;
+};
+
+const primaryModel = process.env.OPENAI_INTELLIGENCE_MODEL?.trim() || "gpt-4.1-mini";
+const fallbackModels = Array.from(new Set([primaryModel, "gpt-4o-mini"]));
 const requestTimeoutMs = 20_000;
 
 export class OpenAIConfigError extends Error {
@@ -48,9 +55,16 @@ export class OpenAITimeoutError extends Error {
 }
 
 export class OpenAIRequestError extends Error {
-  constructor(message = "OpenAI request failed") {
+  status?: number;
+  code?: string;
+  type?: string;
+
+  constructor(message = "OpenAI request failed", meta?: OpenAIErrorMeta) {
     super(message);
     this.name = "OpenAIRequestError";
+    this.status = meta?.status;
+    this.code = meta?.code;
+    this.type = meta?.type;
   }
 }
 
@@ -200,76 +214,144 @@ function safeParseJson(raw: string): unknown {
   }
 }
 
-export async function generateIntelligenceResponse(payload: IntelligenceInput): Promise<IntelligenceResponse> {
-  const client = getOpenAIClient();
-  const systemPrompt = buildSystemPrompt(payload.mode);
+function toOpenAIRequestError(error: unknown): OpenAIRequestError {
+  if (error instanceof OpenAIRequestError) {
+    return error;
+  }
 
-  let response: unknown;
-  try {
-    response = await withTimeout(
-      client.responses.create({
-        model,
-        input: [
-          { role: "system", content: [{ type: "input_text", text: systemPrompt }] },
-          {
-            role: "user",
-            content: [
-              {
-                type: "input_text",
-                text: JSON.stringify({ input: payload.input, context: payload.context ?? null })
-              }
-            ]
-          }
-        ],
-        text: {
-          format: {
-            type: "json_schema",
-            name: "atriae_intelligence_response",
-            strict: true,
-            schema: {
-              type: "object",
-              additionalProperties: false,
-              properties: {
-                title: { type: "string" },
-                summary: { type: "string" },
-                sections: {
-                  type: "array",
-                  minItems: 1,
-                  maxItems: 8,
-                  items: {
-                    type: "object",
-                    additionalProperties: false,
-                    properties: {
-                      heading: { type: "string" },
-                      content: { type: "string" }
-                    },
-                    required: ["heading", "content"]
-                  }
-                },
-                next_steps: {
-                  type: "array",
-                  minItems: 1,
-                  maxItems: 6,
-                  items: { type: "string" }
-                },
-                mode: {
-                  type: "string",
-                  enum: ["learn", "plan", "focus", "organize"]
+  if (error instanceof OpenAITimeoutError || error instanceof OpenAIConfigError) {
+    throw error;
+  }
+
+  if (error && typeof error === "object") {
+    const maybeError = error as {
+      message?: unknown;
+      status?: unknown;
+      code?: unknown;
+      type?: unknown;
+      error?: { message?: unknown; code?: unknown; type?: unknown };
+    };
+
+    const message =
+      typeof maybeError.message === "string"
+        ? maybeError.message
+        : typeof maybeError.error?.message === "string"
+          ? maybeError.error.message
+          : "Unknown OpenAI request failure";
+
+    return new OpenAIRequestError(message, {
+      status: typeof maybeError.status === "number" ? maybeError.status : undefined,
+      code:
+        typeof maybeError.code === "string"
+          ? maybeError.code
+          : typeof maybeError.error?.code === "string"
+            ? maybeError.error.code
+            : undefined,
+      type:
+        typeof maybeError.type === "string"
+          ? maybeError.type
+          : typeof maybeError.error?.type === "string"
+            ? maybeError.error.type
+            : undefined
+    });
+  }
+
+  return new OpenAIRequestError("Unknown OpenAI request failure");
+}
+
+function shouldRetryWithFallback(error: OpenAIRequestError, model: string) {
+  if (model === "gpt-4o-mini") {
+    return false;
+  }
+
+  const combined = `${error.message} ${error.code ?? ""} ${error.type ?? ""}`.toLowerCase();
+  return combined.includes("model") || combined.includes("unsupported") || combined.includes("not found");
+}
+
+async function createModelResponse(client: OpenAI, model: string, payload: IntelligenceInput) {
+  return withTimeout(
+    client.responses.create({
+      model,
+      input: [
+        { role: "system", content: [{ type: "input_text", text: buildSystemPrompt(payload.mode) }] },
+        {
+          role: "user",
+          content: [
+            {
+              type: "input_text",
+              text: JSON.stringify({ input: payload.input, context: payload.context ?? null })
+            }
+          ]
+        }
+      ],
+      text: {
+        format: {
+          type: "json_schema",
+          name: "atriae_intelligence_response",
+          strict: true,
+          schema: {
+            type: "object",
+            additionalProperties: false,
+            properties: {
+              title: { type: "string" },
+              summary: { type: "string" },
+              sections: {
+                type: "array",
+                minItems: 1,
+                maxItems: 8,
+                items: {
+                  type: "object",
+                  additionalProperties: false,
+                  properties: {
+                    heading: { type: "string" },
+                    content: { type: "string" }
+                  },
+                  required: ["heading", "content"]
                 }
               },
-              required: ["title", "summary", "sections", "next_steps", "mode"]
-            }
+              next_steps: {
+                type: "array",
+                minItems: 1,
+                maxItems: 6,
+                items: { type: "string" }
+              },
+              mode: {
+                type: "string",
+                enum: ["learn", "plan", "focus", "organize"]
+              }
+            },
+            required: ["title", "summary", "sections", "next_steps", "mode"]
           }
         }
-      } as never),
-      requestTimeoutMs
-    );
-  } catch (error) {
-    if (error instanceof OpenAITimeoutError || error instanceof OpenAIConfigError) {
-      throw error;
-    }
+      }
+    } as never),
+    requestTimeoutMs
+  );
+}
 
-    throw new OpenAIRequestError(error instanceof Error ? error.message : "Unknown OpenAI request failure");
+export async function generateIntelligenceResponse(payload: IntelligenceInput): Promise<IntelligenceResponse> {
+  const client = getOpenAIClient();
+
+  let response: unknown = null;
+  let lastRequestError: OpenAIRequestError | null = null;
+
+  for (const model of fallbackModels) {
+    try {
+      response = await createModelResponse(client, model, payload);
+      lastRequestError = null;
+      break;
+    } catch (error) {
+      const normalizedError = toOpenAIRequestError(error);
+      lastRequestError = normalizedError;
+
+      if (!shouldRetryWithFallback(normalizedError, model)) {
+        throw normalizedError;
+      }
+    }
+  }
+
+  if (lastRequestError) {
+    throw lastRequestError;
   }
 
   const parsedJson = safeParseJson(extractJsonText(response));

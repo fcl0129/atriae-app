@@ -5,12 +5,13 @@ import { usePathname } from "next/navigation";
 
 import { MarketingNavbar } from "@/components/layout/marketing-navbar";
 import { LandingNavSection } from "@/components/sections/landing-nav-section";
+import { cn } from "@/lib/utils";
+
+const APP_ROUTE_PREFIXES = ["/dashboard", "/learn", "/rituals", "/settings"];
 
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-
-  const appRoutes = ["/dashboard", "/learn", "/rituals", "/settings"];
-  const isAppRoute = appRoutes.some((route) => pathname?.startsWith(route));
+  const isAppRoute = APP_ROUTE_PREFIXES.some((route) => pathname?.startsWith(route));
 
   return (
     <div className="min-h-dvh">
@@ -18,7 +19,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         {isAppRoute ? <LandingNavSection /> : <MarketingNavbar />}
       </header>
 
-      <main className="px-5 md:px-10">{children}</main>
+      <main className={cn(isAppRoute ? "px-5 md:px-10" : "")}>{children}</main>
     </div>
   );
 }

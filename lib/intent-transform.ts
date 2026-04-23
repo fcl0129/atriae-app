@@ -27,10 +27,10 @@ const refinementTemplates: Record<string, (source: string) => string[]> = {
 };
 
 const modeScaffolds: Record<AtriaeIntentMode, StructuredSection[]> = {
-  learn: [
+  clarity: [
     { title: "Current issue", points: ["Define what is still unclear.", "Name one assumption to challenge."] },
-    { title: "Suggested structure", points: ["Collect one strong source.", "Extract key principles.", "Apply one principle immediately."] },
-    { title: "Actionable steps", points: ["Study for 20 focused minutes.", "Write a 4-line synthesis.", "Turn one insight into a next action."] }
+    { title: "Suggested structure", points: ["Identify the real issue.", "Separate signal from noise.", "State one decisive next move."] },
+    { title: "Actionable steps", points: ["Summarize the core problem in one sentence.", "List what matters now.", "Execute one immediate next step."] }
   ],
   plan: [
     { title: "Current issue", points: ["The goal feels broad and difficult to start."] },
@@ -42,10 +42,10 @@ const modeScaffolds: Record<AtriaeIntentMode, StructuredSection[]> = {
     { title: "Suggested structure", points: ["Protect one deep-work block.", "Use a visible single-task list.", "Pause interruptions until checkpoint."] },
     { title: "Actionable steps", points: ["Silence non-critical notifications.", "Run one timed focus sprint.", "Capture distractions for later review."] }
   ],
-  organize: [
-    { title: "Current issue", points: ["Ideas are present but not yet structured."] },
-    { title: "Suggested structure", points: ["Group by theme.", "Prioritize by impact.", "Convert themes into executable steps."] },
-    { title: "Actionable steps", points: ["Create three categories only.", "Move each note into one category.", "Schedule first action for each category."] }
+  decision: [
+    { title: "Current issue", points: ["Multiple options are competing for attention."] },
+    { title: "Suggested structure", points: ["List options clearly.", "Define decision criteria.", "Assess risk by option."] },
+    { title: "Actionable steps", points: ["Rank options against criteria.", "Choose the strongest recommendation.", "Commit to a next checkpoint."] }
   ]
 };
 
@@ -78,8 +78,8 @@ export const exampleTransformations: SubmissionPayload[] = [
     attachments: []
   },
   {
-    mode: "focus",
-    text: "I lose momentum after lunch and stop finishing tasks",
+    mode: "decision",
+    text: "Should I prioritize hiring or automation this quarter?",
     attachments: []
   }
 ];

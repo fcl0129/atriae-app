@@ -4,7 +4,7 @@ import { FormEvent, useId, useState } from "react";
 
 import { cn } from "@/lib/utils";
 
-export type AtriaeIntentMode = "learn" | "plan" | "focus" | "organize";
+export type AtriaeIntentMode = "clarity" | "plan" | "focus" | "decision";
 
 type IntentModeOption = {
   value: AtriaeIntentMode;
@@ -32,17 +32,17 @@ type IntelligenceInputProps = {
 };
 
 const defaultModes: IntentModeOption[] = [
-  { value: "learn", label: "Learn" },
+  { value: "clarity", label: "Clarity" },
   { value: "plan", label: "Plan" },
   { value: "focus", label: "Focus" },
-  { value: "organize", label: "Organize" }
+  { value: "decision", label: "Decision" }
 ];
 
 const defaultSuggestions = [
   "Clarify what matters most today",
-  "Turn this into a calm plan",
-  "Help me think this through",
-  "Simplify this into next steps"
+  "Turn this into a practical plan",
+  "Help me protect my focus block",
+  "Compare options and recommend one"
 ];
 
 export function IntelligenceInput({
@@ -59,7 +59,7 @@ export function IntelligenceInput({
   onSubmit
 }: IntelligenceInputProps) {
   const attachmentId = useId();
-  const [mode, setMode] = useState<AtriaeIntentMode>(modeOptions[0]?.value ?? "learn");
+  const [mode, setMode] = useState<AtriaeIntentMode>(modeOptions[0]?.value ?? "clarity");
   const [text, setText] = useState("");
   const [attachments, setAttachments] = useState<File[]>([]);
   const [lastSubmittedIntent, setLastSubmittedIntent] = useState<string>("");

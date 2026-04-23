@@ -1,59 +1,55 @@
+import Link from "next/link";
+
 import { Reveal } from "@/components/landing/reveal";
 import { LandingContainer, SectionFrame } from "@/components/landing/landing-shell";
 
-const steps = [
+const areas = [
   {
-    id: "01",
-    title: "Empty",
-    description: "Make room for thought before adding more to it.",
-    microcopy: "Atriae begins by reducing noise, so the important things can surface.",
-    tone: "bg-[#E8EFE4]"
+    title: "Rituals",
+    description:
+      "Support daily and weekly practices that help you reset, ground yourself, and return to what matters.",
+    href: "/rituals"
   },
   {
-    id: "02",
-    title: "Structure",
-    description: "Turn open loops into something visible.",
-    microcopy: "Organize thoughts, priorities, and direction with calm precision.",
-    tone: "bg-[#FBF7F1]"
+    title: "Learning",
+    description: "Keep track of ideas, subjects, and insights in a way that feels thoughtful rather than chaotic.",
+    href: "/learn"
   },
   {
-    id: "03",
-    title: "Move",
-    description: "Let clarity become action.",
-    microcopy: "Take the next step from intention, not mental overload.",
-    tone: "bg-[#E6D1CD]/70"
+    title: "Reflection",
+    description: "Create space to process thoughts, notice patterns, and build self-awareness over time.",
+    href: "/about"
+  },
+  {
+    title: "Focus",
+    description: "Reduce internal noise and bring attention back to what deserves it.",
+    href: "/how-it-works"
   }
 ];
 
 export function SystemSection() {
   return (
-    <SectionFrame id="system">
+    <SectionFrame className="border-y border-[#D9D0C5]/80">
       <LandingContainer>
-        <Reveal className="max-w-[640px] space-y-5 pb-12 md:pb-16">
-          <p className="text-xs uppercase tracking-[0.18em] text-[#5D735D]">The System</p>
-          <h2 className="text-[32px] leading-[1.03] tracking-[-0.01em] md:text-[40px]">From mental noise to intentional action.</h2>
+        <Reveal className="max-w-[700px] space-y-5 pb-10 md:pb-14">
+          <p className="text-xs uppercase tracking-[0.18em] text-[#5D735D]">What you can use it for</p>
+          <h2 className="text-[32px] leading-[1.03] tracking-[-0.01em] md:text-[40px]">
+            Built for the way real clarity works
+          </h2>
         </Reveal>
 
-        <div className="space-y-8 md:space-y-10">
-          {steps.map((step, index) => (
-            <Reveal key={step.id} delay={index * 90}>
-              <article className="grid gap-6 rounded-[20px] border border-[#D9D0C5]/85 bg-[#FBF7F1] p-6 shadow-[0_16px_38px_-30px_rgba(31,42,36,0.35)] md:p-8 xl:grid-cols-12 xl:items-center">
-                <div
-                  className={`h-40 rounded-[20px] border border-[#D9D0C5]/75 ${step.tone} ${index % 2 === 0 ? "xl:order-1" : "xl:order-2"} xl:col-span-5`}
+        <div className="grid gap-4 md:grid-cols-2 md:gap-5">
+          {areas.map((area, index) => (
+            <Reveal key={area.title} delay={index * 70}>
+              <article className="h-full rounded-2xl border border-[#D9D0C5]/75 bg-[#FBF7F1]/72 p-6 shadow-[0_12px_36px_-30px_rgba(31,42,36,0.34)] md:p-7">
+                <h3 className="font-serif text-[30px] leading-[1.06] text-[#1F2A24]">{area.title}</h3>
+                <p className="pt-3 text-[16px] leading-[1.65] text-[#425149]">{area.description}</p>
+                <Link
+                  href={area.href}
+                  className="mt-5 inline-flex text-[0.68rem] font-medium uppercase tracking-[0.18em] text-[#516159] transition-colors duration-300 hover:text-[#1F2A24]"
                 >
-                  <div className="flex h-full items-center justify-center">
-                    <div className="h-px w-2/3 bg-[#5D735D]/40" />
-                  </div>
-                </div>
-
-                <div
-                  className={`space-y-3 ${index % 2 === 0 ? "xl:order-2" : "xl:order-1"} xl:col-span-7 xl:px-4`}
-                >
-                  <p className="text-xs uppercase tracking-[0.18em] text-[#5D735D]">{step.id} — Step</p>
-                  <h3 className="text-[26px] leading-[1.05] md:text-[32px] xl:text-[40px]">{step.title}</h3>
-                  <p className="text-[16px] leading-[1.5] text-[#1F2A24] md:text-[18px]">{step.description}</p>
-                  <p className="max-w-[560px] text-[16px] leading-[1.55] text-[#425149]">{step.microcopy}</p>
-                </div>
+                  Learn more
+                </Link>
               </article>
             </Reveal>
           ))}

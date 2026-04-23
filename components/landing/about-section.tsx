@@ -1,30 +1,41 @@
+import Link from "next/link";
+
 import { Reveal } from "@/components/landing/reveal";
 import { LandingContainer, SectionFrame } from "@/components/landing/landing-shell";
 
+const pathways = [
+  { title: "More clarity", href: "/about" },
+  { title: "Better rituals", href: "/rituals" },
+  { title: "Deeper learning", href: "/learn" },
+  { title: "Calmer focus", href: "/how-it-works" }
+];
+
 export function AboutSection() {
   return (
-    <SectionFrame id="about">
+    <SectionFrame className="border-y border-[#D9D0C5]/80">
       <LandingContainer>
-        <div className="grid gap-10 xl:grid-cols-12 xl:gap-14">
-          <Reveal className="space-y-6 xl:col-span-5">
-            <p className="text-xs uppercase tracking-[0.18em] text-[#5D735D]">About Atriae</p>
-            <h2 className="max-w-[16ch] text-[32px] leading-[1.03] tracking-[-0.01em] md:text-[40px]">
-              A quieter system for modern minds.
-            </h2>
-            <p className="max-w-[560px] text-[16px] leading-[1.55] text-[#425149] md:text-[18px]">
-              Atriae was created for people who do not need more stimulation — they need more clarity.
-            </p>
-          </Reveal>
+        <Reveal className="space-y-5">
+          <p className="text-xs uppercase tracking-[0.18em] text-[#5D735D]">Soft pathway into the product</p>
+          <h2 className="max-w-[16ch] text-[32px] leading-[1.03] tracking-[-0.01em] md:text-[40px]">
+            Start with what you want more of
+          </h2>
+        </Reveal>
 
-          <Reveal className="rounded-[20px] border border-[#D9D0C5]/80 bg-[#E8EFE4]/55 p-7 md:p-9 xl:col-span-7" delay={90}>
-            <div className="space-y-5 text-[16px] leading-[1.55] text-[#425149] md:text-[18px]">
-              <p>
-                It is for people who want to think well, choose carefully, and live with greater intention. Not
-                faster. Not louder. Clearer.
-              </p>
-              <p className="font-serif text-[26px] leading-[1.2] text-[#1F2A24] md:text-[32px]">No feeds. No distractions. No noise.</p>
-            </div>
-          </Reveal>
+        <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          {pathways.map((item, index) => (
+            <Reveal key={item.title} delay={index * 70}>
+              <Link
+                href={item.href}
+                className="group block rounded-2xl border border-[#D9D0C5]/75 bg-[#E8EFE4]/45 p-5 transition-colors duration-300 hover:border-[#5D735D]/40 hover:bg-[#E8EFE4]/70"
+              >
+                <p className="text-[0.65rem] uppercase tracking-[0.2em] text-[#5D735D]">Path</p>
+                <p className="pt-3 font-serif text-[29px] leading-[1.08] text-[#1F2A24]">{item.title}</p>
+                <p className="pt-5 text-[0.68rem] uppercase tracking-[0.19em] text-[#516159] transition-colors duration-300 group-hover:text-[#1F2A24]">
+                  Continue
+                </p>
+              </Link>
+            </Reveal>
+          ))}
         </div>
       </LandingContainer>
     </SectionFrame>

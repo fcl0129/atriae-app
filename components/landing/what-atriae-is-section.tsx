@@ -9,7 +9,7 @@ const points = [
 
 export function WhatAtriaeIsSection() {
   return (
-    <SectionFrame id="what" className="border-y border-[#D9D0C5]/80">
+    <SectionFrame id="how" className="border-y border-[#D9D0C5]/80">
       <LandingContainer>
         <div className="grid gap-10 xl:grid-cols-12 xl:gap-12">
           <Reveal className="space-y-5 xl:col-span-5">

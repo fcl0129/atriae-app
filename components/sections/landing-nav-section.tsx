@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import { PremiumNavbar, type PremiumNavbarItem } from "@/components/ui/premium-navbar";
 
 const landingNavigation: PremiumNavbarItem[] = [
-  { label: "Home", href: "/dashboard", kind: "route" },
   { label: "Dashboard", href: "/dashboard", kind: "route" },
   { label: "Learn", href: "/learn", kind: "route" },
   { label: "Rituals", href: "/rituals", kind: "route" },
@@ -17,7 +16,7 @@ export function LandingNavSection() {
 
   return (
     <section aria-label="Site navigation" className="mx-auto w-full max-w-6xl">
-      <PremiumNavbar items={landingNavigation} activeHref={pathname === "/" ? "/" : pathname} />
+      <PremiumNavbar items={landingNavigation} activeHref={pathname ?? "/dashboard"} />
     </section>
   );
 }

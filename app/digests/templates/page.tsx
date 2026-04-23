@@ -10,7 +10,8 @@ import { TemplatePreview } from "@/components/digests/template-preview";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import type { DigestTemplate } from "@/lib/digests";
-import { supabase } from "@/lib/supabase";
+import { SUPABASE_PUBLIC_ENV_ERROR } from "@/lib/env";
+import { createOptionalBrowserSupabaseClient } from "@/lib/supabase/browser";
 
 type AsyncState = "idle" | "loading" | "success" | "empty" | "error";
 
@@ -58,7 +59,7 @@ function formatModuleTags(template: DigestTemplate) {
 }
 
 export default function DigestTemplatesPage() {
-  const client = useMemo(() => supabase, []);
+  const client = useMemo(() => createOptionalBrowserSupabaseClient(), []);
 
   const [state, setState] = useState<AsyncState>("loading");
   const [templates, setTemplates] = useState<DigestTemplate[]>([]);
@@ -73,7 +74,7 @@ export default function DigestTemplatesPage() {
 
       if (!client) {
         setState("error");
-        setStatusMessage("Supabase is not configured. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.");
+        setStatusMessage(SUPABASE_PUBLIC_ENV_ERROR);
         return;
       }
 
@@ -111,7 +112,7 @@ export default function DigestTemplatesPage() {
     setActiveTemplateId(template.id);
 
     if (!client) {
-      setStatusMessage("Supabase is not configured. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.");
+      setStatusMessage(SUPABASE_PUBLIC_ENV_ERROR);
       setActiveTemplateId(null);
       return;
     }

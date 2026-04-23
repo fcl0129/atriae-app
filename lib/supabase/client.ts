@@ -1,19 +1,16 @@
 import { createClient } from "@supabase/supabase-js";
 
-import { assertSupabaseEnv, getSupabaseEnv } from "@/lib/supabase/env";
+import { getSupabasePublicEnvOrNull, getSupabasePublishableKey, getSupabaseUrl } from "@/lib/env";
 
 export function createSupabaseClient() {
-  const { supabaseUrl, supabaseAnonKey } = assertSupabaseEnv();
-
-  return createClient(supabaseUrl, supabaseAnonKey);
+  return createClient(getSupabaseUrl(), getSupabasePublishableKey());
 }
 
-export const supabase = (() => {
-  const { supabaseUrl, supabaseAnonKey } = getSupabaseEnv();
-
-  if (!supabaseUrl || !supabaseAnonKey) {
+export function createOptionalSupabaseClient() {
+  const env = getSupabasePublicEnvOrNull();
+  if (!env) {
     return null;
   }
 
-  return createClient(supabaseUrl, supabaseAnonKey);
-})();
+  return createClient(env.url, env.publishableKey);
+}

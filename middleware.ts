@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
+import { getSupabasePublishableKey, getSupabaseUrl, isSupabasePublicEnvConfigured } from '@/lib/env'
 
 const protectedRoutes = ['/dashboard', '/learn', '/rituals', '/settings']
 
@@ -31,10 +32,7 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
   const isProtected = protectedRoutes.some((route) => pathname.startsWith(route))
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-
-  if (!supabaseUrl || !supabaseAnonKey) {
+  if (!isSupabasePublicEnvConfigured()) {
     if (isProtected) {
       return NextResponse.redirect(buildLoginUrl(request, 'config'))
     }
@@ -45,7 +43,7 @@ export async function middleware(request: NextRequest) {
   let response = NextResponse.next({ request })
 
   try {
-    const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+    const supabase = createServerClient(getSupabaseUrl(), getSupabasePublishableKey(), {
       cookies: {
         getAll() {
           return request.cookies.getAll()

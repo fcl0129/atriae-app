@@ -11,6 +11,7 @@ import {
   OpenAITimeoutError,
   type IntelligenceResponse
 } from "@/lib/ai/intelligence";
+import { SUPABASE_PUBLIC_ENV_ERROR } from "@/lib/env";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 type IntelligenceErrorCode =
@@ -113,14 +114,15 @@ export async function POST(request: Request) {
     if (!supabase) {
       logIntelligenceError(requestId, "supabase_config", {
         hasUrl: Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL),
-        hasAnonKey: Boolean(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY),
+        hasPublishableKey: Boolean(process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY),
+        hasLegacyAnonKey: Boolean(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY),
         mode: parsed.data.mode,
         inputLength
       });
       return jsonError(
         requestId,
         "SUPABASE_CONFIG_MISSING",
-        "Atriae configuration is incomplete. Please set Supabase environment variables.",
+        SUPABASE_PUBLIC_ENV_ERROR,
         503,
         false
       );

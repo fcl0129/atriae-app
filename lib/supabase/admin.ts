@@ -1,12 +1,10 @@
 import { createClient } from "@supabase/supabase-js";
 
 import type { Database } from "@/lib/digests/types";
-import { assertSupabaseServiceEnv } from "@/lib/supabase/env";
+import { getServiceRoleKey, getSupabaseUrl } from "@/lib/env";
 
 export function createSupabaseServiceClient() {
-  const { supabaseUrl, supabaseServiceRoleKey } = assertSupabaseServiceEnv();
-
-  return createClient<Database>(supabaseUrl, supabaseServiceRoleKey, {
+  return createClient<Database>(getSupabaseUrl(), getServiceRoleKey(), {
     auth: {
       autoRefreshToken: false,
       persistSession: false,

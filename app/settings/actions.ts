@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { profilePreferencesSchema } from "@/lib/atriae/types";
+import { SUPABASE_PUBLIC_ENV_ERROR } from "@/lib/env";
 import { sendEmail, verifySmtpTransport } from "@/lib/email/mailer";
 import { renderTestEmailTemplate } from "@/lib/email/templates";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
@@ -43,7 +44,7 @@ export async function savePreferencesAction(
 
   const supabase = await createServerSupabaseClient();
   if (!supabase) {
-    return { status: "error", message: "Supabase is not configured." };
+    return { status: "error", message: SUPABASE_PUBLIC_ENV_ERROR };
   }
   const {
     data: { user }

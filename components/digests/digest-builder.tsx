@@ -13,7 +13,8 @@ import { Input } from "@/components/ui/input";
 import { digestModuleRegistry, type DigestModuleKey, type ModuleConfig, type UserDigestProfile } from "@/lib/digests";
 import { userDigestProfileSchema } from "@/lib/digests/schemas";
 import { isValidEmail, isValidIanaTimeZone } from "@/lib/digests/validation";
-import { supabase } from "@/lib/supabase";
+import { SUPABASE_PUBLIC_ENV_ERROR } from "@/lib/env";
+import { createOptionalBrowserSupabaseClient } from "@/lib/supabase/browser";
 
 type BuilderStep =
   | "starting_point"
@@ -199,7 +200,7 @@ interface DigestBuilderProps {
 
 export function DigestBuilder({ mode, digestId }: DigestBuilderProps) {
   const router = useRouter();
-  const client = useMemo(() => supabase, []);
+  const client = useMemo(() => createOptionalBrowserSupabaseClient(), []);
 
   const [step, setStep] = useState<BuilderStep>("starting_point");
   const [builder, setBuilder] = useState<BuilderState>(buildDefaultState);
@@ -353,7 +354,7 @@ export function DigestBuilder({ mode, digestId }: DigestBuilderProps) {
 
   async function persist(nextState: "active" | "paused") {
     if (!client) {
-      setToast({ tone: "error", message: "Supabase is not configured." });
+      setToast({ tone: "error", message: SUPABASE_PUBLIC_ENV_ERROR });
       return;
     }
 

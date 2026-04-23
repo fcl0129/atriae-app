@@ -1,11 +1,18 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { IntelligenceInput, SubmissionPayload } from "@/components/ui/intelligence-input";
-import { LearningBlock } from "@/components/ui/learning-block";
 import { ThoughtCaptureLayer } from "@/components/ui/thought-capture-layer";
-import { StructuredOutput, exampleTransformations, transformIntentToOutput } from "@/lib/intent-transform";
+
+type GuidedMode = "clarity" | "plan" | "focus" | "decision";
+
+type GuidedResponse = {
+  sessionId: string;
+  mode: GuidedMode;
+  output: Record<string, unknown>;
+  error?: string;
+};
 
 const rotatingPrompts = [
   "What do you want to understand today?",
@@ -14,14 +21,68 @@ const rotatingPrompts = [
   "Refine something in your life"
 ];
 
-const refinementSuggestions = ["Make this lighter", "Make this more concrete"];
-
 const subtleSuggestions = ["Revisit what still feels unresolved", "Capture one thought before you switch context"];
+
+function renderStructuredOutput(response: GuidedResponse) {
+  const output = response.output as Record<string, unknown>;
+
+  if (response.mode === "clarity") {
+    return (
+      <div className="space-y-2 text-sm leading-7 text-muted-foreground">
+        <p><strong>Core problem:</strong> {String(output.core_problem ?? "")}</p>
+        <p><strong>What matters:</strong></p>
+        <ul className="list-disc pl-5">{Array.isArray(output.what_matters) ? output.what_matters.map((item) => <li key={String(item)}>{String(item)}</li>) : null}</ul>
+        <p><strong>What doesn’t matter:</strong></p>
+        <ul className="list-disc pl-5">{Array.isArray(output.what_doesnt_matter) ? output.what_doesnt_matter.map((item) => <li key={String(item)}>{String(item)}</li>) : null}</ul>
+        <p><strong>Next step:</strong> {String(output.next_step ?? "")}</p>
+      </div>
+    );
+  }
+
+  if (response.mode === "plan") {
+    return (
+      <div className="space-y-2 text-sm leading-7 text-muted-foreground">
+        <p><strong>Goal:</strong> {String(output.goal ?? "")}</p>
+        <p><strong>Steps:</strong></p>
+        <ul className="list-disc pl-5">{Array.isArray(output.steps) ? output.steps.map((item) => <li key={String(item)}>{String(item)}</li>) : null}</ul>
+        <p><strong>Timeline:</strong> {String(output.timeline ?? "")}</p>
+        <p><strong>First action:</strong> {String(output.first_action ?? "")}</p>
+      </div>
+    );
+  }
+
+  if (response.mode === "focus") {
+    return (
+      <div className="space-y-2 text-sm leading-7 text-muted-foreground">
+        <p><strong>Focus task:</strong> {String(output.focus_task ?? "")}</p>
+        <p><strong>Ignore:</strong></p>
+        <ul className="list-disc pl-5">{Array.isArray(output.ignore) ? output.ignore.map((item) => <li key={String(item)}>{String(item)}</li>) : null}</ul>
+        <p><strong>Duration:</strong> {String(output.duration ?? "")}</p>
+        <p><strong>Definition of done:</strong> {String(output.definition_of_done ?? "")}</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-2 text-sm leading-7 text-muted-foreground">
+      <p><strong>Options:</strong></p>
+      <ul className="list-disc pl-5">{Array.isArray(output.options) ? output.options.map((item) => <li key={String(item)}>{String(item)}</li>) : null}</ul>
+      <p><strong>Criteria:</strong></p>
+      <ul className="list-disc pl-5">{Array.isArray(output.criteria) ? output.criteria.map((item) => <li key={String(item)}>{String(item)}</li>) : null}</ul>
+      <p><strong>Risks:</strong></p>
+      <ul className="list-disc pl-5">{Array.isArray(output.risks) ? output.risks.map((item) => <li key={String(item)}>{String(item)}</li>) : null}</ul>
+      <p><strong>Recommendation:</strong> {String(output.recommendation ?? "")}</p>
+      <p><strong>Reasoning:</strong> {String(output.reasoning ?? "")}</p>
+    </div>
+  );
+}
 
 export function AtriaeHomeExperienceSection() {
   const [promptIndex, setPromptIndex] = useState(0);
-  const [outputs, setOutputs] = useState<StructuredOutput[]>([]);
-  const [latestIntent, setLatestIntent] = useState<SubmissionPayload | null>(null);
+  const [response, setResponse] = useState<GuidedResponse | null>(null);
+  const [sessionId, setSessionId] = useState<string | undefined>();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -31,20 +92,31 @@ export function AtriaeHomeExperienceSection() {
     return () => clearInterval(interval);
   }, []);
 
-  const exampleOutputs = useMemo(
-    () => exampleTransformations.map((payload) => transformIntentToOutput(payload)),
-    []
-  );
+  const handleSubmitIntent = async (payload: SubmissionPayload) => {
+    if (isSubmitting) return;
 
-  const handleSubmitIntent = (payload: SubmissionPayload) => {
-    setLatestIntent(payload);
-    setOutputs((current) => [transformIntentToOutput(payload), ...current]);
-  };
+    try {
+      setIsSubmitting(true);
+      setError("");
+      const res = await fetch("/api/atriae/run", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mode: payload.mode, input: payload.text, sessionId })
+      });
 
-  const handleRefinement = (adjustment: string) => {
-    if (!latestIntent) return;
+      const data = (await res.json().catch(() => null)) as GuidedResponse | null;
+      if (!res.ok || !data) {
+        setError(data?.error ?? "Atriae could not complete this run. Please retry.");
+        return;
+      }
 
-    setOutputs((current) => [transformIntentToOutput(latestIntent, adjustment), ...current]);
+      setSessionId(data.sessionId);
+      setResponse(data);
+    } catch {
+      setError("Atriae is unavailable right now. Please try again shortly.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -60,6 +132,7 @@ export function AtriaeHomeExperienceSection() {
           heading="What should we shape together right now?"
           placeholder={rotatingPrompts[promptIndex]}
           submitLabel="Begin"
+          isSubmitting={isSubmitting}
           onSubmit={handleSubmitIntent}
         />
       </section>
@@ -70,52 +143,23 @@ export function AtriaeHomeExperienceSection() {
           <h2 className="text-2xl leading-tight md:text-[2rem]">Clarity flow</h2>
         </div>
 
-        <div className="space-y-7 md:space-y-8">
-          {outputs.length > 0 ? (
-            outputs.map((output) => <LearningBlock key={output.id} output={output} />)
-          ) : (
-            <p className="max-w-3xl text-sm leading-7 text-muted-foreground md:text-base md:leading-8">
-              Submit an intent above to generate a concise breakdown, clearer structure, and next steps you can act on now.
-            </p>
-          )}
-        </div>
-      </section>
+        {isSubmitting ? <p className="max-w-3xl text-sm leading-7 text-muted-foreground md:text-base md:leading-8">Generating structured output…</p> : null}
 
-      <section className="space-y-4">
-        <div className="space-y-2">
-          <p className="text-[0.68rem] uppercase tracking-[0.24em] text-muted-foreground">Refinement</p>
-          <h2 className="text-2xl leading-tight md:text-[2rem]">Adjust the response</h2>
-        </div>
+        {error ? <p className="max-w-3xl text-sm leading-7 text-muted-foreground md:text-base md:leading-8">{error}</p> : null}
 
-        <div className="flex flex-wrap gap-2.5">
-          {refinementSuggestions.map((suggestion) => (
-            <button
-              key={suggestion}
-              type="button"
-              onClick={() => handleRefinement(suggestion)}
-              className="rounded-full bg-background/70 px-4 py-2 text-xs tracking-[0.12em] text-muted-foreground transition-colors hover:text-foreground"
-            >
-              {suggestion}
-            </button>
-          ))}
-        </div>
-
-        {!latestIntent ? <p className="text-sm text-muted-foreground">Create one output first, then refine it.</p> : null}
+        {response ? (
+          <article className="space-y-5 rounded-3xl bg-card/65 p-5 md:p-6">
+            <p className="text-[0.66rem] uppercase tracking-[0.2em] text-muted-foreground">{response.mode} mode</p>
+            {renderStructuredOutput(response)}
+          </article>
+        ) : (
+          <p className="max-w-3xl text-sm leading-7 text-muted-foreground md:text-base md:leading-8">
+            Submit an intent above to generate a concise structured output with next actions.
+          </p>
+        )}
       </section>
 
       <ThoughtCaptureLayer />
-
-      <section className="space-y-7">
-        <div className="space-y-2">
-          <p className="text-[0.68rem] uppercase tracking-[0.24em] text-muted-foreground">Examples</p>
-          <h2 className="text-2xl leading-tight md:text-[2rem]">Reference transformations</h2>
-        </div>
-        <div className="space-y-7 md:space-y-8">
-          {exampleOutputs.map((output) => (
-            <LearningBlock key={output.id} output={output} />
-          ))}
-        </div>
-      </section>
 
       <section className="space-y-3 pb-4">
         <p className="text-[0.68rem] uppercase tracking-[0.24em] text-muted-foreground">Small prompts</p>

@@ -9,18 +9,16 @@ export function WhatAtriaeIsSection() {
           <Reveal className="space-y-5 xl:col-span-5">
             <p className="text-xs uppercase tracking-[0.18em] text-[#5D735D]">What Atriae is</p>
             <h2 className="max-w-[16ch] text-[32px] leading-[1.03] tracking-[-0.01em] md:text-[40px]">
-              A calmer system for everyday life
+              A private operating space for clarity
             </h2>
           </Reveal>
 
           <Reveal className="space-y-6 xl:col-span-7" delay={90}>
             <p className="max-w-[64ch] text-[16px] leading-[1.65] text-[#425149] md:text-[18px]">
-              Atriae helps you build a more intentional relationship with your time, thoughts, rituals, and
-              attention. It works like a personal system that creates clarity instead of pressure.
+              Atriae helps you hold your thoughts, learning, and rituals in one calm environment. It is designed for clear decisions, not constant urgency.
             </p>
             <p className="max-w-[64ch] text-[16px] leading-[1.65] text-[#425149] md:text-[18px]">
-              The structure is simple: notice what matters, keep it organized, revisit it often, and make space for
-              reflection before the next decision.
+              The structure is simple: return, clarify, learn deeply, and reset your attention before moving forward.
             </p>
           </Reveal>
         </div>

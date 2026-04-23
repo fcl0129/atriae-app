@@ -9,9 +9,9 @@ export function renderWidgetBody(widgetType: string, widget: DashboardWidget, on
         <div className="space-y-2 text-sm">
           <p className="text-muted-foreground">Scope: {(settings.scope as string) ?? "today"}</p>
           <ul className="space-y-1">
-            <li>Review priorities</li>
-            <li>Confirm key meetings</li>
-            <li>Protect one uninterrupted focus block</li>
+            <li>Clarify one meaningful outcome</li>
+            <li>Confirm your key commitments</li>
+            <li>Protect one quiet focus block</li>
           </ul>
         </div>
       );
@@ -53,15 +53,15 @@ export function renderWidgetBody(widgetType: string, widget: DashboardWidget, on
         </ul>
       );
     case "insight":
-      return <p className="text-sm text-muted-foreground">Today’s concept: marginal gains compound in calm systems.</p>;
+      return <p className="text-sm text-muted-foreground">Today’s idea: clarity grows through small, steady returns.</p>;
     case "focus":
       return <p className="text-sm text-muted-foreground">Suggested block: {(settings.minutes as string) ?? "50"} minutes.</p>;
     case "habits":
-      return <p className="text-sm text-muted-foreground">3 rituals complete this week. Keep your streak alive.</p>;
+      return <p className="text-sm text-muted-foreground">A gentle rhythm is forming this week. Continue when you are ready.</p>;
     case "meal":
-      return <p className="text-sm text-muted-foreground">Nourish pick: citrus quinoa bowl, ready in 20 minutes.</p>;
+      return <p className="text-sm text-muted-foreground">Nourish prompt: choose one simple meal that supports steady energy.</p>;
     case "media":
-      return <p className="text-sm text-muted-foreground">Pick: The Daily episode + one ambient focus album.</p>;
+      return <p className="text-sm text-muted-foreground">Listening suggestion: one thoughtful episode and one soft focus playlist.</p>;
     case "inbox":
       return <p className="text-sm text-muted-foreground">18 unread, 4 high priority, 2 waiting your approval.</p>;
     case "sunday-reset":

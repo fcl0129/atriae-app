@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { CheckCircle2 } from "lucide-react";
 
 import { completeRitualAction, createRitualAction } from "@/app/rituals/actions";
+import { IntelligencePanel } from "@/components/dashboard/intelligence-panel";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -25,7 +26,9 @@ export function RitualsClient({ rituals, statuses }: Props) {
   const [isPending, startTransition] = useTransition();
 
   return (
-    <>
+    <div className="space-y-5">
+      <IntelligencePanel heading="Reset the mental noise" contextLabel="Ritual reset support" defaultMode="focus" />
+
       <div className="flex justify-end">
         <Button onClick={() => setShowCreate((v) => !v)}>{showCreate ? "Close" : "Craft ritual"}</Button>
       </div>
@@ -34,29 +37,14 @@ export function RitualsClient({ rituals, statuses }: Props) {
         <Card surface="paper" className="bg-card/70">
           <CardHeader>
             <CardTitle className="text-xl">Craft ritual</CardTitle>
-            <CardDescription>Define one repeatable practice that protects clarity.</CardDescription>
+            <CardDescription>Create a small reset you can return to gently.</CardDescription>
           </CardHeader>
           <CardContent>
-            <form
-              className="grid gap-3"
-              action={(formData) =>
-                startTransition(async () => {
-                  await createRitualAction(formData);
-                  setShowCreate(false);
-                })
-              }
-            >
+            <form className="grid gap-3" action={(formData) => startTransition(async () => { await createRitualAction(formData); setShowCreate(false); })}>
               <Input name="title" placeholder="Title" required />
               <Input name="cadence" placeholder="Cadence (e.g., Daily · 10 min)" />
-              <textarea
-                name="prompt"
-                placeholder="Prompt"
-                rows={3}
-                className="min-h-24 w-full resize-y rounded-2xl bg-background/72 px-4 py-3 text-[0.96rem] text-foreground outline-none transition focus:bg-background/90 focus:ring-2 focus:ring-ring/25"
-              />
-              <Button disabled={isPending} type="submit">
-                {isPending ? "Saving…" : "Save ritual"}
-              </Button>
+              <textarea name="prompt" placeholder="What helps you reset in this ritual?" rows={3} className="min-h-24 w-full resize-y rounded-2xl bg-background/72 px-4 py-3 text-[0.96rem] text-foreground outline-none transition focus:bg-background/90 focus:ring-2 focus:ring-ring/25" />
+              <Button disabled={isPending} type="submit">{isPending ? "Saving…" : "Save ritual"}</Button>
             </form>
           </CardContent>
         </Card>
@@ -66,7 +54,7 @@ export function RitualsClient({ rituals, statuses }: Props) {
         <Card surface="glass">
           <CardHeader>
             <CardTitle className="text-xl">No rituals yet</CardTitle>
-            <CardDescription>Start with one gentle check-in you can keep consistently.</CardDescription>
+            <CardDescription>Start with one gentle practice that helps you return to yourself.</CardDescription>
           </CardHeader>
         </Card>
       ) : (
@@ -76,29 +64,21 @@ export function RitualsClient({ rituals, statuses }: Props) {
             return (
               <Card key={ritual.id} surface="tinted">
                 <CardHeader>
-                  <p className="text-xs uppercase text-muted-foreground" style={{ letterSpacing: "var(--text-eyebrow-tracking)" }}>
-                    Ritual
-                  </p>
+                  <p className="text-xs uppercase text-muted-foreground" style={{ letterSpacing: "var(--text-eyebrow-tracking)" }}>Ritual</p>
                   <CardTitle className="pt-3 text-2xl">{ritual.title}</CardTitle>
                   <CardDescription>{ritual.cadence ?? "Cadence not set"}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="rounded-xl bg-paper/70 p-4 text-sm text-muted-foreground">{ritual.prompt || "No ritual prompt yet."}</div>
+                  <div className="rounded-xl bg-paper/70 p-4 text-sm text-muted-foreground">{ritual.prompt || "No prompt yet."}</div>
                   <p className="text-xs text-muted-foreground">
-                    {status.completedToday ? "Completed today" : "Not completed today"} · {status.total} completions
+                    {status.completedToday ? "Completed today" : "A small reset for today"} · {status.total} completions
                     {status.lastCompletedAt ? ` · Last ${new Date(status.lastCompletedAt).toLocaleDateString()}` : ""}
                   </p>
-                  <form
-                    action={(formData) =>
-                      startTransition(async () => {
-                        await completeRitualAction(formData);
-                      })
-                    }
-                  >
+                  <form action={(formData) => startTransition(async () => { await completeRitualAction(formData); })}>
                     <input type="hidden" name="ritual_id" value={ritual.id} />
                     <Button variant="quiet" className="w-full justify-start" disabled={isPending}>
                       <CheckCircle2 className="mr-2 h-4 w-4" />
-                      Begin ritual
+                      {status.completedToday ? "Return when you’re ready" : "Begin gently"}
                     </Button>
                   </form>
                 </CardContent>
@@ -107,6 +87,6 @@ export function RitualsClient({ rituals, statuses }: Props) {
           })}
         </div>
       )}
-    </>
+    </div>
   );
 }

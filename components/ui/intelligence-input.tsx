@@ -4,7 +4,7 @@ import { FormEvent, useId, useState } from "react";
 
 import { cn } from "@/lib/utils";
 
-export type AtriaeIntentMode = "clarity" | "plan" | "focus" | "decision";
+export type AtriaeIntentMode = "clarity" | "plan" | "focus" | "decision" | "learn" | "organize";
 
 type IntentModeOption = {
   value: AtriaeIntentMode;
@@ -35,6 +35,8 @@ const defaultModes: IntentModeOption[] = [
   { value: "clarity", label: "Clarity" },
   { value: "plan", label: "Plan" },
   { value: "focus", label: "Focus" },
+  { value: "learn", label: "Learn" },
+  { value: "organize", label: "Organize" },
   { value: "decision", label: "Decision" }
 ];
 

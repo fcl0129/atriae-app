@@ -8,11 +8,8 @@ import { cn } from "@/lib/utils";
 
 const marketingLinks = [
   { label: "Home", href: "/" },
-  { label: "About", href: "/about" },
-  { label: "How it works", href: "/how-it-works" },
-  { label: "Rituals", href: "/rituals" },
-  { label: "Learn", href: "/learn" },
-  { label: "Login", href: "/login" }
+  { label: "How it feels", href: "/how-it-works" },
+  { label: "About", href: "/about" }
 ] as const;
 
 export function MarketingNavbar() {
@@ -22,10 +19,7 @@ export function MarketingNavbar() {
     <section aria-label="Marketing navigation" className="mx-auto w-full max-w-6xl">
       <nav className="glass-nav rounded-[var(--radius-nav)] px-4 py-2.5 md:px-5 md:py-3">
         <div className="flex items-center justify-between gap-4">
-          <Link
-            href="/"
-            className="font-serif text-[1.38rem] leading-none tracking-tight text-foreground/90 transition-opacity duration-300 hover:opacity-75"
-          >
+          <Link href="/" className="font-serif text-[1.38rem] leading-none tracking-tight text-foreground/90 transition-opacity duration-300 hover:opacity-75">
             Atriaé
           </Link>
 
@@ -80,11 +74,7 @@ export function MarketingNavbar() {
               ))}
             </ul>
 
-            <Link
-              href="/login"
-              onClick={() => setMenuOpen(false)}
-              className="editorial-cta mt-2.5 inline-flex text-[0.66rem] uppercase tracking-[0.18em] text-foreground"
-            >
+            <Link href="/login" onClick={() => setMenuOpen(false)} className="editorial-cta mt-2.5 inline-flex text-[0.66rem] uppercase tracking-[0.18em] text-foreground">
               Enter Atriae
             </Link>
           </div>

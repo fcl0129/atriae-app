@@ -16,6 +16,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [redirectTo, setRedirectTo] = useState('/dashboard')
   const [contextMessage, setContextMessage] = useState<string | null>(null)
@@ -33,17 +34,50 @@ export default function LoginPage() {
     }
   }, [])
 
+  function requireAuthEnvironment() {
+    if (!isSupabasePublicEnvConfigured()) {
+      setError(AUTH_CONFIGURATION_ERROR)
+      setSuccess(null)
+      return false
+    }
+
+    return true
+  }
+
+  function buildEmailRedirectTo() {
+    return `${window.location.origin}${redirectTo}`
+  }
+
+  function validateCredentials(requirePassword: boolean) {
+    if (!email.trim()) {
+      setError('Please enter your email address.')
+      setSuccess(null)
+      return false
+    }
+
+    if (requirePassword && !password) {
+      setError('Please enter your password.')
+      setSuccess(null)
+      return false
+    }
+
+    return true
+  }
+
   async function handleLogin(e?: FormEvent) {
     e?.preventDefault()
 
-    if (!isSupabasePublicEnvConfigured()) {
-      setError(AUTH_CONFIGURATION_ERROR)
+    if (!requireAuthEnvironment()) {
+      return
+    }
+    if (!validateCredentials(true)) {
       return
     }
 
     try {
       setLoading(true)
       setError(null)
+      setSuccess(null)
 
       const supabase = createBrowserSupabaseClient()
       const { error } = await supabase.auth.signInWithPassword({ email, password })
@@ -59,7 +93,86 @@ export default function LoginPage() {
 
       window.location.assign(redirectTo)
     } catch {
-      setError('Something went wrong. Please try again.')
+      setError('Something went wrong while signing you in. Please try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function handleCreateAccount() {
+    if (!requireAuthEnvironment()) {
+      return
+    }
+    if (!validateCredentials(true)) {
+      return
+    }
+
+    try {
+      setLoading(true)
+      setError(null)
+      setSuccess(null)
+
+      const supabase = createBrowserSupabaseClient()
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: buildEmailRedirectTo(),
+        },
+      })
+
+      if (error) {
+        if (error.message.toLowerCase().includes('already registered')) {
+          setError('That email already has an Atriae account. Try signing in instead.')
+        } else {
+          setError(`We couldn’t create your Atriae account: ${error.message}`)
+        }
+        return
+      }
+
+      if (data.session) {
+        setSuccess('Welcome to Atriae! Your account is ready.')
+        window.location.assign(redirectTo)
+        return
+      }
+
+      setSuccess('Check your email to confirm your new Atriae account, then sign in.')
+    } catch {
+      setError('Something went wrong while creating your account. Please try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function handleMagicLink() {
+    if (!requireAuthEnvironment()) {
+      return
+    }
+    if (!validateCredentials(false)) {
+      return
+    }
+
+    try {
+      setLoading(true)
+      setError(null)
+      setSuccess(null)
+
+      const supabase = createBrowserSupabaseClient()
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          emailRedirectTo: buildEmailRedirectTo(),
+        },
+      })
+
+      if (error) {
+        setError(`We couldn’t send your Atriae magic link: ${error.message}`)
+        return
+      }
+
+      setSuccess('Magic link sent. Check your inbox to finish signing in.')
+    } catch {
+      setError('Something went wrong while sending your magic link. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -89,6 +202,7 @@ export default function LoginPage() {
         />
 
         {error && <p className="text-red-500 text-sm">{error}</p>}
+        {success && <p className="text-sm text-emerald-600">{success}</p>}
 
         <button
           type="submit"
@@ -97,6 +211,26 @@ export default function LoginPage() {
         >
           {loading ? 'Signing in…' : 'Sign in'}
         </button>
+
+        <button
+          type="button"
+          onClick={handleCreateAccount}
+          disabled={loading}
+          className="w-full rounded-full border border-foreground px-4 py-3"
+        >
+          {loading ? 'Please wait…' : 'Create account'}
+        </button>
+
+        <button
+          type="button"
+          onClick={handleMagicLink}
+          disabled={loading}
+          className="w-full rounded-full px-4 py-3 text-sm text-muted-foreground"
+        >
+          {loading ? 'Please wait…' : 'Send magic link instead'}
+        </button>
+
+        <p className="text-sm text-muted-foreground">New here? Create your Atriae account.</p>
       </form>
     </div>
   )

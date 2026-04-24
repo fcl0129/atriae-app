@@ -18,7 +18,10 @@ export default async function LearnPage() {
     redirect("/login");
   }
 
-  const { data: topics } = await supabase.from("learning_topics").select("*").eq("user_id", user.id).order("created_at", { ascending: false });
+  const [{ data: topics }, { data: briefs }] = await Promise.all([
+    supabase.from("learning_topics").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
+    supabase.from("learning_briefs").select("*").eq("user_id", user.id).order("created_at", { ascending: false })
+  ]);
 
   return (
     <PageContainer>
@@ -27,7 +30,7 @@ export default async function LearnPage() {
         title="A learning studio for depth"
         description="Collect ideas worth studying, then turn them into understanding you can actually use."
       />
-      <LearnClient topics={topics ?? []} />
+      <LearnClient topics={topics ?? []} briefs={briefs ?? []} />
     </PageContainer>
   );
 }

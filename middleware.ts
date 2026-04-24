@@ -58,7 +58,7 @@ export async function middleware(request: NextRequest) {
     } = await supabase.auth.getUser();
 
     if (!user && isProtected) {
-      return NextResponse.redirect(buildLoginUrl(request));
+      return NextResponse.redirect(buildLoginUrl(request, "auth"));
     }
 
     if (user && pathname === "/login") {

@@ -1,15 +1,15 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
-import { BookOpenText, Headphones, Search, Sparkles } from "lucide-react";
+import { BookOpenText, Headphones, Search, Sparkles, Trash2 } from "lucide-react";
 
-import { createLearningTopicAction, updateLearningTopicAction } from "@/app/learn/actions";
+import { createLearningTopicAction, deleteLearningTopicAction, saveLearningBriefAction, updateLearningTopicAction } from "@/app/learn/actions";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import type { LearningTopic } from "@/lib/atriae/types";
+import type { LearningBrief, LearningTopic } from "@/lib/atriae/types";
 
-type Props = { topics: LearningTopic[] };
+type Props = { topics: LearningTopic[]; briefs: LearningBrief[] };
 type AtriaeMode = "learn" | "plan" | "focus" | "organize";
 
 type IntelligenceResponse = {
@@ -17,6 +17,7 @@ type IntelligenceResponse = {
   summary: string;
   sections: { heading: string; content: string }[];
   next_steps: string[];
+  mode: AtriaeMode;
 };
 
 type AudioLessonResponse = {
@@ -37,7 +38,7 @@ const aiActions: { label: string; prompt: string; mode: AtriaeMode }[] = [
   { label: "Turn into 5-minute lesson", prompt: "Turn this into a concise 5-minute lesson.", mode: "learn" }
 ];
 
-export function LearnClient({ topics }: Props) {
+export function LearnClient({ topics, briefs }: Props) {
   const [query, setQuery] = useState("");
   const [showCreate, setShowCreate] = useState(false);
   const [activeTopicId, setActiveTopicId] = useState<string | null>(null);
@@ -46,12 +47,24 @@ export function LearnClient({ topics }: Props) {
   const [aiError, setAiError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [isLoadingAI, setIsLoadingAI] = useState(false);
+  const [topicError, setTopicError] = useState<string | null>(null);
+  const [topicSuccess, setTopicSuccess] = useState<string | null>(null);
+  const [saveState, setSaveState] = useState<{ topicId: string; message: string; isError?: boolean } | null>(null);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return topics;
     return topics.filter((topic) => [topic.name, topic.pace ?? ""].join(" ").toLowerCase().includes(q));
   }, [query, topics]);
+
+  const briefsByTopic = useMemo(() => {
+    const map = new Map<string, LearningBrief[]>();
+    for (const brief of briefs) {
+      if (!map.has(brief.topic_id)) map.set(brief.topic_id, []);
+      map.get(brief.topic_id)?.push(brief);
+    }
+    return map;
+  }, [briefs]);
 
   async function runTopicAction(topic: LearningTopic, action: (typeof aiActions)[number]) {
     setActiveTopicId(topic.id);
@@ -72,7 +85,7 @@ export function LearnClient({ topics }: Props) {
       }
       setAiResult(data as IntelligenceResponse);
     } catch {
-      setAiError("Atriae could not reach intelligence services. Please try again.");
+      setAiError("Atriae could not reach intelligence services. Please sign in again and retry.");
     } finally {
       setIsLoadingAI(false);
     }
@@ -102,6 +115,33 @@ export function LearnClient({ topics }: Props) {
     }
   }
 
+  function onCreateTopic(formData: FormData) {
+    setTopicError(null);
+    setTopicSuccess(null);
+    startTransition(async () => {
+      const result = await createLearningTopicAction(formData);
+      if (!result.ok) {
+        setTopicError(result.error);
+        return;
+      }
+      setTopicSuccess(result.message ?? "Topic saved.");
+      setShowCreate(false);
+    });
+  }
+
+  function onUpdateTopic(formData: FormData) {
+    setTopicError(null);
+    setTopicSuccess(null);
+    startTransition(async () => {
+      const result = await updateLearningTopicAction(formData);
+      if (!result.ok) {
+        setTopicError(result.error);
+        return;
+      }
+      setTopicSuccess(result.message ?? "Topic updated.");
+    });
+  }
+
   return (
     <div className="space-y-5">
       <Card surface="glass">
@@ -123,7 +163,7 @@ export function LearnClient({ topics }: Props) {
             <CardDescription>Capture one subject you want to understand with depth.</CardDescription>
           </CardHeader>
           <CardContent>
-            <form className="grid gap-3 md:grid-cols-2" action={(formData) => startTransition(async () => { await createLearningTopicAction(formData); setShowCreate(false); })}>
+            <form className="grid gap-3 md:grid-cols-2" action={onCreateTopic}>
               <Input name="name" placeholder="Topic name" required />
               <Input name="pace" placeholder="Pace (optional)" />
               <Input name="resources_count" type="number" min={0} placeholder="Resources count" />
@@ -160,6 +200,32 @@ export function LearnClient({ topics }: Props) {
                     <li key={step} className="rounded-xl bg-background/55 px-3 py-2">{step}</li>
                   ))}
                 </ul>
+                <Button
+                  type="button"
+                  onClick={() =>
+                    startTransition(async () => {
+                      const result = await saveLearningBriefAction({
+                        topicId: activeTopicId,
+                        mode: aiResult.mode,
+                        title: aiResult.title,
+                        summary: aiResult.summary,
+                        sections: aiResult.sections,
+                        nextSteps: aiResult.next_steps
+                      });
+                      setSaveState({
+                        topicId: activeTopicId,
+                        message: result.ok ? result.message ?? "Brief saved." : result.error,
+                        isError: !result.ok
+                      });
+                    })
+                  }
+                  disabled={isPending}
+                >
+                  {isPending ? "Saving brief…" : "Save this brief"}
+                </Button>
+                {saveState && saveState.topicId === activeTopicId ? (
+                  <p className={`text-sm ${saveState.isError ? "text-foreground" : "text-muted-foreground"}`}>{saveState.message}</p>
+                ) : null}
               </div>
             ) : null}
 
@@ -201,7 +267,7 @@ export function LearnClient({ topics }: Props) {
                 <CardDescription>{topic.resources_count} references · {topic.progress}% integrated.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
-                <form className="space-y-3" action={(formData) => startTransition(async () => { await updateLearningTopicAction(formData); })}>
+                <form className="space-y-3" action={onUpdateTopic}>
                   <input type="hidden" name="id" value={topic.id} />
                   <label className="flex items-center justify-between text-sm gap-2"><span className="text-muted-foreground">Pace</span><Input name="pace" defaultValue={topic.pace ?? ""} className="h-8 w-36" /></label>
                   <label className="flex items-center justify-between text-sm gap-2"><span className="text-muted-foreground">Resources</span><Input name="resources_count" type="number" min={0} defaultValue={topic.resources_count} className="h-8 w-20" /></label>
@@ -209,6 +275,20 @@ export function LearnClient({ topics }: Props) {
                   <div className="h-1.5 rounded-full bg-muted/85"><div className="h-full rounded-full bg-matcha-500" style={{ width: `${topic.progress}%` }} /></div>
                   <Button type="submit" variant="ghost" className="w-full justify-between rounded-xl bg-paper/70" disabled={isPending}>Update topic <BookOpenText className="h-4 w-4" /></Button>
                 </form>
+                <Button
+                  type="button"
+                  variant="quiet"
+                  className="w-full justify-between"
+                  onClick={() =>
+                    startTransition(async () => {
+                      const result = await deleteLearningTopicAction(topic.id);
+                      setTopicError(result.ok ? null : result.error);
+                      setTopicSuccess(result.ok ? result.message ?? "Topic deleted." : null);
+                    })
+                  }
+                >
+                  Delete topic <Trash2 className="h-4 w-4" />
+                </Button>
 
                 <div className="space-y-2 border-t border-border/40 pt-3">
                   <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">AI support</p>
@@ -223,11 +303,27 @@ export function LearnClient({ topics }: Props) {
                     </button>
                   </div>
                 </div>
+
+                {(briefsByTopic.get(topic.id) ?? []).length > 0 ? (
+                  <div className="space-y-2 border-t border-border/40 pt-3">
+                    <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Saved briefs</p>
+                    {(briefsByTopic.get(topic.id) ?? []).slice(0, 3).map((brief) => (
+                      <article key={brief.id} className="rounded-xl bg-background/55 p-3">
+                        <p className="text-sm font-medium">{brief.title}</p>
+                        <p className="mt-1 text-xs text-muted-foreground">{brief.summary}</p>
+                      </article>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-xs text-muted-foreground">No saved briefs yet. Generate support and save one when ready.</p>
+                )}
               </CardContent>
             </Card>
           ))}
         </div>
       )}
+      {topicError ? <p className="text-sm text-foreground">{topicError}</p> : null}
+      {topicSuccess ? <p className="text-sm text-muted-foreground">{topicSuccess}</p> : null}
     </div>
   );
 }

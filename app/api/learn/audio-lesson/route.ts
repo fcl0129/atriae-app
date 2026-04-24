@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { assertOpenAIKey } from "@/lib/env/openai";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 const requestSchema = z.object({
   topic: z.string().trim().min(2).max(180),
@@ -20,6 +21,16 @@ export async function POST(request: Request) {
   const parsed = requestSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
     return NextResponse.json({ error: { message: "Please provide a valid topic." } }, { status: 400 });
+  }
+  const supabase = await createServerSupabaseClient();
+  if (!supabase) {
+    return NextResponse.json({ error: { message: "Atriae auth is not configured yet. Please complete Supabase setup and retry." } }, { status: 503 });
+  }
+  const {
+    data: { user }
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return NextResponse.json({ error: { message: "Your session has ended. Please sign in again." } }, { status: 401 });
   }
 
   try {
@@ -78,7 +89,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         error: {
-          message: "Audio lesson generation is not available right now. You can still use topic actions above."
+          message: "Atriae couldn't generate the audio lesson right now. Please try again in a moment, or use the text brief actions above."
         }
       },
       { status: 503 }

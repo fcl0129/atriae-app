@@ -19,6 +19,18 @@ export type LearningTopic = {
   created_at: string;
 };
 
+export type LearningBrief = {
+  id: string;
+  user_id: string;
+  topic_id: string;
+  mode: string;
+  title: string;
+  summary: string;
+  sections: { heading: string; content: string }[];
+  next_steps: string[];
+  created_at: string;
+};
+
 export type Ritual = {
   id: string;
   user_id: string;

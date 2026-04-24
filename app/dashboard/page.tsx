@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 
 import { DashboardClient } from "@/components/dashboard/dashboard-client";
-import { DashboardOnboarding } from "@/components/dashboard/dashboard-onboarding";
 import { buildSuggestions } from "@/lib/dashboard/suggestions";
 import { ensureDashboardForUser, fetchDashboardViews } from "@/lib/dashboard/service";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
@@ -20,17 +19,16 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
-  const { data: existingViews } = await supabase.from("dashboard_views").select("id").eq("user_id", user.id).limit(1);
-
-  if ((existingViews ?? []).length === 0) {
-    return <DashboardOnboarding />;
-  }
-
   await ensureDashboardForUser(supabase, user.id);
   const views = await fetchDashboardViews(supabase, user.id);
 
   if (views.length === 0) {
-    return <DashboardOnboarding />;
+    return (
+      <section className="mx-auto max-w-2xl py-12 text-center">
+        <h1 className="text-3xl">Your dashboard is warming up</h1>
+        <p className="mt-3 text-sm text-muted-foreground">Atriae is preparing your first view. Please refresh in a moment.</p>
+      </section>
+    );
   }
 
   const defaultView = views.find((view) => view.isDefault) ?? views[0];

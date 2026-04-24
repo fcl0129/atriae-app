@@ -18,10 +18,19 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [redirectTo, setRedirectTo] = useState('/dashboard')
+  const [contextMessage, setContextMessage] = useState<string | null>(null)
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     setRedirectTo(sanitizeRedirectTarget(params.get('redirectTo')))
+    const errorCode = params.get('error')
+    if (errorCode === 'config') {
+      setContextMessage('Atriae auth is not configured yet. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY, then refresh.')
+    } else if (errorCode === 'auth') {
+      setContextMessage('Your session could not be refreshed. Please sign in again.')
+    } else {
+      setContextMessage(null)
+    }
   }, [])
 
   async function handleLogin(e?: FormEvent) {
@@ -40,7 +49,11 @@ export default function LoginPage() {
       const { error } = await supabase.auth.signInWithPassword({ email, password })
 
       if (error) {
-        setError(error.message)
+        if (error.message.toLowerCase().includes('invalid login credentials')) {
+          setError('Email or password looks incorrect. Please try again.')
+        } else {
+          setError(error.message)
+        }
         return
       }
 
@@ -57,6 +70,7 @@ export default function LoginPage() {
       <h1 className="text-3xl">Sign in</h1>
 
       <form onSubmit={handleLogin} className="space-y-3">
+        {contextMessage && <p className="rounded-xl bg-paper/70 px-3 py-2 text-sm text-muted-foreground">{contextMessage}</p>}
         <input
           value={email}
           onChange={(e) => setEmail(e.target.value)}

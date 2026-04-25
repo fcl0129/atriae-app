@@ -21,14 +21,14 @@ export function getOptionalLegacyAnonKey(): string | undefined {
 }
 
 export function getSupabasePublishableKey(): string {
+  const anonKey = getOptionalLegacyAnonKey();
+  if (anonKey) {
+    return anonKey;
+  }
+
   const publishableKey = readEnv("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY");
   if (publishableKey) {
     return publishableKey;
-  }
-
-  const legacyAnonKey = getOptionalLegacyAnonKey();
-  if (legacyAnonKey) {
-    return legacyAnonKey;
   }
 
   throw new Error(SUPABASE_PUBLIC_ENV_ERROR);

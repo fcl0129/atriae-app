@@ -4,7 +4,7 @@ import type { NextRequest } from "next/server";
 import { isSupabasePublicEnvConfigured } from "@/lib/env";
 import { createMiddlewareSupabaseClient } from "@/lib/supabase/middleware";
 
-const protectedRoutes = ["/dashboard", "/learn", "/rituals", "/settings"];
+const protectedRoutes = ["/dashboard", "/learn", "/rituals", "/settings", "/digests"];
 
 function getSafeRedirectTarget(value: string | null) {
   if (!value || !value.startsWith("/") || value.startsWith("//")) {
@@ -71,7 +71,12 @@ export async function middleware(request: NextRequest) {
     }
 
     return middlewareClient.response;
-  } catch {
+  } catch (error) {
+    console.error("[middleware] Supabase session refresh failed", {
+      pathname,
+      error: error instanceof Error ? error.message : "unknown",
+    });
+
     if (isProtected) {
       return NextResponse.redirect(buildLoginUrl(request, "auth"));
     }
@@ -81,5 +86,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/learn/:path*", "/rituals/:path*", "/settings/:path*", "/login"]
+  matcher: ["/dashboard/:path*", "/learn/:path*", "/rituals/:path*", "/settings/:path*", "/digests/:path*", "/login"]
 };

@@ -26,7 +26,7 @@ export default function LoginPage() {
     setRedirectTo(sanitizeRedirectTarget(params.get('redirectTo')))
     const errorCode = params.get('error')
     if (errorCode === 'config') {
-      setContextMessage('Atriae auth is not configured yet. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY, then refresh.')
+      setContextMessage('Atriae auth is not configured yet. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY, then refresh.')
     } else if (errorCode === 'auth') {
       setContextMessage('Your session could not be refreshed. Please sign in again.')
     } else {
@@ -45,7 +45,9 @@ export default function LoginPage() {
   }
 
   function buildEmailRedirectTo() {
-    return `${window.location.origin}${redirectTo}`
+    const callbackUrl = new URL('/auth/confirm', window.location.origin)
+    callbackUrl.searchParams.set('next', redirectTo)
+    return callbackUrl.toString()
   }
 
   function validateCredentials(requirePassword: boolean) {

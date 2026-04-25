@@ -57,6 +57,10 @@ supabase migration repair --status reverted <VERSION> --linked
 supabase db push --linked
 ```
 
+After migration history is repaired, make sure this reconciliation migration is also applied:
+
+- `supabase/migrations/20260425130000_auth_schema_rls_repair.sql`
+
 ### How to choose `<VERSION>` safely
 
 Only repair versions that are:

@@ -3,8 +3,8 @@
 Add these environment variables in Vercel:
 
 - `NEXT_PUBLIC_SUPABASE_URL` (required)
-- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (required, preferred)
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY` (optional legacy fallback only)
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY` (required)
+- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (optional compatibility fallback only)
 - `SUPABASE_SERVICE_ROLE_KEY` (only required if you run server/admin code paths that need elevated Supabase access)
 
 Where to find values in Supabase:

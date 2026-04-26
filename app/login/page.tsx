@@ -17,7 +17,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
+  const [action, setAction] = useState<'signin' | 'signup' | null>(null)
   const [redirectTo, setRedirectTo] = useState('/dashboard')
   const [contextMessage, setContextMessage] = useState<string | null>(null)
 
@@ -44,21 +44,21 @@ export default function LoginPage() {
     return true
   }
 
-  function buildEmailRedirectTo() {
-    const callbackUrl = new URL('/auth/confirm', window.location.origin)
-    callbackUrl.searchParams.set('next', redirectTo)
-    return callbackUrl.toString()
-  }
-
-  function validateCredentials(requirePassword: boolean) {
+  function validateCredentials() {
     if (!email.trim()) {
       setError('Please enter your email address.')
       setSuccess(null)
       return false
     }
 
-    if (requirePassword && !password) {
+    if (!password) {
       setError('Please enter your password.')
+      setSuccess(null)
+      return false
+    }
+
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters.')
       setSuccess(null)
       return false
     }
@@ -66,18 +66,28 @@ export default function LoginPage() {
     return true
   }
 
-  async function handleLogin(e?: FormEvent) {
-    e?.preventDefault()
+  function logDevelopmentAuthError(prefix: string, error: { code?: string; status?: number; message: string }) {
+    if (process.env.NODE_ENV !== 'development') {
+      return
+    }
 
+    console.error(prefix, {
+      code: error.code ?? null,
+      status: error.status ?? null,
+      message: error.message,
+    })
+  }
+
+  async function handleSignIn() {
     if (!requireAuthEnvironment()) {
       return
     }
-    if (!validateCredentials(true)) {
+    if (!validateCredentials()) {
       return
     }
 
     try {
-      setLoading(true)
+      setAction('signin')
       setError(null)
       setSuccess(null)
 
@@ -85,6 +95,7 @@ export default function LoginPage() {
       const { error } = await supabase.auth.signInWithPassword({ email, password })
 
       if (error) {
+        logDevelopmentAuthError('Sign-in failed', error)
         if (error.message.toLowerCase().includes('invalid login credentials')) {
           setError('Email or password looks incorrect. Please try again.')
         } else {
@@ -97,53 +108,83 @@ export default function LoginPage() {
     } catch {
       setError('Something went wrong while signing you in. Please try again.')
     } finally {
-      setLoading(false)
+      setAction(null)
     }
   }
 
-  async function handleCreateAccount() {
+  function mapSignUpError(message: string) {
+    const normalized = message.toLowerCase()
+
+    if (normalized.includes('signups not allowed') || normalized.includes('signup is disabled')) {
+      return 'Signups are currently disabled in Supabase. Turn on "Allow new users to sign up".'
+    }
+
+    if (normalized.includes('already registered') || normalized.includes('already been registered')) {
+      return 'That email is already registered. Try signing in instead.'
+    }
+
+    if (normalized.includes('password should be at least') || normalized.includes('password is too short')) {
+      return 'Password must be at least 6 characters.'
+    }
+
+    if (normalized.includes('invalid email')) {
+      return 'Please enter a valid email address.'
+    }
+
+    return message
+  }
+
+  async function handleSignUp() {
     if (!requireAuthEnvironment()) {
       return
     }
-    if (!validateCredentials(true)) {
+    if (!validateCredentials()) {
       return
     }
 
     try {
-      setLoading(true)
+      setAction('signup')
       setError(null)
       setSuccess(null)
 
       const supabase = createBrowserSupabaseClient()
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: buildEmailRedirectTo(),
-        },
-      })
+      const { data, error } = await supabase.auth.signUp({ email, password })
 
       if (error) {
-        if (error.message.toLowerCase().includes('already registered')) {
-          setError('That email already has an Atriae account. Try signing in instead.')
-        } else {
-          setError(`We couldn’t create your Atriae account: ${error.message}`)
-        }
+        logDevelopmentAuthError('Sign-up failed', error)
+        setError(mapSignUpError(error.message))
         return
       }
 
       if (data.session) {
-        setSuccess('Welcome to Atriae! Your account is ready.')
         window.location.assign(redirectTo)
         return
       }
 
-      setSuccess('Your account was created. If email confirmation is enabled in Supabase, confirm your email before signing in.')
+      if (data.user && !data.session) {
+        setSuccess('Your account was created, but Supabase requires email confirmation. Turn off Confirm email in Supabase for immediate login.')
+        return
+      }
+
+      setSuccess('Your account was created. Please sign in.')
     } catch {
       setError('Something went wrong while creating your account. Please try again.')
     } finally {
-      setLoading(false)
+      setAction(null)
     }
+  }
+
+  async function handleAuthSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    const submitter = (e.nativeEvent as SubmitEvent).submitter as HTMLButtonElement | null
+    const intent = submitter?.value
+
+    if (intent === 'signup') {
+      await handleSignUp()
+      return
+    }
+
+    await handleSignIn()
   }
 
 
@@ -151,7 +192,7 @@ export default function LoginPage() {
     <div className="mx-auto flex min-h-[70vh] max-w-md flex-col justify-center space-y-6">
       <h1 className="text-3xl">Sign in</h1>
 
-      <form onSubmit={handleLogin} className="space-y-3">
+      <form onSubmit={handleAuthSubmit} className="space-y-3">
         {contextMessage && <p className="rounded-xl bg-paper/70 px-3 py-2 text-sm text-muted-foreground">{contextMessage}</p>}
         <input
           value={email}
@@ -175,19 +216,22 @@ export default function LoginPage() {
 
         <button
           type="submit"
-          disabled={loading}
+          name="intent"
+          value="signin"
+          disabled={action !== null}
           className="w-full rounded-full bg-foreground text-background px-4 py-3"
         >
-          {loading ? 'Signing in…' : 'Sign in'}
+          {action === 'signin' ? 'Signing in…' : 'Sign in'}
         </button>
 
         <button
-          type="button"
-          onClick={handleCreateAccount}
-          disabled={loading}
+          type="submit"
+          name="intent"
+          value="signup"
+          disabled={action !== null}
           className="w-full rounded-full border border-foreground px-4 py-3"
         >
-          {loading ? 'Please wait…' : 'Create account'}
+          {action === 'signup' ? 'Creating account…' : 'Create account'}
         </button>
 
         <p className="text-sm text-muted-foreground">Use your email and password to sign in or create a new Atriae account.</p>

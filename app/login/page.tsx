@@ -138,7 +138,7 @@ export default function LoginPage() {
         return
       }
 
-      setSuccess('Check your email to confirm your new Atriae account, then sign in.')
+      setSuccess('Your account was created. If email confirmation is enabled in Supabase, confirm your email before signing in.')
     } catch {
       setError('Something went wrong while creating your account. Please try again.')
     } finally {
@@ -146,39 +146,6 @@ export default function LoginPage() {
     }
   }
 
-  async function handleMagicLink() {
-    if (!requireAuthEnvironment()) {
-      return
-    }
-    if (!validateCredentials(false)) {
-      return
-    }
-
-    try {
-      setLoading(true)
-      setError(null)
-      setSuccess(null)
-
-      const supabase = createBrowserSupabaseClient()
-      const { error } = await supabase.auth.signInWithOtp({
-        email,
-        options: {
-          emailRedirectTo: buildEmailRedirectTo(),
-        },
-      })
-
-      if (error) {
-        setError(`We couldn’t send your Atriae magic link: ${error.message}`)
-        return
-      }
-
-      setSuccess('Magic link sent. Check your inbox to finish signing in.')
-    } catch {
-      setError('Something went wrong while sending your magic link. Please try again.')
-    } finally {
-      setLoading(false)
-    }
-  }
 
   return (
     <div className="mx-auto flex min-h-[70vh] max-w-md flex-col justify-center space-y-6">
@@ -223,16 +190,7 @@ export default function LoginPage() {
           {loading ? 'Please wait…' : 'Create account'}
         </button>
 
-        <button
-          type="button"
-          onClick={handleMagicLink}
-          disabled={loading}
-          className="w-full rounded-full px-4 py-3 text-sm text-muted-foreground"
-        >
-          {loading ? 'Please wait…' : 'Send magic link instead'}
-        </button>
-
-        <p className="text-sm text-muted-foreground">New here? Create your Atriae account.</p>
+        <p className="text-sm text-muted-foreground">Use your email and password to sign in or create a new Atriae account.</p>
       </form>
     </div>
   )

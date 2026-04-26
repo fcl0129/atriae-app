@@ -34,7 +34,7 @@ supabase db push --linked
 ## Manual smoke tests
 
 1. Create account from `/login`, confirm email, and land in app.
-2. Magic link login from `/login`, confirm email, and land in app.
+2. Sign in from `/login` with email + password and land in app.
 3. Dashboard bootstrap creates starter dashboard for a new account.
 4. Create a learning topic on `/learn`.
 5. Save an AI brief from the learning workflow.
@@ -43,7 +43,10 @@ supabase db push --linked
 
 ## Expected auth behavior
 
-- Password sign-in works directly from `/login`.
-- Create-account and magic-link email flows redirect to `/auth/confirm`.
-- `/auth/confirm` exchanges `code` for a server-side session and redirects to the requested in-app path.
+- Atriae uses email + password authentication only in the `/login` UI.
+- Magic links are intentionally disabled in the UI.
+- Create-account uses email + password from `/login`.
+- If Supabase Email provider "Confirm email" is OFF, new accounts can sign in immediately.
+- If Supabase Email provider "Confirm email" is ON, new users must confirm their email before signing in.
+- `/auth/confirm` remains available for email confirmation and password reset flows, not normal sign-in.
 - `/api/debug/env` is temporary and should stay disabled in production unless explicitly enabled.

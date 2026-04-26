@@ -45,6 +45,9 @@ supabase db push --linked
 
 - Atriae uses email + password authentication only in the `/login` UI.
 - Magic links are intentionally disabled in the UI.
+- Supabase Email provider must be enabled.
+- Supabase "Allow new users to sign up" must be ON.
+- For immediate personal use, set Supabase Email provider "Confirm email" to OFF.
 - Create-account uses email + password from `/login`.
 - If Supabase Email provider "Confirm email" is OFF, new accounts can sign in immediately.
 - If Supabase Email provider "Confirm email" is ON, new users must confirm their email before signing in.

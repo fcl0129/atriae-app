@@ -26,7 +26,7 @@ export default function LoginPage() {
     setRedirectTo(sanitizeRedirectTarget(params.get('redirectTo')))
     const errorCode = params.get('error')
     if (errorCode === 'config') {
-      setContextMessage('Atriae auth is not configured yet. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY, then refresh.')
+      setContextMessage('Atriae auth is not configured yet. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY (or NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY as fallback), then refresh.')
     } else if (errorCode === 'auth') {
       setContextMessage('Your session could not be refreshed. Please sign in again.')
     } else {

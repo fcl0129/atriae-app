@@ -7,7 +7,7 @@ import { MarketingNavbar } from "@/components/layout/marketing-navbar";
 import { LandingNavSection } from "@/components/sections/landing-nav-section";
 import { cn } from "@/lib/utils";
 
-const APP_ROUTE_PREFIXES = ["/dashboard", "/learn", "/rituals", "/settings"];
+const APP_ROUTE_PREFIXES = ["/dashboard", "/learn", "/memory", "/rituals", "/settings", "/digests"];
 
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();

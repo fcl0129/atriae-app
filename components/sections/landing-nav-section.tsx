@@ -7,6 +7,7 @@ import { PremiumNavbar, type PremiumNavbarItem } from "@/components/ui/premium-n
 const appNavigation: PremiumNavbarItem[] = [
   { label: "Today", href: "/dashboard", kind: "route" },
   { label: "Learn", href: "/learn", kind: "route" },
+  { label: "Memory", href: "/memory", kind: "route" },
   { label: "Rituals", href: "/rituals", kind: "route" },
   { label: "Settings", href: "/settings", kind: "route" }
 ];

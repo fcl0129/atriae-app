@@ -4,7 +4,7 @@ import type { NextRequest } from "next/server";
 import { isSupabasePublicEnvConfigured } from "@/lib/env";
 import { createMiddlewareSupabaseClient } from "@/lib/supabase/middleware";
 
-const protectedRoutes = ["/dashboard", "/learn", "/rituals", "/settings", "/digests"];
+const protectedRoutes = ["/dashboard", "/learn", "/memory", "/rituals", "/settings", "/digests"];
 
 function getSafeRedirectTarget(value: string | null) {
   if (!value || !value.startsWith("/") || value.startsWith("//")) {
@@ -86,5 +86,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/learn/:path*", "/rituals/:path*", "/settings/:path*", "/digests/:path*", "/login"]
+  matcher: ["/dashboard/:path*", "/learn/:path*", "/memory/:path*", "/rituals/:path*", "/settings/:path*", "/digests/:path*", "/login"]
 };
